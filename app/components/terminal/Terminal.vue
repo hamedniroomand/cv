@@ -177,7 +177,9 @@ onBeforeUnmount(() => {
     :style="{ height: terminalHeight }"
     @click="onRootClick"
   >
-    <BootSequence v-if="!booted" :skip="reduced" @done="onBoot" />
+    <div v-if="!booted" class="terminal__body">
+      <BootSequence :skip="reduced" @done="onBoot" />
+    </div>
     <template v-else>
       <TuiApp
         v-if="appOpen"
@@ -185,7 +187,9 @@ onBeforeUnmount(() => {
         @exit="closeApp"
       />
       <template v-else>
-        <TerminalOutput :lines="shell.lines.value" />
+        <div class="terminal__body">
+          <TerminalOutput :lines="shell.lines.value" />
+        </div>
         <div class="terminal__footer">
           <TerminalInput
             ref="inputRef"
@@ -207,9 +211,13 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
+/*
+ * The scroller carries no padding of its own: Safari anchors a sticky element to the
+ * scroller's content box, so padding here would leave a gap under the stuck footer where
+ * scrolled output shows through. The body and footer pad themselves instead.
+ */
 .terminal {
   height: 100%;
-  padding: var(--space-4);
   overflow-y: auto;
   overscroll-behavior: contain;
   font-family: var(--font-mono);
@@ -219,13 +227,17 @@ onBeforeUnmount(() => {
 }
 
 .terminal--app {
-  padding: 0;
   overflow: hidden;
+}
+
+.terminal__body {
+  padding: var(--space-4) var(--space-4) 0;
 }
 
 .terminal__footer {
   position: sticky;
   bottom: 0;
+  padding: 0 var(--space-4) var(--space-4);
   background: var(--bg);
 }
 </style>
