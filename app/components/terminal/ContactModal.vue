@@ -1,10 +1,15 @@
 <script setup lang="ts">
+import type { ContactFieldErrors } from '#shared/schemas/contact'
+import { contactFieldErrors, issuesToFieldErrors } from '#shared/schemas/contact'
+
 const emit = defineEmits<{ close: [] }>()
 
 const dialog = ref<HTMLDialogElement | null>(null)
 const form = reactive({ name: '', email: '', message: '', website: '' })
 const state = ref<'idle' | 'sending' | 'sent' | 'error'>('idle')
+/** Form-level message (delivery failure, honeypot). Field messages live in `errors`. */
 const error = ref('')
+const errors = ref<ContactFieldErrors>({})
 
 onMounted(() => {
   dialog.value?.showModal()
@@ -16,42 +21,53 @@ function close(): void {
 }
 
 async function submit(): Promise<void> {
-  state.value = 'sending'
   error.value = ''
+  errors.value = contactFieldErrors(form)
+  if (Object.keys(errors.value).length > 0) {
+    state.value = 'error'
+    return
+  }
+  state.value = 'sending'
   try {
     await $fetch('/api/contact', { method: 'POST', body: form })
     state.value = 'sent'
   }
   catch (err) {
     state.value = 'error'
-    const data = (err as { data?: { message?: string, issues?: { message: string }[] } }).data
-    error.value = data?.issues?.map(i => i.message).join('; ') ?? data?.message ?? 'Could not send. Try email instead.'
+    const data = (err as { data?: { message?: string, issues?: unknown } }).data
+    errors.value = issuesToFieldErrors(data?.issues)
+    const { website, ...fieldErrors } = errors.value
+    const fieldLevel = Object.keys(fieldErrors).length > 0
+    error.value = fieldLevel ? '' : website ?? data?.message ?? 'Could not send. Try email instead.'
   }
 }
 </script>
 
 <template>
   <dialog ref="dialog" class="modal" aria-labelledby="contact-title" @cancel.prevent="close" @click.self="close">
-    <form class="modal__form" @submit.prevent="submit">
+    <form class="modal__form" novalidate @submit.prevent="submit">
       <h2 id="contact-title" class="modal__title">
         $ contact --send
       </h2>
       <template v-if="state !== 'sent'">
         <label class="field">
           <span>name:</span>
-          <input v-model="form.name" type="text" name="name" required maxlength="100" autocomplete="name">
+          <input v-model="form.name" type="text" name="name" required maxlength="100" autocomplete="name" :aria-invalid="Boolean(errors.name)" :aria-describedby="errors.name ? 'contact-error-name' : undefined">
+          <small v-if="errors.name" id="contact-error-name" class="field__error">{{ errors.name }}</small>
         </label>
         <label class="field">
           <span>email:</span>
-          <input v-model="form.email" type="email" name="email" required maxlength="200" autocomplete="email">
+          <input v-model="form.email" type="email" name="email" required maxlength="200" autocomplete="email" :aria-invalid="Boolean(errors.email)" :aria-describedby="errors.email ? 'contact-error-email' : undefined">
+          <small v-if="errors.email" id="contact-error-email" class="field__error">{{ errors.email }}</small>
         </label>
         <label class="field field--area">
           <span>message:</span>
-          <textarea v-model="form.message" name="message" required minlength="10" maxlength="5000" rows="5" />
+          <textarea v-model="form.message" name="message" required minlength="10" maxlength="5000" rows="5" :aria-invalid="Boolean(errors.message)" :aria-describedby="errors.message ? 'contact-error-message' : undefined" />
+          <small v-if="errors.message" id="contact-error-message" class="field__error">{{ errors.message }}</small>
         </label>
         <!-- Honeypot: bots fill it, people never see it. -->
         <input v-model="form.website" class="visually-hidden" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
-        <p v-if="state === 'error'" class="modal__error" role="alert">
+        <p v-if="error" class="modal__error" role="alert">
           {{ error }}
         </p>
         <div class="modal__actions">
@@ -131,6 +147,17 @@ async function submit(): Promise<void> {
 
 .field textarea {
   resize: vertical;
+}
+
+.field__error {
+  grid-column: 2;
+  color: var(--error);
+  font-size: var(--text-xs);
+}
+
+.field input[aria-invalid='true'],
+.field textarea[aria-invalid='true'] {
+  border-color: var(--error);
 }
 
 .field input:focus,
