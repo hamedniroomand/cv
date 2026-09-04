@@ -2,8 +2,8 @@
 
 Personal site of Hamed Niroomand. It is a real-feeling terminal for engineers and a readable resume
 panel for everyone else, both rendered from one content source. Whatever runs in the terminal, the
-panel scrolls to the matching section. The same data is served as JSON under `/api` and printed to
-an ATS-friendly PDF at build time.
+panel scrolls to the matching section. The same data is served as JSON under `/api`, and a PDF
+version of the resume is available for download.
 
 Live: `<FILL: domain>` · Source: this repository · Screenshot: `<FILL>`
 
@@ -12,8 +12,8 @@ Live: `<FILL: domain>` · Source: this repository · Screenshot: `<FILL>`
 ```
 content/  ──Zod──▶  modules/cv-content.ts  ──▶  virtual `#cv`  ──┬─▶ app/terminal  (virtual filesystem)
                      (local Nuxt module)         typed CvData     ├─▶ app/components/panel  (SSR resume)
-                                                                  ├─▶ server/api/*  (JSON, CORS)
-                                                                  └─▶ app/pages/print.vue ─▶ Playwright ─▶ PDF
+                                                                  └─▶ server/api/*  (JSON, CORS)
+public/hamed-niroomand-cv.pdf  ──▶  served as-is at /hamed-niroomand-cv.pdf (Download PDF, `cv --pdf`)
 ```
 
 - **`content/`** is the single source of truth: Markdown with frontmatter for narrative, JSON for
@@ -30,7 +30,8 @@ content/  ──Zod──▶  modules/cv-content.ts  ──▶  virtual `#cv`  �
 - **`app/components/terminal/`** renders the shell. It is client-only and lazy-loaded; the panel and
   every page are server-rendered, so recruiters and crawlers see the full resume without JavaScript.
 - **`server/api/`** serves the same data as JSON with CORS enabled for GET.
-- **`scripts/build-pdf.ts`** renders `/print` with Playwright after `nuxt build`.
+- **`public/hamed-niroomand-cv.pdf`** is the downloadable resume. It is a committed static file,
+  replaced by hand when the resume changes; nothing generates it at build time.
 
 ## Run locally
 
@@ -40,9 +41,9 @@ Requirements: [Bun](https://bun.sh) 1.4+.
 bun install
 bun run dev            # http://localhost:3000
 bun run test           # Vitest: shell core, filesystem, commands, schemas, API utils
-bun run build          # Nitro build (Bun preset) + PDF
+bun run build          # Nitro build (Bun preset)
 bun run preview
-bunx playwright install chromium   # once, for the PDF step and e2e
+bunx playwright install chromium   # once, for e2e and `bun run icons`
 bun run test:e2e
 ```
 
@@ -109,7 +110,7 @@ Copy rules: no invented metrics, no design-pattern name-dropping. Unknown facts 
 | `GET /api/experience/:slug`         | One entry, 404 otherwise                       |
 | `GET /api/skills?category=frontend` | Skill categories, optionally filtered          |
 | `GET /api/projects`                 | Projects                                       |
-| `GET /api/cv.pdf`                   | Redirects to the built PDF                     |
+| `GET /api/cv.pdf`                   | Redirects to the PDF file                      |
 | `POST /api/contact`                 | `{ name, email, message }`, 10 per hour per IP |
 
 ```bash
@@ -125,8 +126,8 @@ docker build -t cv --build-arg NUXT_PUBLIC_SITE_URL=https://example.com .
 docker run -p 3000:3000 -e NUXT_RESEND_API_KEY=... -e NUXT_CONTACT_TO=... cv
 ```
 
-The build stage uses Playwright's image so the PDF is generated during `docker build`. Later phases
-add separate Bun containers for the WebSocket (`who`) and SSH services.
+Both stages are plain Bun images; the PDF is a static file in `public/`, so the build needs no
+browser. Later phases add separate Bun containers for the WebSocket (`who`) and SSH services.
 
 ## Still to fill in
 

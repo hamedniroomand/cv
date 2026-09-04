@@ -8,8 +8,6 @@
   "scripts": {
     "dev": "bun --bun nuxt dev",
     "build": "bun --bun nuxt build",
-    "postbuild": "bun run pdf",
-    "pdf": "bun run scripts/build-pdf.ts",
     "preview": "bun --bun nuxt preview",
     "postinstall": "bun --bun nuxt prepare",
     "lint": "eslint .",

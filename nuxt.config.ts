@@ -19,7 +19,6 @@ export default defineNuxtConfig({
         'Cache-Control': 'public, max-age=3600',
       },
     },
-    '/print': { headers: { 'X-Robots-Tag': 'noindex' } },
   },
   // Vercel sets VERCEL=1 during build; without the vercel preset, Nitro emits a
   // Bun server layout and the CDN can serve sourcemaps as `/`.

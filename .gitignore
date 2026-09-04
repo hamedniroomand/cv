@@ -24,7 +24,6 @@ logs
 !.env.example
 
 # Generated
-public/hamed-niroomand-cv.pdf
 playwright-report
 test-results
 coverage
