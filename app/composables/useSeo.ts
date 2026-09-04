@@ -16,7 +16,6 @@ export function useResumeSeo(cv: CvData, opts: { title?: string, description?: s
     ogType: 'profile',
     ogUrl: url,
     ogSiteName: profile.name,
-    twitterCard: 'summary',
   })
 
   useHead({

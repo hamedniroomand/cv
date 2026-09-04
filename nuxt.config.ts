@@ -39,7 +39,6 @@ export default defineNuxtConfig({
       ],
       script: [
         {
-          // Apply the stored theme before first paint so there is no flash. Mirrors useTheme().
           innerHTML: `(function(){try{var t=localStorage.getItem('cv:theme');if(t){document.documentElement.dataset.theme=t}}catch(e){}})()`,
           tagPosition: 'head',
         },
