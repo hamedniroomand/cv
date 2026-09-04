@@ -261,6 +261,19 @@ function onInput(): void {
   menuSuppressed.value = false
 }
 
+function onAppKeydown(event: KeyboardEvent): void {
+  if (
+    event.ctrlKey
+    && !event.altKey
+    && !event.metaKey
+    && event.key.toLocaleLowerCase() === 'l'
+  ) {
+    event.preventDefault()
+    event.stopPropagation()
+    view.clear()
+  }
+}
+
 function onKeydown(event: KeyboardEvent): void {
   if (event.ctrlKey && !event.altKey && !event.metaKey) {
     switch (event.key.toLocaleLowerCase()) {
@@ -270,10 +283,6 @@ function onKeydown(event: KeyboardEvent): void {
           controller.abort()
         value.value = ''
         menuSuppressed.value = true
-        return
-      case 'l':
-        event.preventDefault()
-        view.clear()
         return
       case 'd':
         if (!value.value && !showMenu.value) {
@@ -299,9 +308,12 @@ function onKeydown(event: KeyboardEvent): void {
         completeMenu()
         return
       case 'Enter':
-        event.preventDefault()
-        activateMenu(selected.value)
-        return
+        if (menuItems.value.length > 0) {
+          event.preventDefault()
+          activateMenu(selected.value)
+          return
+        }
+        break
       case 'Escape':
         event.preventDefault()
         menuSuppressed.value = true
@@ -345,7 +357,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <section class="tui" aria-label="Interactive app">
+  <section class="tui" aria-label="Interactive app" @keydown.capture="onAppKeydown">
     <header class="tui__header">
       <div>
         <h2>hamed 1.0</h2>
@@ -402,6 +414,7 @@ onMounted(() => {
       <label class="tui__prompt">
         <span aria-hidden="true">› </span>
         <input
+          id="tui-app-prompt"
           ref="input"
           v-model="value"
           role="combobox"

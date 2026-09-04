@@ -1,6 +1,12 @@
 <script setup lang="ts">
 import type { PickerItem } from '~/tui/types'
 
+interface PickerEntry {
+  item: PickerItem<unknown>
+  id: string
+  key: string
+}
+
 const props = defineProps<{
   title: string
   items: PickerItem<unknown>[]
@@ -16,12 +22,17 @@ const emit = defineEmits<{
 const root = ref<HTMLElement | null>(null)
 const query = ref('')
 const selected = ref(0)
+const entries: PickerEntry[] = props.items.map((item, index) => ({
+  item,
+  id: `tui-picker-option-${index}`,
+  key: `picker-option-${index}`,
+}))
 
 const filtered = computed(() => {
   const needle = query.value.trim().toLocaleLowerCase()
   if (!needle)
-    return props.items
-  return props.items.filter((item) => {
+    return entries
+  return entries.filter(({ item }) => {
     const searchable = [
       item.label,
       item.description ?? '',
@@ -31,20 +42,24 @@ const filtered = computed(() => {
   })
 })
 
-function optionId(value: unknown): string {
-  const key = String(value).toLocaleLowerCase().replace(/[^a-z0-9]+/g, '-')
-  return `tui-picker-option-${key}`
-}
-
 const activeId = computed(() => {
-  const item = filtered.value[selected.value]
-  return item ? optionId(item.value) : undefined
+  return filtered.value[selected.value]?.id
 })
 
 watch(filtered, (items) => {
   if (selected.value >= items.length)
     selected.value = 0
 })
+
+function scrollActiveOption(): void {
+  nextTick(() => {
+    root.value
+      ?.querySelector<HTMLElement>('[role="option"][aria-selected="true"]')
+      ?.scrollIntoView({ block: 'nearest' })
+  })
+}
+
+watch(selected, scrollActiveOption)
 
 function move(delta: number): void {
   if (filtered.value.length === 0)
@@ -53,9 +68,9 @@ function move(delta: number): void {
 }
 
 function choose(index = selected.value): void {
-  const item = filtered.value[index]
-  if (item)
-    emit('select', item.value)
+  const entry = filtered.value[index]
+  if (entry)
+    emit('select', entry.item.value)
 }
 
 function onKeydown(event: KeyboardEvent): void {
@@ -102,10 +117,11 @@ function onKeydown(event: KeyboardEvent): void {
 }
 
 onMounted(() => {
-  const initial = filtered.value.findIndex(item => Object.is(item.value, props.initial))
+  const initial = filtered.value.findIndex(entry => Object.is(entry.item.value, props.initial))
   if (initial >= 0)
     selected.value = initial
   root.value?.focus()
+  scrollActiveOption()
 })
 </script>
 
@@ -130,9 +146,9 @@ onMounted(() => {
       @keydown="onKeydown"
     >
       <div
-        v-for="(item, index) in filtered"
-        :id="optionId(item.value)"
-        :key="String(item.value)"
+        v-for="(entry, index) in filtered"
+        :id="entry.id"
+        :key="entry.key"
         class="picker__option"
         :class="{ 'is-selected': index === selected }"
         role="option"
@@ -140,8 +156,8 @@ onMounted(() => {
         @mouseenter="selected = index"
         @click="choose(index)"
       >
-        <span class="picker__label">{{ item.label }}</span>
-        <span v-if="item.description" class="picker__description">{{ item.description }}</span>
+        <span class="picker__label">{{ entry.item.label }}</span>
+        <span v-if="entry.item.description" class="picker__description">{{ entry.item.description }}</span>
       </div>
       <div v-if="filtered.length === 0" class="picker__empty">
         No matches

@@ -39,11 +39,22 @@ test.describe('desktop interactive app', () => {
 
     const menu = page.getByRole('listbox', { name: 'Slash commands' })
     await expect(menu).toHaveAttribute('id', 'tui-slash-listbox')
-    await expect(menu).toContainText('/about')
-    await expect(menu).toContainText('/experience')
-    await expect(menu).toContainText('/projects')
-    await expect(menu).toContainText('/skills')
-    await expect(menu).toContainText('/theme')
+    await expect(menu.getByRole('option')).toHaveCount(12)
+    await expect(menu.locator('.slash-menu__name')).toHaveText([
+      '/about',
+      '/api',
+      '/clear',
+      '/contact',
+      '/education',
+      '/exit',
+      '/experience',
+      '/help',
+      '/pdf',
+      '/projects',
+      '/skills',
+      '/theme',
+    ])
+    await expect(prompt).toHaveAttribute('id', 'tui-app-prompt')
     await expect(prompt).toHaveAttribute('aria-controls', 'tui-slash-listbox')
     await expect(prompt).toHaveAttribute('aria-expanded', 'true')
 
@@ -79,6 +90,21 @@ test.describe('desktop interactive app', () => {
     await expect(prompt).toHaveValue('/exp')
   })
 
+  test('Enter submits unknown commands and invalid arguments when the menu has no matches', async ({ page }) => {
+    const prompt = await openApp(page)
+    const output = page.getByRole('log', { name: 'App output' })
+
+    await prompt.fill('/unknown')
+    await expect(page.getByRole('listbox', { name: 'Slash commands' })).toContainText('No matches')
+    await prompt.press('Enter')
+    await expect(output).toContainText('hamed: unknown command /unknown — type / to see the list')
+
+    await prompt.fill('/experience invalid')
+    await expect(page.getByRole('listbox', { name: 'Slash commands' })).toContainText('No matches')
+    await prompt.press('Enter')
+    await expect(output).toContainText('experience: unknown company \'invalid\'')
+  })
+
   test('picker filters, wraps, selects, and exposes stable option ids', async ({ page }) => {
     const prompt = await openApp(page)
     await prompt.fill('/experience')
@@ -91,11 +117,44 @@ test.describe('desktop interactive app', () => {
     await picker.press('h')
     await expect(page.getByRole('option')).toHaveCount(1)
     const thales = page.getByRole('option', { name: /Thales MFI GmbH/ })
-    await expect(thales).toHaveAttribute('id', 'tui-picker-option-thales')
+    await expect(thales).toHaveAttribute('id', /^tui-picker-option-\d+$/)
+    const thalesId = await thales.getAttribute('id')
     await picker.press('ArrowUp')
-    await expect(picker).toHaveAttribute('aria-activedescendant', 'tui-picker-option-thales')
+    await expect(picker).toHaveAttribute('aria-activedescendant', thalesId!)
     await picker.press('Enter')
     await expect(page.locator('#exp-thales')).toHaveClass(/is-highlighted/)
+  })
+
+  test('arrow navigation keeps overflowing menu and picker selections visible', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 320 })
+    const prompt = await openApp(page)
+    await prompt.fill('/')
+
+    const menu = page.getByRole('listbox', { name: 'Slash commands' })
+    expect(await menu.evaluate(element => element.scrollHeight > element.clientHeight)).toBe(true)
+    await prompt.press('ArrowUp')
+    const activeMenuId = await prompt.getAttribute('aria-activedescendant')
+    expect(await menu.evaluate((element, activeId) => {
+      const active = document.getElementById(activeId ?? '')
+      if (!active)
+        return false
+      const listRect = element.getBoundingClientRect()
+      const activeRect = active.getBoundingClientRect()
+      return activeRect.top >= listRect.top && activeRect.bottom <= listRect.bottom
+    }, activeMenuId)).toBe(true)
+    await prompt.press('Enter')
+
+    const picker = page.getByRole('listbox', { name: 'Choose a theme' })
+    expect(await picker.evaluate(element => element.scrollHeight > element.clientHeight)).toBe(true)
+    await picker.press('ArrowUp')
+    expect(await picker.evaluate((element) => {
+      const active = document.getElementById(element.getAttribute('aria-activedescendant') ?? '')
+      if (!active)
+        return false
+      const listRect = element.getBoundingClientRect()
+      const activeRect = active.getBoundingClientRect()
+      return activeRect.top >= listRect.top && activeRect.bottom <= listRect.bottom
+    })).toBe(true)
   })
 
   test('Escape and Ctrl+C cancel a picker and restore prompt focus', async ({ page }) => {
@@ -115,7 +174,7 @@ test.describe('desktop interactive app', () => {
     await expect(prompt).toBeFocused()
   })
 
-  test('Ctrl+L clears app output without touching shell scrollback', async ({ page }) => {
+  test('Ctrl+L clears app output from the prompt, picker, and another app control', async ({ page }) => {
     const prompt = await openApp(page)
     const output = page.getByRole('log', { name: 'App output' })
     await prompt.fill('ls')
@@ -125,8 +184,57 @@ test.describe('desktop interactive app', () => {
     await prompt.press('Control+l')
     await expect(output).toBeEmpty()
 
+    await prompt.fill('ls')
+    await prompt.press('Enter')
+    await expect(output).toContainText('about.md')
+    await prompt.fill('/experience')
+    await prompt.press('Enter')
+    const picker = page.getByRole('listbox', { name: 'Choose a company' })
+    await picker.press('Control+l')
+    await expect(output).toBeEmpty()
+    await expect(picker).toBeVisible()
+    await picker.press('Control+c')
+
+    await prompt.fill('ls')
+    await prompt.press('Enter')
+    await expect(output).toContainText('about.md')
+    const exit = page.getByRole('button', { name: 'Exit interactive app' })
+    await exit.focus()
+    await exit.press('Control+l')
+    await expect(output).toBeEmpty()
+
+    await prompt.focus()
     await prompt.press('Escape')
     await expect(page.getByRole('log', { name: 'Terminal output' })).toContainText('Hamed Niroomand')
+  })
+
+  test('Ctrl+C aborts a delayed same-origin curl and the app accepts the next command', async ({ page }) => {
+    await page.route('**/api/cv?slow=tui-abort', (route) => {
+      setTimeout(() => {
+        void route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: '{"late":true}',
+        }).catch(() => {})
+      }, 5000)
+    })
+
+    const prompt = await openApp(page)
+    const requestStarted = page.waitForRequest(request => request.url().includes('/api/cv?slow=tui-abort'))
+    const requestFailed = page.waitForEvent('requestfailed', {
+      predicate: request => request.url().includes('/api/cv?slow=tui-abort'),
+    })
+
+    await prompt.fill('curl -s /api/cv?slow=tui-abort')
+    await prompt.press('Enter')
+    await requestStarted
+    await prompt.press('Control+c')
+    await requestFailed
+    await expect(prompt).toHaveAttribute('aria-busy', 'false')
+
+    await prompt.fill('echo recovered')
+    await prompt.press('Enter')
+    await expect(page.getByRole('log', { name: 'App output' })).toContainText('recovered')
   })
 
   test('app history is local and restores the draft after arrow navigation', async ({ page }) => {

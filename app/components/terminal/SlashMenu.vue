@@ -6,7 +6,7 @@ interface SlashMenuItem {
   description?: string
 }
 
-defineProps<{
+const props = defineProps<{
   items: SlashMenuItem[]
   selected: number
 }>()
@@ -19,11 +19,24 @@ const emit = defineEmits<{
 function optionId(key: string): string {
   return `tui-slash-option-${key.toLocaleLowerCase().replace(/[^a-z0-9]+/g, '-')}`
 }
+
+const root = ref<HTMLElement | null>(null)
+
+function scrollActiveOption(): void {
+  nextTick(() => {
+    root.value
+      ?.querySelector<HTMLElement>('[role="option"][aria-selected="true"]')
+      ?.scrollIntoView({ block: 'nearest' })
+  })
+}
+
+watch(() => props.selected, scrollActiveOption)
 </script>
 
 <template>
   <div
     id="tui-slash-listbox"
+    ref="root"
     class="slash-menu"
     role="listbox"
     aria-label="Slash commands"
