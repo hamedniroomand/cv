@@ -1,6 +1,7 @@
 import type { PanelTarget } from '#shared/cv/panel-target'
 import type { Lang, ModalKind, OutputLine, ShellEnv, TerminalUi, ThemeName } from '~/terminal/types'
 import { buildTree, HOME } from '#shared/cv/build-tree'
+import { siteHost } from '#shared/site-host'
 import { commands } from '~/terminal/commands'
 import { Vfs } from '~/terminal/fs/vfs'
 import { completeLine } from '~/terminal/shell/completion'
@@ -21,15 +22,6 @@ export interface ShellHooks {
   destroy: () => void
 }
 
-function hostFrom(siteUrl: string): string {
-  try {
-    return new URL(siteUrl).hostname
-  }
-  catch {
-    return 'hamed.sh'
-  }
-}
-
 /** Wires the pure terminal core to reactive state for the Terminal component. Client only. */
 export function useShell(hooks: ShellHooks) {
   const cv = useCv()
@@ -42,7 +34,7 @@ export function useShell(hooks: ShellHooks) {
   const fs = new Vfs(buildTree(cv), { home: HOME })
   const registry = createRegistry(commands)
   const appRegistry = createAppRegistry(appCommands)
-  const env: ShellEnv = { user: 'hamed', host: hostFrom(siteUrl), lang: 'en', theme: theme.value, siteUrl }
+  const env: ShellEnv = { user: 'hamed', host: siteHost(siteUrl), lang: 'en', theme: theme.value, siteUrl }
 
   const ui: TerminalUi = {
     clear: () => {

@@ -1,14 +1,16 @@
 <script setup lang="ts">
 import type { NuxtError } from '#app'
+import { siteHost } from '#shared/site-host'
 
 const props = defineProps<{ error: NuxtError }>()
+const host = siteHost(useRuntimeConfig().public.siteUrl)
 const message = computed(() => (props.error.statusCode === 404 ? 'No such file or directory' : 'Something went wrong'))
 </script>
 
 <template>
   <main class="error">
     <p class="error__prompt">
-      hamed@hamed.sh:~$ open {{ $route.fullPath }}
+      hamed@{{ host }}:~$ open {{ $route.fullPath }}
     </p>
     <p class="error__message">
       bash: {{ $route.fullPath }}: {{ message }} ({{ error.statusCode }})

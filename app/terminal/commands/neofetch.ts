@@ -18,15 +18,6 @@ function colourBlocks(): Span[] {
   return COLOUR_STYLES.map(style => ({ text: '█', style }))
 }
 
-function siteHost(siteUrl: string): string {
-  try {
-    return new URL(siteUrl).hostname
-  }
-  catch {
-    return 'hamed.sh'
-  }
-}
-
 export default {
   name: 'neofetch',
   description: 'Display system and resume information',
@@ -38,7 +29,7 @@ export default {
       `${ctx.env.user}@${ctx.env.host}`,
       '-----------------',
       'OS:       hamed.sh 1.0 (Nuxt 5 / Bun)',
-      `Host:     ${siteHost(ctx.env.siteUrl)}`,
+      `Host:     ${ctx.env.host}`,
       'Kernel:   TypeScript 5',
       `Uptime:   ${totalYears(ctx.cv.experience)} years in production`,
       `Packages: ${skillCount} (skills.json)`,

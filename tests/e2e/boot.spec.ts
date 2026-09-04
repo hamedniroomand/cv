@@ -8,6 +8,8 @@ test.describe('desktop terminal', () => {
     const response = await page.goto('/')
     const html = await response!.text()
     expect(html).toContain('Jack Westin')
+    // The server-rendered placeholder prompt names the same host the live terminal will show.
+    expect(html).toContain('hamed@localhost:~$')
     expect(html).toMatch(/<h1[^>]*>Hamed Niroomand<\/h1>/)
 
     const log = page.getByRole('log')

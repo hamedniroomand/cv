@@ -22,7 +22,7 @@ export async function sendContact(msg: ContactMessage, cfg: NotifyConfig, fetchI
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      username: 'hamed.sh',
+      username: 'niroomand.dev',
       allowed_mentions: { parse: [] },
       embeds: [
         {
@@ -30,7 +30,7 @@ export async function sendContact(msg: ContactMessage, cfg: NotifyConfig, fetchI
           description,
           color: 0xE3B341,
           fields: [{ name: 'Reply to', value: msg.email, inline: true }],
-          footer: { text: 'contact form · hamed.sh' },
+          footer: { text: 'contact form · niroomand.dev' },
           timestamp: new Date().toISOString(),
         },
       ],

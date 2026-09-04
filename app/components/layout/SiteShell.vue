@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import type { ShellTab } from './MobileTabs.vue'
+import { siteHost } from '#shared/site-host'
 
 const Terminal = defineAsyncComponent(() => import('~/components/terminal/Terminal.vue'))
 
 const { ratio, panelOpen, setRatio, toggle } = useSplitPane()
+const host = siteHost(useRuntimeConfig().public.siteUrl)
 const bus = useTerminalBus()
 const isDesktop = useMediaQuery('(min-width: 900px)', true)
 const tab = ref<ShellTab>('resume')
@@ -50,7 +52,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
           <ClientOnly>
             <Terminal v-if="terminalLoaded" />
             <div v-else class="shell__terminal-placeholder" aria-hidden="true">
-              <span class="shell__prompt">hamed@hamed.sh:~$</span>
+              <span class="shell__prompt">hamed@{{ host }}:~$</span>
             </div>
           </ClientOnly>
         </div>

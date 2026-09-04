@@ -22,6 +22,8 @@ describe('sendContact (discord)', () => {
     expect(init.method).toBe('POST')
     const body = JSON.parse(String(init.body))
     expect(body.allowed_mentions).toEqual({ parse: [] })
+    expect(body.username).toBe('niroomand.dev')
+    expect(body.embeds[0].footer.text).toContain('niroomand.dev')
     expect(body.embeds[0].title).toBe('New message from Ada')
     expect(body.embeds[0].description).toContain('Hello there')
     expect(body.embeds[0].fields[0].value).toBe('ada@example.com')

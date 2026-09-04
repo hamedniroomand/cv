@@ -20,7 +20,7 @@ describe('neofetch', () => {
       `${env.user}@${env.host}`,
       '-----------------',
       'OS:       hamed.sh 1.0 (Nuxt 5 / Bun)',
-      `Host:     ${new URL(env.siteUrl).hostname}`,
+      `Host:     ${env.host}`,
       'Kernel:   TypeScript 5',
       `Uptime:   ${expectedYears} years in production`,
       `Packages: ${expectedSkillCount} (skills.json)`,

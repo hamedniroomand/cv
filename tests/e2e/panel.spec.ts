@@ -10,8 +10,10 @@ test.describe('panel', () => {
     expect(html).toContain('id="exp-thales"')
   })
 
-  test('experience pages no longer exist', async ({ request }) => {
-    expect((await request.get('/experience/thales')).status()).toBe(404)
+  test('experience pages no longer exist and the 404 prompt names the real host', async ({ request }) => {
+    const res = await request.get('/experience/thales')
+    expect(res.status()).toBe(404)
+    expect(await res.text()).toContain('hamed@localhost:~$ open /experience/thales')
   })
 
   test('clicking a path label runs it in the terminal', async ({ page }) => {
