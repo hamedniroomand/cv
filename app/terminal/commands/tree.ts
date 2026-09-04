@@ -1,6 +1,6 @@
-import type { FsDir, FsNode } from '../fs/types'
-import type { Command, CommandContext } from '../types'
-import { isHidden, sortByName } from '../fs/vfs'
+import type { FsDir, FsNode } from '~/terminal/fs/types'
+import type { Command, CommandContext } from '~/terminal/types'
+import { isHidden, sortByName } from '~/terminal/fs/vfs'
 import { navigateFor, reportFsError } from './_util'
 
 interface Counts {

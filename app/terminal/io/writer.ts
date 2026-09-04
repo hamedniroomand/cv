@@ -1,4 +1,4 @@
-import type { LineStyle, OutputLine, Span, Writer } from '../types'
+import type { LineStyle, OutputLine, Span, Writer } from '~/terminal/types'
 
 export type LineSink = (line: OutputLine) => void
 

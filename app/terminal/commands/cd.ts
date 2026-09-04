@@ -1,4 +1,4 @@
-import type { Command } from '../types'
+import type { Command } from '~/terminal/types'
 import { navigateFor, reportFsError } from './_util'
 
 export default {

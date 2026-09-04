@@ -1,5 +1,5 @@
 import type { ThemeName } from '~/terminal/types'
-import type { AppCommand, AppContext, PickerItem, View } from '~/tui/types'
+import type { AppCommand, AppContext, PickerItem, PickOptions, View } from '~/tui/types'
 import { commands as shellCommands } from '~/terminal/commands'
 import { createAppBridge } from '~/tui/bridge'
 import { commands as defaultAppCommands } from '~/tui/commands'
@@ -16,33 +16,27 @@ interface AppOptions {
 interface PickCall {
   title: string
   items: PickerItem[]
-  opts?: { initial?: unknown, placeholder?: string }
+  opts?: PickOptions<unknown>
 }
 
-/** Build the app command runner over the real fixture VFS, CV, and shell. */
+type BaseContext = Omit<AppContext, 'argv0' | 'registry' | 'shell' | 'signal' | 'slash' | 'sudo'>
+
 export function makeApp({ commands = [], picks = [] }: AppOptions = {}) {
   const shellFixture = makeShell(shellCommands)
+  const { deps, lines } = shellFixture
   const shellCalls: string[] = []
   const pickCalls: PickCall[] = []
-  const calls = {
-    ...shellFixture.calls,
-    shell: shellCalls,
-    pick: pickCalls,
-    cleared: 0,
-    statuses: [] as string[],
-    exits: 0,
-  }
+  const calls = { ...shellFixture.calls, shell: shellCalls, pick: pickCalls, cleared: 0, statuses: [] as string[], exits: 0 }
   let nextViewId = 10_000
-
-  const print = createPrinter(line => shellFixture.lines.push(line), () => ++nextViewId)
+  const nextId = (): number => ++nextViewId
 
   const view: View = {
-    print,
+    print: createPrinter(line => lines.push(line), nextId),
     clear: () => {
       calls.cleared++
-      shellFixture.lines.splice(0)
+      lines.splice(0)
     },
-    pick: async <T>(title: string, items: PickerItem<T>[], opts?: { initial?: T, placeholder?: string }) => {
+    pick: async <T>(title: string, items: PickerItem<T>[], opts?: PickOptions<T>) => {
       pickCalls.push({ title, items: items as PickerItem[], opts })
       return (picks.shift() ?? null) as T | null
     },
@@ -52,36 +46,26 @@ export function makeApp({ commands = [], picks = [] }: AppOptions = {}) {
     },
   }
 
-  const deps = shellFixture.deps
   let liveTheme: ThemeName = deps.env.theme
   const applyTheme = deps.theme.set
   deps.theme.set = (name) => {
     liveTheme = name
     applyTheme(name)
   }
-  const appCommands: AppCommand[] = [...defaultAppCommands, ...commands]
-  const registry = createAppRegistry(appCommands)
+
+  const registry = createAppRegistry([...defaultAppCommands, ...commands])
   const bridge = createAppBridge(shellFixture.shell, deps, registry, () => liveTheme)
-  const context: Omit<AppContext, 'argv0' | 'registry' | 'shell' | 'signal' | 'slash' | 'sudo'> = {
-    fs: deps.fs,
-    env: deps.env,
-    cv: deps.cv,
-    panel: deps.panel,
-    theme: deps.theme,
-    lang: deps.lang,
-    history: deps.history,
-    ui: deps.ui,
-    view,
-  }
+  const context: BaseContext = { ...bridge.context, view }
   const runner = createAppRunner({
     registry,
     context,
     shell: async (line, signal) => {
       shellCalls.push(line)
-      return bridge.exec(line, output => shellFixture.lines.push(output), () => ++nextViewId, signal)
+      return bridge.exec(line, output => lines.push(output), nextId, signal)
     },
   })
-  const completion = (name: string, argv: string[] = []) => {
+
+  function complete(name: string, argv: string[] = []): PickerItem[] {
     const command = registry.get(name)
     if (!command?.complete)
       return []
@@ -89,6 +73,7 @@ export function makeApp({ commands = [], picks = [] }: AppOptions = {}) {
     const ctx: AppContext = {
       ...context,
       argv0: `/${name}`,
+      registry,
       sudo: false,
       signal,
       shell: async (line) => {
@@ -103,9 +88,9 @@ export function makeApp({ commands = [], picks = [] }: AppOptions = {}) {
   return {
     run: (line: string) => runner.run(line, new AbortController().signal),
     text: shellFixture.text,
-    lines: shellFixture.lines,
+    lines,
     command: (name: string) => registry.get(name),
-    complete: completion,
+    complete,
     calls,
   }
 }

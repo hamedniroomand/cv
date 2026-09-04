@@ -5,13 +5,12 @@ export interface PanelTarget {
   slug?: string
 }
 
-/** DOM id of the panel element a target points at. */
+const SLUG_PREFIXES: Partial<Record<PanelSection, string>> = {
+  experience: 'exp',
+  projects: 'project',
+}
+
 export function panelTargetId(target: PanelTarget): string {
-  if (target.slug) {
-    if (target.section === 'experience')
-      return `exp-${target.slug}`
-    if (target.section === 'projects')
-      return `project-${target.slug}`
-  }
-  return `section-${target.section}`
+  const prefix = target.slug ? SLUG_PREFIXES[target.section] : undefined
+  return prefix ? `${prefix}-${target.slug}` : `section-${target.section}`
 }

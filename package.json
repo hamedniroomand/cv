@@ -2,6 +2,9 @@
   "name": "cv",
   "type": "module",
   "private": true,
+  "imports": {
+    "#shared/*": "./shared/*.ts"
+  },
   "engines": {
     "bun": ">=1.4"
   },

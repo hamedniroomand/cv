@@ -1,4 +1,4 @@
-import type { AppCommand } from '../types'
+import type { AppCommand } from '~/tui/types'
 
 export default {
   name: 'help',

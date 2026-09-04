@@ -1,15 +1,6 @@
 import type { Locator, Page } from '@playwright/test'
 import { expect, test } from '@playwright/test'
-
-async function openApp(page: Page): Promise<Locator> {
-  await page.goto('/')
-  const shellInput = page.getByLabel('Terminal input')
-  await expect(shellInput).toBeVisible({ timeout: 5000 })
-  await shellInput.fill('hamed')
-  await shellInput.press('Enter')
-  await expect(page.getByRole('heading', { name: /hamed 1\.0/i })).toBeVisible()
-  return page.getByRole('combobox', { name: 'App command' })
-}
+import { openApp } from './helpers'
 
 test.describe('desktop interactive app', () => {
   test.skip(({ isMobile }) => isMobile, 'desktop only')
@@ -27,7 +18,6 @@ test.describe('desktop interactive app', () => {
     await prompt.press('Enter')
     const output = page.getByRole('log', { name: 'App output' })
     await expect(output).toContainText('about.md')
-    // Each command is echoed before its response, picker-driven ones included.
     const echoes = output.locator('.output__line', { hasText: /^› / })
     await expect(echoes).toHaveCount(2)
     await expect(echoes.nth(0)).toContainText('/experience')
@@ -255,18 +245,6 @@ test.describe('desktop interactive app', () => {
   })
 })
 
-async function openAppOnDevice(page: Page, isMobile: boolean): Promise<Locator> {
-  await page.goto('/')
-  if (isMobile)
-    await page.getByRole('tab', { name: 'Terminal' }).click()
-  const shellInput = page.getByLabel('Terminal input')
-  await expect(shellInput).toBeVisible({ timeout: 5000 })
-  await shellInput.fill('hamed')
-  await shellInput.press('Enter')
-  await expect(page.getByRole('heading', { name: /hamed 1\.0/i })).toBeVisible()
-  return page.getByRole('combobox', { name: 'App command' })
-}
-
 function headerEscape(page: Page): Locator {
   return page.getByRole('region', { name: 'Interactive app' }).getByRole('button', { name: /^Esc · / })
 }
@@ -308,15 +286,7 @@ test.describe('mobile interactive app', () => {
   test.skip(({ isMobile }) => !isMobile, 'mobile only')
 
   test('tapping slash and picker options opens experience', async ({ page }) => {
-    await page.goto('/')
-    await page.getByRole('tab', { name: 'Terminal' }).click()
-    const shellInput = page.getByLabel('Terminal input')
-    await expect(shellInput).toBeVisible({ timeout: 5000 })
-    await shellInput.fill('hamed')
-    await shellInput.press('Enter')
-    await expect(page.getByRole('heading', { name: /hamed 1\.0/i })).toBeVisible()
-
-    const prompt = page.getByRole('combobox', { name: 'App command' })
+    const prompt = await openApp(page)
     await prompt.fill('/')
     await page.getByRole('option', { name: /^\/experience\b/ }).click()
     await page.getByRole('option', { name: /Thales MFI GmbH/ }).click()
@@ -326,8 +296,8 @@ test.describe('mobile interactive app', () => {
 })
 
 test.describe('interactive app accessibility', () => {
-  test('options, expanded prompt, status text, and tappable escape stay usable', async ({ page, isMobile }) => {
-    const prompt = await openAppOnDevice(page, isMobile)
+  test('options, expanded prompt, status text, and tappable escape stay usable', async ({ page }) => {
+    const prompt = await openApp(page)
 
     await expect(page.getByText('Type / for commands · ↑↓ to choose · Esc to leave')).toBeVisible()
 
@@ -371,15 +341,7 @@ test.describe('interactive app accessibility', () => {
 
   test('no focusable app control is clipped at 390×844', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 })
-    await page.goto('/')
-    await page.getByRole('tab', { name: 'Terminal' }).click()
-    const shellInput = page.getByLabel('Terminal input')
-    await expect(shellInput).toBeVisible({ timeout: 5000 })
-    await shellInput.fill('hamed')
-    await shellInput.press('Enter')
-    await expect(page.getByRole('heading', { name: /hamed 1\.0/i })).toBeVisible()
-
-    const prompt = page.getByRole('combobox', { name: 'App command' })
+    const prompt = await openApp(page)
     await prompt.fill('/')
     expect(await clippedFocusableAppControls(page)).toEqual([])
 

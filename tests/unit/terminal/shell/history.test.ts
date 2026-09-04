@@ -10,6 +10,7 @@ describe('history', () => {
     h.push('  ')
     expect(h.list()).toEqual(['a', 'b'])
   })
+
   it('navigates with draft preservation', () => {
     const h = new History()
     h.push('a')
@@ -21,6 +22,7 @@ describe('history', () => {
     expect(h.down()).toBe('draft')
     expect(h.down()).toBeNull()
   })
+
   it('push resets the cursor', () => {
     const h = new History()
     h.push('a')
@@ -28,6 +30,7 @@ describe('history', () => {
     h.push('b')
     expect(h.up('')).toBe('b')
   })
+
   it('caps size', () => {
     const h = new History(2)
     h.push('1')

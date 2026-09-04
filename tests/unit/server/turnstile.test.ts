@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { verifyTurnstile } from '../../../server/utils/turnstile'
+import { verifyTurnstile } from '#server/utils/turnstile'
 
 const cfg = { secretKey: 'secret-1', token: 'tok-1', ip: '203.0.113.7' }
 

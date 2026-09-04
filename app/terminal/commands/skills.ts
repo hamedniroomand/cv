@@ -1,7 +1,7 @@
 import type { SkillCategory } from '#shared/schemas/skills'
-import type { Command, CommandContext } from '../types'
-import { unknownValueMessage } from '../messages'
-import { parseFlags } from '../shell/flags'
+import type { Command, CommandContext } from '~/terminal/types'
+import { unknownValueMessage } from '~/terminal/messages'
+import { parseFlags } from '~/terminal/shell/flags'
 
 function itemLabel(item: SkillCategory['items'][number]): string {
   return item.note ? `${item.name} (${item.note})` : item.name

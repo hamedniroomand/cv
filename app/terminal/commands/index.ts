@@ -1,4 +1,4 @@
-import type { Command } from '../types'
+import type { Command } from '~/terminal/types'
 
 const modules = import.meta.glob<Command>(['./*.ts', '!./index.ts', '!./_*.ts'], { eager: true, import: 'default' })
 

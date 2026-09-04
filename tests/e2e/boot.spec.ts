@@ -8,7 +8,6 @@ test.describe('desktop terminal', () => {
     const response = await page.goto('/')
     const html = await response!.text()
     expect(html).toContain('Jack Westin')
-    // The server-rendered placeholder prompt names the same host the live terminal will show.
     expect(html).toContain('hamed@localhost:~$')
     expect(html).toMatch(/<h1[^>]*>Hamed Niroomand<\/h1>/)
 
@@ -42,8 +41,6 @@ test.describe('desktop terminal', () => {
       terminal.scrollTop -= 200
     })
 
-    // Safari anchors sticky elements to the scroller's content box, so any padding on the
-    // scroller opens a gap under the stuck footer where output shows through.
     const gap = await page.evaluate(() => {
       const terminal = document.querySelector<HTMLElement>('.terminal')!
       const footer = document.querySelector<HTMLElement>('.terminal__footer')!

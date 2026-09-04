@@ -1,6 +1,7 @@
 import type { Command, OutputLine } from '~/terminal/types'
 import { describe, expect, it } from 'vitest'
-import { makeShell } from '../../fixtures/context'
+import { makeShell } from '~~/tests/unit/fixtures/context'
+import { texts } from '~~/tests/unit/fixtures/output'
 
 const echo: Command = {
   name: 'echo',
@@ -83,40 +84,47 @@ describe('shell.exec', () => {
     expect(text()).toBe('hi there')
     expect((await shell.exec('exit3')).code).toBe(3)
   })
+
   it('pipes stdout into stdin and returns the last exit code', async () => {
     const { shell, text } = makeShell([echo, upper])
     expect((await shell.exec('echo hi | upper')).code).toBe(0)
     expect(text()).toBe('HI')
   })
+
   it('reports unknown commands with 127', async () => {
     const { shell, text, lines } = makeShell([])
     expect((await shell.exec('nope')).code).toBe(127)
     expect(text()).toBe('bash: nope: command not found')
     expect(lines[0]!.spans[0]!.style).toBe('error')
   })
+
   it('turns thrown errors into stderr with exit 1', async () => {
     const { shell, text } = makeShell([fail])
     expect((await shell.exec('fail')).code).toBe(1)
     expect(text()).toBe('fail: boom')
   })
+
   it('reports syntax errors with exit 2', async () => {
     const { shell, text } = makeShell([])
     expect((await shell.exec('echo "x')).code).toBe(2)
     expect(text()).toMatch(/unterminated/)
   })
+
   it('passes the sudo flag; bare sudo prints usage', async () => {
     const { shell, text } = makeShell([needsSudo])
     await shell.exec('sudo needs-sudo')
     expect(text()).toBe('root')
-    const s2 = makeShell([])
-    expect((await s2.shell.exec('sudo')).code).toBe(1)
-    expect(s2.text()).toMatch(/usage: sudo <command>/)
+    const other = makeShell([])
+    expect((await other.exec('sudo')).code).toBe(1)
+    expect(other.text()).toMatch(/usage: sudo <command>/)
   })
+
   it('blank line is a no-op', async () => {
     const { shell, lines } = makeShell([])
     expect(await shell.exec('   ')).toEqual({ code: 0 })
     expect(lines).toEqual([])
   })
+
   it('aborts through the signal', async () => {
     const { shell } = makeShell([slow])
     const ac = new AbortController()
@@ -124,21 +132,25 @@ describe('shell.exec', () => {
     ac.abort()
     expect((await p).code).toBe(130)
   })
+
   it('flushes partial output when a command ends', async () => {
     const { shell, text } = makeShell([partial])
     await shell.exec('partial')
     expect(text()).toBe('no newline')
   })
+
   it('passes the typed alias as argv0', async () => {
     const { shell, text } = makeShell([whoCalled])
     await shell.exec('alias')
     expect(text()).toBe('alias')
   })
+
   it('stderr is not piped', async () => {
     const { shell, text } = makeShell([stderrCmd, upper])
     await shell.exec('warn | upper')
     expect(text()).toBe('careful\nOK')
   })
+
   it('routes one execution to paired output overrides without changing constructor output', async () => {
     const { shell, lines: normalLines } = makeShell([stderrCmd])
     const appLines: OutputLine[] = []
@@ -150,7 +162,7 @@ describe('shell.exec', () => {
       nextId: () => ++appId,
     })
 
-    expect(appLines.map(line => line.spans.map(span => span.text).join(''))).toEqual(['careful', 'ok'])
+    expect(texts(appLines)).toEqual(['careful', 'ok'])
     expect(appLines.map(line => line.id)).toEqual([41, 42])
     expect(appLines[0]!.spans[0]!.style).toBe('error')
     expect(normalLines).toEqual([])
@@ -174,8 +186,8 @@ describe('tty flag', () => {
         return 0
       },
     }
-    const s = makeShell([probe])
-    await s.shell.exec('probe | probe')
+    const term = makeShell([probe])
+    await term.exec('probe | probe')
     expect(seen).toEqual([false, true])
   })
 })

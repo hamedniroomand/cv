@@ -1,6 +1,6 @@
-import type { Command } from '../types'
-import { splitLines } from '../io/text'
-import { parseFlags } from '../shell/flags'
+import type { Command } from '~/terminal/types'
+import { splitLines } from '~/terminal/io/text'
+import { parseFlags } from '~/terminal/shell/flags'
 import { parseCount, readInput } from './_util'
 
 export default {

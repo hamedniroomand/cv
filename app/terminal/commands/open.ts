@@ -1,4 +1,4 @@
-import type { Command, CommandContext } from '../types'
+import type { Command, CommandContext } from '~/terminal/types'
 import { githubUrl, mailtoUrl } from '#shared/cv/links'
 
 export const PDF_FILENAME = 'hamed-niroomand-cv.pdf'

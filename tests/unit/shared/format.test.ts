@@ -19,9 +19,11 @@ describe('totalYears', () => {
     ] as never
     expect(totalYears(exp, new Date('2026-09-04'))).toBe(7)
   })
+
   it('counts present up to now', () => {
     const exp = [{ roles: [{ title: 'a', start: '2019-05', end: 'present' }] }] as never
     expect(totalYears(exp, new Date('2026-09-04'))).toBe(7)
   })
+
   it('returns 0 with no roles', () => expect(totalYears([])).toBe(0))
 })

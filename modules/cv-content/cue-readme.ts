@@ -1,9 +1,10 @@
-/** Fetch a repo's README from GitHub. Returns null on any failure so the build falls back to committed copy. */
+const RAW_GITHUB = 'https://raw.githubusercontent.com'
+
 export async function fetchGithubReadme(repo: string, fetchImpl: typeof fetch = fetch, timeoutMs = 5000): Promise<string | null> {
-  const ac = new AbortController()
-  const timer = setTimeout(() => ac.abort(), timeoutMs)
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), timeoutMs)
   try {
-    const res = await fetchImpl(`https://raw.githubusercontent.com/${repo}/HEAD/README.md`, { signal: ac.signal })
+    const res = await fetchImpl(`${RAW_GITHUB}/${repo}/HEAD/README.md`, { signal: controller.signal })
     if (!res.ok)
       return null
     const text = await res.text()

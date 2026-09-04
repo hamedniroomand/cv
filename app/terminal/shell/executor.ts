@@ -1,9 +1,9 @@
 import type { CvData } from '#shared/schemas/cv'
-import type { VirtualFS } from '../fs/types'
-import type { LineSink } from '../io/writer'
-import type { CommandContext, CommandRegistry, ShellEnv, TerminalUi, Writer } from '../types'
 import type { Segment } from './parser'
-import { CaptureWriter, LineWriter } from '../io/writer'
+import type { VirtualFS } from '~/terminal/fs/types'
+import type { LineSink } from '~/terminal/io/writer'
+import type { CommandContext, CommandRegistry, ShellEnv, TerminalUi, Writer } from '~/terminal/types'
+import { CaptureWriter, LineWriter } from '~/terminal/io/writer'
 import { ShellSyntaxError } from './errors'
 import { parse } from './parser'
 

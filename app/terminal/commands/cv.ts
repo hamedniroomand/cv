@@ -1,6 +1,6 @@
-import type { Command, CommandContext } from '../types'
+import type { Command, CommandContext } from '~/terminal/types'
 import { formatRange, totalYears } from '#shared/cv/format'
-import { parseFlags } from '../shell/flags'
+import { parseFlags } from '~/terminal/shell/flags'
 import { PDF_FILENAME, PDF_PATH } from './open'
 
 function printSummary(ctx: CommandContext): void {

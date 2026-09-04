@@ -7,10 +7,12 @@ describe('parseSplitRatio', () => {
     expect(parseSplitRatio(String(SPLIT_MIN))).toBe(SPLIT_MIN)
     expect(parseSplitRatio(String(SPLIT_MAX))).toBe(SPLIT_MAX)
   })
+
   it('rejects missing, corrupt and out-of-range values', () => {
     for (const raw of [null, '', 'abc', '0', '0.1', '0.95', 'NaN', 'Infinity'])
       expect(parseSplitRatio(raw)).toBeNull()
   })
+
   it('keeps the default inside the range', () => {
     expect(SPLIT_DEFAULT).toBeGreaterThanOrEqual(SPLIT_MIN)
     expect(SPLIT_DEFAULT).toBeLessThanOrEqual(SPLIT_MAX)

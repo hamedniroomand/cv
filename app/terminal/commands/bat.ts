@@ -1,6 +1,6 @@
-import type { Command, CommandContext } from '../types'
-import { renderMarkdown } from '../io/markdown'
-import { ensureNewline } from '../io/text'
+import type { Command, CommandContext } from '~/terminal/types'
+import { renderMarkdown } from '~/terminal/io/markdown'
+import { ensureNewline } from '~/terminal/io/text'
 import { navigateFor, printUsage, reportFsError } from './_util'
 
 function printMarkdown(ctx: CommandContext, path: string, content: string): void {

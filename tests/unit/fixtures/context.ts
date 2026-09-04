@@ -1,11 +1,12 @@
 import type { PanelTarget } from '#shared/cv/panel-target'
 import type { ShellDeps } from '~/terminal/shell/executor'
-import type { Command, OutputLine } from '~/terminal/types'
+import type { Command, CompletionContext, OutputLine } from '~/terminal/types'
 import { buildTree, HOME } from '#shared/cv/build-tree'
 import { Vfs } from '~/terminal/fs/vfs'
 import { Shell } from '~/terminal/shell/executor'
 import { createRegistry } from '~/terminal/shell/registry'
 import { fixtureCv } from './cv'
+import { joinLines } from './output'
 
 export interface ShellCalls {
   navigate: PanelTarget[]
@@ -20,22 +21,26 @@ export interface ShellCalls {
   langs: string[]
 }
 
-/** Build a Shell wired to the fixture content with every side effect recorded. */
+function emptyCalls(): ShellCalls {
+  return { navigate: [], toggled: 0, apps: 0, opened: [], downloads: [], modals: [], cleared: 0, destroyed: 0, themes: [], langs: [] }
+}
+
 export function makeShell(commands: Command[], overrides: Partial<ShellDeps> = {}) {
   const lines: OutputLine[] = []
-  let id = 0
-  const calls: ShellCalls = { navigate: [], toggled: 0, apps: 0, opened: [], downloads: [], modals: [], cleared: 0, destroyed: 0, themes: [], langs: [] }
+  const calls = emptyCalls()
   const history: string[] = []
+  let id = 0
+
   const deps: ShellDeps = {
     fs: new Vfs(buildTree(fixtureCv), { home: HOME }),
     registry: createRegistry(commands),
     cv: fixtureCv,
     env: { user: 'hamed', host: 'hamed.sh', lang: 'en', theme: 'dark', siteUrl: 'https://hamed.test' },
-    sink: l => lines.push(l),
+    sink: line => lines.push(line),
     nextId: () => ++id,
-    panel: { navigate: t => calls.navigate.push(t), toggle: () => calls.toggled++ },
-    theme: { set: t => calls.themes.push(t) },
-    lang: { set: l => calls.langs.push(l) },
+    panel: { navigate: target => calls.navigate.push(target), toggle: () => calls.toggled++ },
+    theme: { set: name => calls.themes.push(name) },
+    lang: { set: lang => calls.langs.push(lang) },
     ui: {
       clear: () => calls.cleared++,
       openApp: async () => { calls.apps++ },
@@ -48,6 +53,16 @@ export function makeShell(commands: Command[], overrides: Partial<ShellDeps> = {
     ...overrides,
   }
   const shell = new Shell(deps)
-  const text = () => lines.map(l => l.spans.map(s => s.text).join('')).join('\n')
-  return { shell, lines, text, calls, history, deps }
+  const completion: CompletionContext = { fs: deps.fs, registry: deps.registry, cv: deps.cv }
+
+  return {
+    shell,
+    exec: (line: string) => shell.exec(line),
+    lines,
+    text: () => joinLines(lines),
+    calls,
+    history,
+    deps,
+    completion,
+  }
 }

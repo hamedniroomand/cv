@@ -1,7 +1,7 @@
-import type { Command, CommandContext, Span } from '../types'
-import { isFsError } from '../fs/errors'
-import { splitLines } from '../io/text'
-import { parseFlags } from '../shell/flags'
+import type { Command, CommandContext, Span } from '~/terminal/types'
+import { isFsError } from '~/terminal/fs/errors'
+import { splitLines } from '~/terminal/io/text'
+import { parseFlags } from '~/terminal/shell/flags'
 import { reportFsError } from './_util'
 
 const USAGE = 'usage: grep [-ri] <pattern> [path...]'

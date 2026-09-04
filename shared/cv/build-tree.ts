@@ -1,38 +1,41 @@
-import type { CvData } from '../schemas/cv'
-import type { Experience } from '../schemas/experience'
-import type { Project } from '../schemas/project'
+import type { CvData } from '#shared/schemas/cv'
+import type { Experience } from '#shared/schemas/experience'
+import type { Project } from '#shared/schemas/project'
 import type { PanelTarget } from './panel-target'
 import type { FsDir, FsNode } from '~/terminal/fs/types'
 import { dir, file } from '~/terminal/fs/vfs'
 import { formatRange } from './format'
+import { githubUrl } from './links'
 
 export const HOME = '/home/hamed'
 
-function experienceReadme(exp: Experience): string {
-  const roles = [...exp.roles]
+function experienceReadme(experience: Experience): string {
+  const roles = [...experience.roles]
     .sort((a, b) => b.start.localeCompare(a.start))
-    .map(r => `${r.title} · ${formatRange(r.start, r.end)}`)
+    .map(role => `${role.title} · ${formatRange(role.start, role.end)}`)
   return [
-    `# ${exp.company}`,
+    `# ${experience.company}`,
     ...roles,
-    `Location: ${exp.location} · ${exp.type}`,
-    `Stack: ${exp.stack.join(', ')}`,
+    `Location: ${experience.location} · ${experience.type}`,
+    `Stack: ${experience.stack.join(', ')}`,
     '',
-    exp.body,
+    experience.body,
   ].join('\n')
 }
 
-function experienceDir(exp: Experience, mtime: string): FsDir {
-  const panel: PanelTarget = { section: 'experience', slug: exp.slug }
-  const children: FsNode[] = [file('README.md', experienceReadme(exp), { mtime, panel })]
-  if (exp.highlights.length > 0) {
-    children.push(dir(
-      'highlights',
-      exp.highlights.map(h => file(`${h.slug}.md`, `# ${h.title}\n\n${h.body}`, { mtime, panel })),
-      { mtime, panel },
-    ))
-  }
-  return dir(exp.slug, children, { mtime, panel })
+function highlightsDir(experience: Experience, mtime: string, panel: PanelTarget): FsDir {
+  const files = experience.highlights.map(highlight =>
+    file(`${highlight.slug}.md`, `# ${highlight.title}\n\n${highlight.body}`, { mtime, panel }),
+  )
+  return dir('highlights', files, { mtime, panel })
+}
+
+function experienceDir(experience: Experience, mtime: string): FsDir {
+  const panel: PanelTarget = { section: 'experience', slug: experience.slug }
+  const children: FsNode[] = [file('README.md', experienceReadme(experience), { mtime, panel })]
+  if (experience.highlights.length > 0)
+    children.push(highlightsDir(experience, mtime, panel))
+  return dir(experience.slug, children, { mtime, panel })
 }
 
 function projectDir(project: Project, mtime: string): FsDir {
@@ -46,35 +49,36 @@ function contactScript(cv: CvData): string {
     '#!/bin/sh',
     '# Run `contact` to open the contact form, or reach me directly:',
     `echo "email:    ${links.email}"`,
-    `echo "github:   https://github.com/${links.github}"`,
+    `echo "github:   ${githubUrl(links.github)}"`,
     `echo "linkedin: ${links.linkedin}"`,
     '',
   ].join('\n')
 }
 
 function educationMarkdown(cv: CvData): string {
-  const e = cv.education
+  const { education } = cv
   return [
-    `# ${e.degree} ${e.field}`,
-    `${e.institution} · ${e.location}`,
-    formatRange(e.start, e.end),
+    `# ${education.degree} ${education.field}`,
+    `${education.institution} · ${education.location}`,
+    formatRange(education.start, education.end),
     '',
-    e.body,
+    education.body,
   ].join('\n')
 }
 
-/** Build the virtual filesystem root (`/`) from validated content. */
-export function buildTree(cv: CvData): FsDir {
-  const mtime = cv.generatedAt
-  const home = dir('hamed', [
+function homeDir(cv: CvData, mtime: string): FsDir {
+  return dir('hamed', [
     file('about.md', cv.about.body, { mtime, panel: { section: 'about' } }),
-    dir('experience', cv.experience.map(e => experienceDir(e, mtime)), { mtime, panel: { section: 'experience' } }),
-    dir('projects', cv.projects.map(p => projectDir(p, mtime)), { mtime, panel: { section: 'projects' } }),
+    dir('experience', cv.experience.map(entry => experienceDir(entry, mtime)), { mtime, panel: { section: 'experience' } }),
+    dir('projects', cv.projects.map(project => projectDir(project, mtime)), { mtime, panel: { section: 'projects' } }),
     file('skills.json', `${JSON.stringify(cv.skills, null, 2)}\n`, { mtime, panel: { section: 'skills' } }),
     file('education.md', educationMarkdown(cv), { mtime, panel: { section: 'education' } }),
     file('contact.sh', contactScript(cv), { mtime, exec: true, panel: { section: 'contact' } }),
     file('.secrets', cv.secrets.body, { mtime, mode: 0o600 }),
   ], { mtime, panel: { section: 'top' } })
+}
 
-  return dir('', [dir('home', [home], { mtime })], { mtime })
+export function buildTree(cv: CvData): FsDir {
+  const mtime = cv.generatedAt
+  return dir('', [dir('home', [homeDir(cv, mtime)], { mtime })], { mtime })
 }

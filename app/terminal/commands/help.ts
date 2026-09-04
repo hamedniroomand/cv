@@ -1,4 +1,4 @@
-import type { Command, CommandContext } from '../types'
+import type { Command, CommandContext } from '~/terminal/types'
 import { visibleCommands } from './_util'
 
 function describe(ctx: CommandContext, name: string): number {

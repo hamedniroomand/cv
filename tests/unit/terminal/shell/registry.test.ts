@@ -11,6 +11,7 @@ describe('createRegistry', () => {
     expect(r.get('nope')).toBeUndefined()
     expect(r.list().map(c => c.name)).toEqual(['cat', 'ls'])
   })
+
   it('throws on duplicates', () => {
     expect(() => createRegistry([cmd('ls'), cmd('x', ['ls'])])).toThrow(/duplicate/)
     expect(() => createRegistry([cmd('ls'), cmd('ls')])).toThrow(/duplicate/)

@@ -1,4 +1,4 @@
-import type { Command, CommandRegistry } from '../types'
+import type { Command, CommandRegistry } from '~/terminal/types'
 
 export function createRegistry(commands: Command[]): CommandRegistry {
   const byName = new Map<string, Command>()

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { makeApp } from '../../fixtures/app'
+import { makeApp } from '~~/tests/unit/fixtures/app'
 
 describe('action slash commands', () => {
   it('/help lists only the canonical English v1 commands', async () => {

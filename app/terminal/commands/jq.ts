@@ -1,9 +1,9 @@
-import type { Json } from '../jq/eval'
-import type { JqNode } from '../jq/parse'
-import type { Command, CommandContext } from '../types'
-import { evalJq, formatJson, JqRuntimeError } from '../jq/eval'
-import { JqSyntaxError, parseJq } from '../jq/parse'
-import { parseFlags } from '../shell/flags'
+import type { Json } from '~/terminal/jq/eval'
+import type { JqNode } from '~/terminal/jq/parse'
+import type { Command, CommandContext } from '~/terminal/types'
+import { evalJq, formatJson, JqRuntimeError } from '~/terminal/jq/eval'
+import { JqSyntaxError, parseJq } from '~/terminal/jq/parse'
+import { parseFlags } from '~/terminal/shell/flags'
 import { printUsage, reportFsError } from './_util'
 
 const EXIT_USAGE = 2

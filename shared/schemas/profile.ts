@@ -17,9 +17,7 @@ export const ProfileSchema = z.object({
     email: z.string(),
     website: z.string().optional(),
   }),
-  /** Long resume summary (man page, print). */
   summary: z.string().min(1),
-  /** One-line description for <meta description> and Open Graph. Search engines truncate around 160 characters. */
   description: z.string().min(1).max(160),
 })
 export type Profile = z.infer<typeof ProfileSchema>

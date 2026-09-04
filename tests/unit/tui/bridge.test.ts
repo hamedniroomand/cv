@@ -1,16 +1,13 @@
 import type { OutputLine, ThemeName } from '~/terminal/types'
 import type { View } from '~/tui/types'
 import { describe, expect, it } from 'vitest'
+import { makeShell } from '~~/tests/unit/fixtures/context'
+import { texts } from '~~/tests/unit/fixtures/output'
 import { commands as shellCommands } from '~/terminal/commands'
 import { createAppBridge } from '~/tui/bridge'
 import { commands as appCommands } from '~/tui/commands'
 import { createAppRegistry } from '~/tui/registry'
 import { createAppRunner } from '~/tui/runner'
-import { makeShell } from '../fixtures/context'
-
-function texts(lines: OutputLine[]): string[] {
-  return lines.map(line => line.spans.map(span => span.text).join(''))
-}
 
 describe('createAppBridge', () => {
   it('reuses the shell context and app registry by reference', () => {
@@ -32,7 +29,7 @@ describe('createAppBridge', () => {
 
   it('shares VFS state while isolating output and preserving normal history', async () => {
     const shell = makeShell(shellCommands, { history: ['whoami'] })
-    await shell.shell.exec('pwd')
+    await shell.exec('pwd')
     const previousScrollback = [...shell.lines]
     const previousHistory = [...shell.history]
     const appLines: OutputLine[] = []
@@ -48,7 +45,7 @@ describe('createAppBridge', () => {
     expect(await bridge.exec('pwd', line => appLines.push(line), () => ++appId, signal)).toBe(0)
     expect(await bridge.exec('missing-command', line => appLines.push(line), () => ++appId, signal)).toBe(127)
 
-    expect(appLines.map(line => line.spans.map(span => span.text).join(''))).toEqual([
+    expect(texts(appLines)).toEqual([
       '/home/hamed/experience/acme',
       'bash: missing-command: command not found',
     ])
@@ -63,7 +60,7 @@ describe('createAppBridge', () => {
     shell.deps.ui.clear = () => {
       shell.lines.splice(0)
     }
-    await shell.shell.exec('whoami')
+    await shell.exec('whoami')
     const parked = [...shell.lines]
     expect(parked.length).toBeGreaterThan(0)
 

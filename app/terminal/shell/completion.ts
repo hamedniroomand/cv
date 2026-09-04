@@ -1,4 +1,4 @@
-import type { CompletionContext } from '../types'
+import type { CompletionContext } from '~/terminal/types'
 
 export interface CompletionResult {
   line: string

@@ -1,41 +1,59 @@
-import type { CvData } from '../../shared/schemas/cv.ts'
-import type { Experience, Highlight } from '../../shared/schemas/experience.ts'
-import type { Project } from '../../shared/schemas/project.ts'
+import type { CvData } from '#shared/schemas/cv'
+import type { Education } from '#shared/schemas/education'
+import type { Experience, Highlight } from '#shared/schemas/experience'
+import type { Project } from '#shared/schemas/project'
 import { readdir, readFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { marked } from 'marked'
 import { z } from 'zod'
-import { CvDataSchema } from '../../shared/schemas/cv.ts'
-import { EducationFrontmatter } from '../../shared/schemas/education.ts'
-import { ExperienceFrontmatter, HighlightFrontmatter } from '../../shared/schemas/experience.ts'
-import { ProfileSchema } from '../../shared/schemas/profile.ts'
-import { ProjectFrontmatter } from '../../shared/schemas/project.ts'
-import { SkillsSchema } from '../../shared/schemas/skills.ts'
+import { CvDataSchema } from '#shared/schemas/cv'
+import { EducationFrontmatter } from '#shared/schemas/education'
+import { ExperienceFrontmatter, HighlightFrontmatter } from '#shared/schemas/experience'
+import { ProfileSchema } from '#shared/schemas/profile'
+import { ProjectFrontmatter } from '#shared/schemas/project'
+import { SkillsSchema } from '#shared/schemas/skills'
 import { parseFrontmatter } from './frontmatter.ts'
 
 export type ReadmeFetcher = (repo: string) => Promise<string | null>
 
 marked.setOptions({ gfm: true, async: false })
 
-function render(md: string): string {
-  return marked.parse(md) as string
-}
-
-class ContentError extends Error {
+export class ContentError extends Error {
   constructor(file: string, detail: string) {
     super(`content validation failed in ${file}: ${detail}`)
+    this.name = 'ContentError'
   }
 }
 
+function render(markdown: string): string {
+  return marked.parse(markdown) as string
+}
+
+function rendered(body: string): { body: string, html: string } {
+  return { body, html: render(body) }
+}
+
 function validate<T>(schema: z.ZodType<T>, value: unknown, file: string): T {
-  const r = schema.safeParse(value)
-  if (!r.success)
-    throw new ContentError(file, z.prettifyError(r.error))
-  return r.data
+  const result = schema.safeParse(value)
+  if (!result.success)
+    throw new ContentError(file, z.prettifyError(result.error))
+  return result.data
+}
+
+function slugOf(fileName: string): string {
+  return fileName.replace(/\.md$/, '')
+}
+
+function byOrder<T extends { order: number }>(a: T, b: T): number {
+  return a.order - b.order
 }
 
 async function readText(path: string): Promise<string> {
   return readFile(path, 'utf8')
+}
+
+async function readJson(path: string): Promise<unknown> {
+  return JSON.parse(await readText(path))
 }
 
 async function readMarkdown(path: string) {
@@ -44,72 +62,84 @@ async function readMarkdown(path: string) {
 
 async function listDirs(path: string): Promise<string[]> {
   const entries = await readdir(path, { withFileTypes: true })
-  return entries.filter(e => e.isDirectory()).map(e => e.name).sort()
+  return entries.filter(entry => entry.isDirectory()).map(entry => entry.name).sort()
 }
 
 async function listMarkdown(path: string): Promise<string[]> {
   try {
     const entries = await readdir(path, { withFileTypes: true })
-    return entries.filter(e => e.isFile() && e.name.endsWith('.md')).map(e => e.name).sort()
+    return entries.filter(entry => entry.isFile() && entry.name.endsWith('.md')).map(entry => entry.name).sort()
   }
   catch {
     return []
   }
 }
 
-async function loadExperience(dir: string): Promise<Experience[]> {
-  const out: Experience[] = []
-  for (const slug of await listDirs(dir)) {
-    const file = join(dir, slug, 'index.md')
-    const { data, body } = await readMarkdown(file)
-    const fm = validate(ExperienceFrontmatter, data, file)
-    const highlights: Highlight[] = []
-    const hlDir = join(dir, slug, 'highlights')
-    for (const name of await listMarkdown(hlDir)) {
-      const hlFile = join(hlDir, name)
-      const hl = await readMarkdown(hlFile)
-      const hfm = validate(HighlightFrontmatter, hl.data, hlFile)
-      highlights.push({ ...hfm, slug: name.replace(/\.md$/, ''), body: hl.body, html: render(hl.body) })
-    }
-    highlights.sort((a, b) => a.order - b.order)
-    out.push({ ...fm, slug, body, html: render(body), highlights })
-  }
-  return out.sort((a, b) => a.order - b.order)
-}
-
-async function loadProjects(dir: string, fetchReadme: ReadmeFetcher): Promise<Project[]> {
-  const out: Project[] = []
+async function loadHighlights(dir: string): Promise<Highlight[]> {
+  const highlights: Highlight[] = []
   for (const name of await listMarkdown(dir)) {
     const file = join(dir, name)
     const { data, body } = await readMarkdown(file)
-    const fm = validate(ProjectFrontmatter, data, file)
-    const remote = await fetchReadme(fm.repo)
-    const readme = remote ?? body
-    out.push({ ...fm, slug: name.replace(/\.md$/, ''), body: readme, html: render(readme), readmeSource: remote ? 'github' : 'fallback' })
+    highlights.push({ ...validate(HighlightFrontmatter, data, file), slug: slugOf(name), ...rendered(body) })
   }
-  return out
+  return highlights.sort(byOrder)
 }
 
-/** Read, validate and render everything under `contentDir`. Throws with the offending file on invalid content. */
-export async function loadContent(contentDir: string, fetchReadme: ReadmeFetcher, now = new Date()): Promise<CvData> {
-  const profileFile = join(contentDir, 'profile.json')
-  const skillsFile = join(contentDir, 'skills.json')
-  const educationFile = join(contentDir, 'education.md')
+async function loadExperience(dir: string): Promise<Experience[]> {
+  const experiences: Experience[] = []
+  for (const slug of await listDirs(dir)) {
+    const file = join(dir, slug, 'index.md')
+    const { data, body } = await readMarkdown(file)
+    experiences.push({
+      ...validate(ExperienceFrontmatter, data, file),
+      slug,
+      ...rendered(body),
+      highlights: await loadHighlights(join(dir, slug, 'highlights')),
+    })
+  }
+  return experiences.sort(byOrder)
+}
 
-  const profile = validate(ProfileSchema, JSON.parse(await readText(profileFile)), profileFile)
-  const skills = validate(SkillsSchema, JSON.parse(await readText(skillsFile)), skillsFile)
-  const about = await readMarkdown(join(contentDir, 'about.md'))
-  const secrets = await readMarkdown(join(contentDir, 'secrets.md'))
-  const edu = await readMarkdown(educationFile)
-  const eduFm = validate(EducationFrontmatter, edu.data, educationFile)
+async function loadProjects(dir: string, fetchReadme: ReadmeFetcher): Promise<Project[]> {
+  const projects: Project[] = []
+  for (const name of await listMarkdown(dir)) {
+    const file = join(dir, name)
+    const { data, body } = await readMarkdown(file)
+    const frontmatter = validate(ProjectFrontmatter, data, file)
+    const remote = await fetchReadme(frontmatter.repo)
+    projects.push({
+      ...frontmatter,
+      slug: slugOf(name),
+      ...rendered(remote ?? body),
+      readmeSource: remote ? 'github' : 'fallback',
+    })
+  }
+  return projects
+}
+
+async function loadEducation(file: string): Promise<Education> {
+  const { data, body } = await readMarkdown(file)
+  return { ...validate(EducationFrontmatter, data, file), ...rendered(body) }
+}
+
+async function loadJson<T>(schema: z.ZodType<T>, file: string): Promise<T> {
+  return validate(schema, await readJson(file), file)
+}
+
+export async function loadContent(contentDir: string, fetchReadme: ReadmeFetcher, now = new Date()): Promise<CvData> {
+  const at = (name: string): string => join(contentDir, name)
+  const profile = await loadJson(ProfileSchema, at('profile.json'))
+  const skills = await loadJson(SkillsSchema, at('skills.json'))
+  const about = await readMarkdown(at('about.md'))
+  const secrets = await readMarkdown(at('secrets.md'))
 
   const data: CvData = {
     profile,
-    about: { body: about.body, html: render(about.body) },
-    experience: await loadExperience(join(contentDir, 'experience')),
-    projects: await loadProjects(join(contentDir, 'projects'), fetchReadme),
+    about: rendered(about.body),
+    experience: await loadExperience(at('experience')),
+    projects: await loadProjects(at('projects'), fetchReadme),
     skills,
-    education: { ...eduFm, body: edu.body, html: render(edu.body) },
+    education: await loadEducation(at('education.md')),
     secrets: { body: secrets.body },
     generatedAt: now.toISOString(),
   }

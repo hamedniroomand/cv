@@ -1,10 +1,10 @@
 import { describe, expect, it, vi } from 'vitest'
+import { makeShell } from '~~/tests/unit/fixtures/context'
 import { commands } from '~/terminal/commands'
 import { navigateFor, parseCount, printUsage, readInput, reportFsError, visibleCommands, writeLink } from '~/terminal/commands/_util'
 import { FsError } from '~/terminal/fs/errors'
 import { LineWriter } from '~/terminal/io/writer'
 import { createRegistry } from '~/terminal/shell/registry'
-import { makeShell } from '../../fixtures/context'
 
 describe('reportFsError', () => {
   it('prints filesystem errors and rethrows anything else', () => {
@@ -17,9 +17,9 @@ describe('reportFsError', () => {
 
 describe('navigateFor', () => {
   it('no-ops when the path is missing', () => {
-    const s = makeShell(commands)
+    const term = makeShell(commands)
     const navigate = vi.fn()
-    navigateFor({ fs: s.deps.fs, panel: { navigate, toggle: () => {} } } as never, 'nope')
+    navigateFor({ fs: term.deps.fs, panel: { navigate, toggle: () => {} } } as never, 'nope')
     expect(navigate).not.toHaveBeenCalled()
   })
 })
@@ -36,12 +36,12 @@ describe('parseCount / readInput', () => {
 
 describe('writeLink', () => {
   it('writes a label, a link and a line break', () => {
-    const s = makeShell(commands)
-    const writer = new LineWriter(line => s.lines.push(line), () => 1)
+    const term = makeShell(commands)
+    const writer = new LineWriter(line => term.lines.push(line), () => 1)
     writeLink(writer, 'Email: ', 'me@example.com', 'mailto:me@example.com')
     writer.flush()
-    expect(s.lines).toHaveLength(1)
-    expect(s.lines[0]!.spans).toEqual([
+    expect(term.lines).toHaveLength(1)
+    expect(term.lines[0]!.spans).toEqual([
       { text: 'Email: ' },
       { text: 'me@example.com', style: 'accent', href: 'mailto:me@example.com' },
     ])
@@ -50,9 +50,9 @@ describe('writeLink', () => {
 
 describe('printUsage', () => {
   it('prints the usage of the running command and returns the code', () => {
-    const s = makeShell(commands)
+    const term = makeShell(commands)
     const stderr = { line: vi.fn() }
-    const ctx = { argv0: 'ls', registry: s.deps.registry, stderr } as never
+    const ctx = { argv0: 'ls', registry: term.deps.registry, stderr } as never
     expect(printUsage(ctx, 2)).toBe(2)
     expect(stderr.line).toHaveBeenCalledWith('usage: ls [-la] [path...]')
   })

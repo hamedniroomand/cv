@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { sendContact } from '../../../server/utils/notify'
+import { sendContact } from '#server/utils/notify'
 
 const msg = { name: 'Ada', email: 'ada@example.com', message: 'Hello there, long enough. @everyone' }
 const hook = 'https://discord.com/api/webhooks/1/abc'

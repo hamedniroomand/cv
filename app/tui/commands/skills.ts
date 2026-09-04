@@ -1,7 +1,7 @@
-import type { AppCommand, AppContext, PickerItem } from '../types'
+import type { AppCommand, AppContext, PickerItem } from '~/tui/types'
 import { unknownValueMessage } from '~/terminal/messages'
-import { chooseValue } from '../choose'
-import { EXIT_CANCELLED } from '../types'
+import { chooseValue } from '~/tui/choose'
+import { EXIT_CANCELLED } from '~/tui/types'
 
 const ALL = 'all'
 

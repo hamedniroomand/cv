@@ -4,15 +4,16 @@ export interface Frontmatter {
   body: string
 }
 
-const FM = /^---\r?\n([\s\S]*?)^---\r?\n?/m
+const FRONTMATTER = /^---\r?\n([\s\S]*?)^---\r?\n?/m
 
-/** Split `---\nyaml\n---\nbody`. Files without frontmatter return empty data. */
-export function parseFrontmatter(src: string): Frontmatter {
-  const m = FM.exec(src)
-  if (!m || m.index !== 0)
-    return { data: {}, body: src.trim() }
-  const yaml = m[1]!.trim()
+function parseYaml(yaml: string): Record<string, unknown> {
   const parsed: unknown = yaml ? Bun.YAML.parse(yaml) : {}
-  const data = parsed && typeof parsed === 'object' ? (parsed as Record<string, unknown>) : {}
-  return { data, body: src.slice(m[0].length).trim() }
+  return parsed && typeof parsed === 'object' ? (parsed as Record<string, unknown>) : {}
+}
+
+export function parseFrontmatter(src: string): Frontmatter {
+  const match = FRONTMATTER.exec(src)
+  if (!match || match.index !== 0)
+    return { data: {}, body: src.trim() }
+  return { data: parseYaml(match[1]!.trim()), body: src.slice(match[0].length).trim() }
 }

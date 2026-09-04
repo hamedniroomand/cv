@@ -1,11 +1,10 @@
 import { mkdtemp, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
-import { join } from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { join, resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { loadContent } from '../../../modules/cv-content/load'
+import { loadContent } from '~~/modules/cv-content/load'
 
-const dir = fileURLToPath(new URL('../../../content', import.meta.url))
+const dir = resolve('content')
 
 describe('loadContent', () => {
   it('loads and validates the real content directory', async () => {
@@ -17,21 +16,25 @@ describe('loadContent', () => {
     expect(cv.skills.categories.length).toBeGreaterThan(3)
     expect(cv.secrets.body).toContain('vim')
   })
+
   it('uses the fetched README when available', async () => {
     const cv = await loadContent(dir, async () => '# Cue\n\nfrom github')
     expect(cv.projects[0]!.readmeSource).toBe('github')
     expect(cv.projects[0]!.body).toContain('from github')
     expect(cv.projects[0]!.html).toContain('<h1>')
   })
+
   it('renders markdown to html', async () => {
     const cv = await loadContent(dir, async () => null)
     expect(cv.about.html).toContain('<p>')
     expect(cv.experience[0]!.highlights[0]!.html).toContain('<p>')
   })
+
   it('stamps generatedAt from the clock', async () => {
     const cv = await loadContent(dir, async () => null, new Date('2026-09-04T00:00:00Z'))
     expect(cv.generatedAt).toBe('2026-09-04T00:00:00.000Z')
   })
+
   it('throws ContentError on invalid content', async () => {
     const tmp = await mkdtemp(join(tmpdir(), 'cv-bad-'))
     await writeFile(join(tmp, 'profile.json'), '{}')

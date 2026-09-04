@@ -1,4 +1,4 @@
-import type { Span } from '../types'
+import type { Span } from '~/terminal/types'
 
 type Fence = 'code' | 'mermaid' | null
 

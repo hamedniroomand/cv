@@ -1,6 +1,6 @@
-import type { Command, CommandContext, LineStyle, Span } from '../types'
+import type { Command, CommandContext, LineStyle, Span } from '~/terminal/types'
 import { totalYears } from '#shared/cv/format'
-import { portrait } from '../art/portrait'
+import { portrait } from '~/terminal/art/portrait'
 
 const ART_GAP = '    '
 const ART_WIDTH = Math.max(...portrait.map(line => line.length))

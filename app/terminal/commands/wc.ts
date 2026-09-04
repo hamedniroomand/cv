@@ -1,6 +1,6 @@
-import type { Command, CommandContext } from '../types'
-import { byteLength } from '../io/text'
-import { parseFlags } from '../shell/flags'
+import type { Command, CommandContext } from '~/terminal/types'
+import { byteLength } from '~/terminal/io/text'
+import { parseFlags } from '~/terminal/shell/flags'
 import { printUsage, reportFsError } from './_util'
 
 interface Counts {

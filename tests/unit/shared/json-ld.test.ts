@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
+import { fixtureCv } from '~~/tests/unit/fixtures/cv'
 import { personJsonLd } from '#shared/cv/json-ld'
-import { fixtureCv } from '../fixtures/cv'
 
 describe('personJsonLd', () => {
   it('describes the profile as a schema.org Person', () => {

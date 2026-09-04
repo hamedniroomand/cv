@@ -1,6 +1,6 @@
 import type { AppCommand } from '~/tui/types'
 import { describe, expect, it } from 'vitest'
-import { makeApp } from '../../fixtures/app'
+import { makeApp } from '~~/tests/unit/fixtures/app'
 
 describe('content slash commands', () => {
   it('records View clear, status, and exit effects from a command run through the app', async () => {

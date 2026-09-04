@@ -1,4 +1,4 @@
-import type { AppCommand, PickerItem } from '../types'
+import type { AppCommand, PickerItem } from '~/tui/types'
 import { unknownValueMessage } from '~/terminal/messages'
 
 const ENDPOINTS = [

@@ -3,7 +3,6 @@ import { RenderedBody } from './common.ts'
 
 export const ProjectFrontmatter = z.object({
   name: z.string().min(1),
-  /** GitHub `owner/repo`. */
   repo: z.string().regex(/^[\w.-]+\/[\w.-]+$/),
   docs: z.string().url().optional(),
   tagline: z.string().min(1),

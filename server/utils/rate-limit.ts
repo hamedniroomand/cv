@@ -10,32 +10,45 @@ export interface RateLimitResult {
   retryAfterMs: number
 }
 
-/** Fixed-window in-memory limiter. Good enough for one process and a contact form. */
+interface Window {
+  start: number
+  count: number
+}
+
+const SWEEP_THRESHOLD = 1000
+
 export function createRateLimiter(opts: RateLimiterOptions) {
   const now = opts.now ?? Date.now
-  const windows = new Map<string, { start: number, count: number }>()
+  const windows = new Map<string, Window>()
 
-  function sweep(t: number): void {
-    for (const [key, w] of windows) {
-      if (t - w.start >= opts.windowMs)
+  const expired = (window: Window, time: number): boolean => time - window.start >= opts.windowMs
+
+  function sweep(time: number): void {
+    for (const [key, window] of windows) {
+      if (expired(window, time))
         windows.delete(key)
     }
   }
 
+  function currentWindow(key: string, time: number): Window {
+    const existing = windows.get(key)
+    if (existing && !expired(existing, time))
+      return existing
+    const fresh: Window = { start: time, count: 0 }
+    windows.set(key, fresh)
+    return fresh
+  }
+
   return {
     hit(key: string): RateLimitResult {
-      const t = now()
-      if (windows.size > 1000)
-        sweep(t)
-      let w = windows.get(key)
-      if (!w || t - w.start >= opts.windowMs) {
-        w = { start: t, count: 0 }
-        windows.set(key, w)
-      }
-      w.count++
-      if (w.count > opts.limit)
-        return { allowed: false, remaining: 0, retryAfterMs: w.start + opts.windowMs - t }
-      return { allowed: true, remaining: opts.limit - w.count, retryAfterMs: 0 }
+      const time = now()
+      if (windows.size > SWEEP_THRESHOLD)
+        sweep(time)
+      const window = currentWindow(key, time)
+      window.count++
+      if (window.count > opts.limit)
+        return { allowed: false, remaining: 0, retryAfterMs: window.start + opts.windowMs - time }
+      return { allowed: true, remaining: opts.limit - window.count, retryAfterMs: 0 }
     },
     size(): number {
       sweep(now())

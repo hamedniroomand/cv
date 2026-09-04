@@ -1,7 +1,7 @@
-import type { FsNode } from '../fs/types'
-import type { Command, CommandContext, LineStyle } from '../types'
-import { fsErrorReason, isFsError } from '../fs/errors'
-import { parseFlags } from '../shell/flags'
+import type { FsNode } from '~/terminal/fs/types'
+import type { Command, CommandContext, LineStyle } from '~/terminal/types'
+import { fsErrorReason, isFsError } from '~/terminal/fs/errors'
+import { parseFlags } from '~/terminal/shell/flags'
 import { navigateFor } from './_util'
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']

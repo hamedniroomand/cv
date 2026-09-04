@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test'
+import { reloadWithoutHydration } from './helpers'
 
 test.describe('split layout', () => {
   test.skip(({ isMobile }) => isMobile, 'desktop only')
@@ -26,12 +27,6 @@ test.describe('split layout', () => {
 
 test.describe('split layout first paint', () => {
   test.skip(({ isMobile }) => isMobile, 'desktop only')
-
-  /** Reload with every app script blocked, so what we see is the server HTML plus the pre-paint script only. */
-  async function reloadWithoutHydration(page: import('@playwright/test').Page): Promise<void> {
-    await page.route(/\/_nuxt\/.*\.js/, route => route.abort())
-    await page.reload()
-  }
 
   test('a saved ratio is applied before hydration', async ({ page }) => {
     await page.goto('/')

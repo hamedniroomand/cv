@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { getPublicCv } from '../../../server/utils/cv'
-import { fixtureCv } from '../fixtures/cv'
+import { fixtureCv } from '~~/tests/unit/fixtures/cv'
+import { getPublicCv } from '#server/utils/cv'
 
 describe('getPublicCv', () => {
   it('returns resume data without secrets', () => {

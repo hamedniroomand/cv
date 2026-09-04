@@ -1,8 +1,8 @@
 import type { AppCommand, AppContext, View } from '~/tui/types'
 import { describe, expect, it } from 'vitest'
+import { makeShell } from '~~/tests/unit/fixtures/context'
 import { createAppRegistry } from '~/tui/registry'
 import { createAppRunner } from '~/tui/runner'
-import { makeShell } from '../fixtures/context'
 
 type BaseAppContext = Omit<AppContext, 'argv0' | 'registry' | 'shell' | 'signal' | 'slash' | 'sudo'>
 

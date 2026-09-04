@@ -1,4 +1,4 @@
-import type { CvData } from '../schemas/cv'
+import type { CvData } from '#shared/schemas/cv'
 import { githubUrl, mailtoUrl } from './links'
 
 export function personJsonLd(cv: CvData, siteUrl: string): Record<string, unknown> {

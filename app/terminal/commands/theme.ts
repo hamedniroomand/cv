@@ -1,4 +1,4 @@
-import type { Command } from '../types'
+import type { Command } from '~/terminal/types'
 import { isThemeName, THEMES } from '#shared/theme'
 
 export default {

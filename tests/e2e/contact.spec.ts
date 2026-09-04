@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test'
+import { DISCORD_MOCK_URL } from './helpers'
 
 test.describe('contact form', () => {
   test.skip(({ isMobile }) => isMobile, 'desktop only')
@@ -21,7 +22,7 @@ test.describe('contact form', () => {
     await send.click()
     await expect(dialog.getByRole('status')).toContainText('Sent.')
 
-    const delivered = await (await request.get('http://localhost:3458/messages')).json()
+    const delivered = await (await request.get(`${DISCORD_MOCK_URL}/messages`)).json()
     expect(JSON.stringify(delivered)).toContain('ada@example.com')
   })
 

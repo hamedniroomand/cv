@@ -1,7 +1,7 @@
-import type { AppCommand, PickerItem } from '../types'
+import type { AppCommand, PickerItem } from '~/tui/types'
 import { THEMES } from '#shared/theme'
-import { chooseValue } from '../choose'
-import { EXIT_CANCELLED } from '../types'
+import { chooseValue } from '~/tui/choose'
+import { EXIT_CANCELLED } from '~/tui/types'
 
 const choices: PickerItem[] = THEMES.map(theme => ({ value: theme, label: theme }))
 

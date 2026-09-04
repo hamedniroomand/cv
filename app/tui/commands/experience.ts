@@ -1,10 +1,10 @@
 import type { Experience } from '#shared/schemas/experience'
-import type { AppCommand, AppContext, PickerItem } from '../types'
+import type { AppCommand, AppContext, PickerItem } from '~/tui/types'
 import { formatRange } from '#shared/cv/format'
 import { unknownValueMessage } from '~/terminal/messages'
-import { chooseValue } from '../choose'
-import { printMarkdown } from '../markdown'
-import { EXIT_CANCELLED } from '../types'
+import { chooseValue } from '~/tui/choose'
+import { printMarkdown } from '~/tui/markdown'
+import { EXIT_CANCELLED } from '~/tui/types'
 
 function choices(ctx: AppContext): PickerItem[] {
   return [...ctx.cv.experience]

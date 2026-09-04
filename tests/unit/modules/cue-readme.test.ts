@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { fetchGithubReadme } from '../../../modules/cv-content/cue-readme'
+import { fetchGithubReadme } from '~~/modules/cv-content/cue-readme'
 
 describe('fetchGithubReadme', () => {
   it('returns the README body on success', async () => {

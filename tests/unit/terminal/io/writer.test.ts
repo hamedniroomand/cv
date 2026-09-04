@@ -18,6 +18,7 @@ describe('lineWriter', () => {
     w.flush()
     expect(text()).toEqual(['a', 'b'])
   })
+
   it('line() appends a newline; empty line() emits an empty line', () => {
     const { w, lines } = make()
     w.line('x')
@@ -25,6 +26,7 @@ describe('lineWriter', () => {
     expect(lines).toHaveLength(2)
     expect(lines[1]!.spans).toEqual([])
   })
+
   it('applies default and explicit styles and links', () => {
     const { w, lines } = make('error')
     w.write('bad')
@@ -35,18 +37,21 @@ describe('lineWriter', () => {
       { text: 'gh', style: 'accent', href: 'https://x' },
     ])
   })
+
   it('raw appends spans to the current line', () => {
     const { w, lines } = make()
     w.raw([{ text: 'art', style: 'pre' }])
     w.line()
     expect(lines[0]!.spans).toEqual([{ text: 'art', style: 'pre' }])
   })
+
   it('assigns increasing ids', () => {
     const { w, lines } = make()
     w.line('a')
     w.line('b')
     expect(lines.map(l => l.id)).toEqual([1, 2])
   })
+
   it('flush without content emits nothing', () => {
     const { w, lines } = make()
     w.flush()
@@ -63,6 +68,7 @@ describe('captureWriter', () => {
     c.raw([{ text: 'r' }])
     expect(c.text()).toBe('ab\nLr')
   })
+
   it('flush is a no-op', () => {
     const c = new CaptureWriter()
     c.line('x')

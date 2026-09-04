@@ -1,5 +1,5 @@
-import type { AppCommand } from '../types'
-import { printMarkdown } from '../markdown'
+import type { AppCommand } from '~/tui/types'
+import { printMarkdown } from '~/tui/markdown'
 
 export default {
   name: 'about',

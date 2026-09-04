@@ -1,6 +1,6 @@
-import type { Command, CommandContext, Writer } from '../types'
+import type { Command, CommandContext, Writer } from '~/terminal/types'
 import { formatRange } from '#shared/cv/format'
-import { wrapText } from '../io/text'
+import { wrapText } from '~/terminal/io/text'
 import { visibleCommands } from './_util'
 
 const INDENT = '       '

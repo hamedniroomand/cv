@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest'
+import { makeShell } from '~~/tests/unit/fixtures/context'
 import { commands } from '~/terminal/commands'
-import { makeShell } from '../../fixtures/context'
 
 describe('hamed', () => {
   it.each(['hamed', 'app', 'tui'])('%s opens app mode and reports exit', async (name) => {
     const app = makeShell(commands)
 
-    const result = await app.shell.exec(name)
+    const result = await app.exec(name)
 
     expect(result.code).toBe(0)
     expect(app.calls.apps).toBe(1)
@@ -21,7 +21,7 @@ describe('hamed', () => {
     })
     app.deps.ui.openApp = () => closed
 
-    const execution = app.shell.exec('hamed')
+    const execution = app.exec('hamed')
     await Promise.resolve()
     expect(app.text()).toBe('')
 
@@ -36,7 +36,7 @@ describe('hamed', () => {
       throw new Error('interactive app UI is not mounted')
     }
 
-    expect((await app.shell.exec('hamed')).code).toBe(1)
+    expect((await app.exec('hamed')).code).toBe(1)
     expect(app.text()).toBe('hamed: interactive app UI is not mounted')
     expect(app.text()).not.toContain('hamed: exited')
   })

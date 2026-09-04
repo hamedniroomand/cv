@@ -1,4 +1,4 @@
-import type { Command } from '../types'
+import type { Command } from '~/terminal/types'
 
 export default {
   name: 'hamed',

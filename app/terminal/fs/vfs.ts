@@ -1,5 +1,5 @@
 import type { CompleteOptions, FsBase, FsDir, FsFile, FsNode, ReaddirOptions, ReadFileOptions, VirtualFS } from './types'
-import { byteLength } from '../io/text'
+import { byteLength } from '~/terminal/io/text'
 import { FsError } from './errors'
 
 const DEFAULT_MTIME = '1970-01-01T00:00:00.000Z'

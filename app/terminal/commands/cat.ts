@@ -1,5 +1,5 @@
-import type { Command } from '../types'
-import { ensureNewline } from '../io/text'
+import type { Command } from '~/terminal/types'
+import { ensureNewline } from '~/terminal/io/text'
 import { navigateFor, printUsage, reportFsError } from './_util'
 
 export default {

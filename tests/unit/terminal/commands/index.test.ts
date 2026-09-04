@@ -9,10 +9,12 @@ describe('command registry glob', () => {
     for (const name of PHASE_1)
       expect(names).toContain(name)
   })
+
   it('has unique names and aliases', () => {
     const keys = commands.flatMap(c => [c.name, ...(c.aliases ?? [])])
     expect(new Set(keys).size).toBe(keys.length)
   })
+
   it('every command documents itself', () => {
     for (const c of commands) {
       expect(c.description.length, c.name).toBeGreaterThan(0)

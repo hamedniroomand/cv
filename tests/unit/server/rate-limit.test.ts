@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { createRateLimiter } from '../../../server/utils/rate-limit'
+import { createRateLimiter } from '#server/utils/rate-limit'
 
 describe('createRateLimiter', () => {
   it('allows up to limit within the window then blocks', () => {
@@ -14,6 +14,7 @@ describe('createRateLimiter', () => {
     expect(rl.hit('a').allowed).toBe(true)
     expect(rl.hit('b').allowed).toBe(true)
   })
+
   it('forgets keys whose window has passed', () => {
     let t = 0
     const rl = createRateLimiter({ limit: 1, windowMs: 100, now: () => t })
@@ -22,6 +23,7 @@ describe('createRateLimiter', () => {
     rl.hit('b')
     expect(rl.size()).toBe(1)
   })
+
   it('sweeps stale windows when the map grows large', () => {
     let t = 0
     const rl = createRateLimiter({ limit: 1, windowMs: 100, now: () => t })

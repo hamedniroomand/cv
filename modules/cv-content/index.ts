@@ -1,54 +1,65 @@
-import type { CvData } from '../../shared/schemas/cv.ts'
+import type { Nuxt } from '@nuxt/schema'
+import type { CvData } from '#shared/schemas/cv'
+import type { ReadmeFetcher } from './load.ts'
 import process from 'node:process'
-import { addTemplate, addTypeTemplate, createResolver, defineNuxtModule, updateTemplates, useLogger } from '@nuxt/kit'
+import { addTemplate, addTypeTemplate, defineNuxtModule, updateTemplates, useLogger } from '@nuxt/kit'
+import { join } from 'pathe'
 import { fetchGithubReadme } from './cue-readme.ts'
 import { loadContent } from './load.ts'
 
-/**
- * Reads `content/`, validates it with the shared Zod schemas, fetches project READMEs from GitHub
- * (falling back to the committed body) and exposes everything as the virtual module `#cv`.
- */
+const DATA_TEMPLATE = 'cv-data.mjs'
+
+const CV_TYPES = [
+  `declare module '#cv' {`,
+  `  import type { CvData } from '#shared/schemas/cv'`,
+  `  export const cv: CvData`,
+  `}`,
+  ``,
+].join('\n')
+
+function readmeFetcher(): ReadmeFetcher {
+  return process.env.CV_OFFLINE === '1' ? async () => null : fetchGithubReadme
+}
+
+function registerCvAlias(nuxt: Nuxt, dst: string): void {
+  nuxt.options.alias['#cv'] = dst
+  nuxt.hook('nitro:config', (config) => {
+    config.alias ||= {}
+    config.alias['#cv'] = dst
+  })
+}
+
+function watchContent(nuxt: Nuxt, contentDir: string, reload: () => Promise<void>): void {
+  nuxt.options.watch.push(contentDir)
+  nuxt.hook('builder:watch', async (_event, path) => {
+    if (path.includes('content'))
+      await reload()
+  })
+}
+
 export default defineNuxtModule({
   meta: { name: 'cv-content' },
   async setup(_options, nuxt) {
     const logger = useLogger('cv-content')
-    const contentDir = createResolver(nuxt.options.rootDir).resolve('content')
-    const offline = process.env.CV_OFFLINE === '1'
-    const fetcher = offline ? async () => null : fetchGithubReadme
+    const contentDir = join(nuxt.options.rootDir, 'content')
+    const fetcher = readmeFetcher()
 
     let data: CvData = await loadContent(contentDir, fetcher)
-    for (const p of data.projects)
-      logger.info(`project ${p.slug}: README from ${p.readmeSource}`)
+    for (const project of data.projects)
+      logger.info(`project ${project.slug}: README from ${project.readmeSource}`)
 
     const template = addTemplate({
-      filename: 'cv-data.mjs',
+      filename: DATA_TEMPLATE,
       write: true,
       getContents: () => `export const cv = ${JSON.stringify(data)}\n`,
     })
-    addTypeTemplate({
-      filename: 'types/cv-data.d.ts',
-      getContents: () => [
-        `declare module '#cv' {`,
-        `  import type { CvData } from '../../shared/schemas/cv.ts'`,
-        `  export const cv: CvData`,
-        `}`,
-        ``,
-      ].join('\n'),
-    }, { nuxt: true, nitro: true })
+    addTypeTemplate({ filename: 'types/cv-data.d.ts', getContents: () => CV_TYPES }, { nuxt: true, nitro: true })
+    registerCvAlias(nuxt, template.dst)
 
-    nuxt.options.alias['#cv'] = template.dst
-    nuxt.hook('nitro:config', (config) => {
-      config.alias ||= {}
-      config.alias['#cv'] = template.dst
-    })
-
-    nuxt.options.watch.push(contentDir)
-    nuxt.hook('builder:watch', async (_event, path) => {
-      if (!path.includes('content'))
-        return
+    watchContent(nuxt, contentDir, async () => {
       try {
         data = await loadContent(contentDir, fetcher)
-        await updateTemplates({ filter: t => t.filename === 'cv-data.mjs' })
+        await updateTemplates({ filter: entry => entry.filename === DATA_TEMPLATE })
         logger.success('content reloaded')
       }
       catch (err) {

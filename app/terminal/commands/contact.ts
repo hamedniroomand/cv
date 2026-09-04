@@ -1,4 +1,4 @@
-import type { Command } from '../types'
+import type { Command } from '~/terminal/types'
 import { githubUrl, mailtoUrl, stripScheme } from '#shared/cv/links'
 import { writeLink } from './_util'
 

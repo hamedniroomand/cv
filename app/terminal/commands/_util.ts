@@ -1,8 +1,8 @@
-import type { FsNode } from '../fs/types'
-import type { CommandContext, Writer } from '../types'
-import { fsErrorMessage, isFsError } from '../fs/errors'
+import type { FsNode } from '~/terminal/fs/types'
+import type { CommandContext, Writer } from '~/terminal/types'
+import { fsErrorMessage, isFsError } from '~/terminal/fs/errors'
 
-export { splitLines } from '../io/text'
+export { splitLines } from '~/terminal/io/text'
 
 export function reportFsError(ctx: CommandContext, err: unknown, code = 1): number {
   if (!isFsError(err))
