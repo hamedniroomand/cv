@@ -52,10 +52,6 @@ export interface ShellEnv {
   siteUrl: string
 }
 
-export interface NetContext {
-  fetch: typeof fetch
-}
-
 export interface CommandRegistry {
   list: () => Command[]
   get: (name: string) => Command | undefined
@@ -87,7 +83,6 @@ export interface CommandContext {
   history: readonly string[]
   registry: CommandRegistry
   ui: TerminalUi
-  net: NetContext
   signal: AbortSignal
 }
 

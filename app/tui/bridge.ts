@@ -33,7 +33,6 @@ export function createAppBridge(
     lang: deps.lang,
     history: deps.history,
     ui: deps.ui,
-    net: deps.net,
   }
 
   return {

@@ -30,7 +30,6 @@ function makeRunner(commands: AppCommand[], shellCode = 7) {
     lang: deps.lang,
     history: deps.history,
     ui: deps.ui,
-    net: deps.net,
     view,
   }
   const runner = createAppRunner({

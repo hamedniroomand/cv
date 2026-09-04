@@ -28,7 +28,6 @@ describe('createAppBridge', () => {
     expect(bridge.context.lang).toBe(shell.deps.lang)
     expect(bridge.context.history).toBe(shell.deps.history)
     expect(bridge.context.ui).toBe(shell.deps.ui)
-    expect(bridge.context.net).toBe(shell.deps.net)
   })
 
   it('shares VFS state while isolating output and preserving normal history', async () => {

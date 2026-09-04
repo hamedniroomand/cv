@@ -1,7 +1,7 @@
 import type { CvData } from '#shared/schemas/cv'
 import type { VirtualFS } from '../fs/types'
 import type { LineSink } from '../io/writer'
-import type { Command, CommandContext, CommandRegistry, NetContext, ShellEnv, TerminalUi } from '../types'
+import type { Command, CommandContext, CommandRegistry, ShellEnv, TerminalUi } from '../types'
 import type { Segment } from './parser'
 import { CaptureWriter, LineWriter } from '../io/writer'
 import { ShellSyntaxError } from './errors'
@@ -18,7 +18,6 @@ export interface ShellDeps {
   theme: CommandContext['theme']
   lang: CommandContext['lang']
   ui: TerminalUi
-  net: NetContext
   history: readonly string[]
 }
 
@@ -101,7 +100,6 @@ export class Shell {
       history: this.deps.history,
       registry: this.deps.registry,
       ui: this.deps.ui,
-      net: this.deps.net,
       signal,
     }
     try {

@@ -78,7 +78,6 @@ export function makeApp({ commands = [], picks = [] }: AppOptions = {}) {
     lang: deps.lang,
     history: deps.history,
     ui: deps.ui,
-    net: deps.net,
     view,
   }
   const runner = createAppRunner({
