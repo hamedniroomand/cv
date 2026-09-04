@@ -12,17 +12,10 @@ test.describe('api', () => {
     expect(body.secrets).toBeUndefined()
   })
 
-  test('experience routes', async ({ request }) => {
-    expect((await request.get('/api/experience/jack-westin')).ok()).toBeTruthy()
-    expect((await request.get('/api/experience/nope')).status()).toBe(404)
-    const all = await (await request.get('/api/experience')).json()
-    expect(all.map((e: { slug: string }) => e.slug)).toContain('thales')
-  })
-
-  test('skills filter and 404', async ({ request }) => {
-    const body = await (await request.get('/api/skills?category=frontend')).json()
-    expect(body.categories).toHaveLength(1)
-    expect((await request.get('/api/skills?category=zzz')).status()).toBe(404)
+  test('removed JSON routes answer 404', async ({ request }) => {
+    expect((await request.get('/api/experience')).status()).toBe(404)
+    expect((await request.get('/api/skills')).status()).toBe(404)
+    expect((await request.get('/api/projects')).status()).toBe(404)
   })
 
   test('OPTIONS preflight answers with CORS headers', async ({ request }) => {

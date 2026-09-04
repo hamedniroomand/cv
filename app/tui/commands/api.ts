@@ -2,9 +2,6 @@ import type { AppCommand, PickerItem } from '../types'
 
 const endpoints = [
   { name: 'cv', path: '/api/cv' },
-  { name: 'experience', path: '/api/experience' },
-  { name: 'skills', path: '/api/skills' },
-  { name: 'projects', path: '/api/projects' },
 ] as const
 
 const choices: PickerItem[] = endpoints.map(endpoint => ({

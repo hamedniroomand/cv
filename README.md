@@ -90,29 +90,24 @@ the `makeShell` fixture, which records every side effect.
 
 ## Content
 
-| File                                                     | Becomes                                                                                   |
-| -------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
-| `content/profile.json`                                   | Header, `whoami`, `man hamed`, JSON-LD                                                    |
-| `content/about.md`                                       | `~/about.md`, About section                                                               |
-| `content/experience/<slug>/index.md` + `highlights/*.md` | `~/experience/<slug>/`, Experience entries, `/experience/<slug>` pages, `/api/experience` |
-| `content/projects/*.md`                                  | `~/projects/<slug>/README.md` (live from GitHub when reachable), Open source section      |
-| `content/skills.json`                                    | `~/skills.json`, `skills`, Skills section, `/api/skills`                                  |
-| `content/education.md`                                   | `~/education.md`, Education section                                                       |
-| `content/secrets.md`                                     | `~/.secrets` (needs `sudo`)                                                               |
+| File                                                     | Becomes                                                                              |
+| -------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| `content/profile.json`                                   | Header, `whoami`, `man hamed`, JSON-LD                                               |
+| `content/about.md`                                       | `~/about.md`, About section                                                          |
+| `content/experience/<slug>/index.md` + `highlights/*.md` | `~/experience/<slug>/`, Experience entries, `/experience/<slug>` pages               |
+| `content/projects/*.md`                                  | `~/projects/<slug>/README.md` (live from GitHub when reachable), Open source section |
+| `content/skills.json`                                    | `~/skills.json`, `skills`, Skills section                                            |
+| `content/education.md`                                   | `~/education.md`, Education section                                                  |
+| `content/secrets.md`                                     | `~/.secrets` (needs `sudo`)                                                          |
 
 Copy rules: no invented metrics, no design-pattern name-dropping. Unknown facts are literally `<FILL>`.
 
 ## API
 
-| Route                               | Returns                                        |
-| ----------------------------------- | ---------------------------------------------- |
-| `GET /api/cv`                       | Everything except `.secrets`                   |
-| `GET /api/experience`               | All experience entries                         |
-| `GET /api/experience/:slug`         | One entry, 404 otherwise                       |
-| `GET /api/skills?category=frontend` | Skill categories, optionally filtered          |
-| `GET /api/projects`                 | Projects                                       |
-| `GET /api/cv.pdf`                   | Redirects to the PDF file                      |
-| `POST /api/contact`                 | `{ name, email, message }`, 10 per hour per IP |
+| Route               | Returns                                        |
+| ------------------- | ---------------------------------------------- |
+| `GET /api/cv`       | Everything except `.secrets`                   |
+| `POST /api/contact` | `{ name, email, message }`, 10 per hour per IP |
 
 ```bash
 curl -s https://niroomand.dev/api/cv | jq .profile

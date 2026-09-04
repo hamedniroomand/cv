@@ -115,9 +115,7 @@ describe('action slash commands', () => {
 
     expect(await app.run('/api')).toBe(0)
     expect(app.text()).toContain('curl -s /api/cv | jq .')
-    expect(app.text()).toContain('curl -s /api/experience | jq .')
-    expect(app.text()).toContain('curl -s /api/skills | jq .')
-    expect(app.text()).toContain('curl -s /api/projects | jq .')
+    expect(app.text()).not.toContain('/api/experience')
     expect(app.calls.shell).toHaveLength(0)
   })
 
@@ -133,7 +131,7 @@ describe('action slash commands', () => {
     const app = makeApp()
 
     expect(await app.run('/api unknown')).toBe(1)
-    expect(app.text()).toContain('cv, experience, skills, projects')
+    expect(app.text()).toContain('(try: cv)')
     expect(app.calls.shell).toHaveLength(0)
   })
 
