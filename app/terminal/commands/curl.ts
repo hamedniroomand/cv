@@ -5,19 +5,6 @@ const EXIT_HOST = 6
 const EXIT_REFUSED = 7
 const EXIT_HTTP = 22
 
-function statusText(status: number): string {
-  const texts: Record<number, string> = {
-    200: 'OK',
-    201: 'Created',
-    204: 'No Content',
-    400: 'Bad Request',
-    404: 'Not Found',
-    429: 'Too Many Requests',
-    500: 'Internal Server Error',
-  }
-  return texts[status] ?? ''
-}
-
 function formatHeaders(res: Response): string[] {
   const lines: string[] = []
   res.headers.forEach((value, key) => {
@@ -37,7 +24,7 @@ function fetchTarget(resolved: string): string {
 }
 
 function printResponseHeaders(ctx: CommandContext, res: Response): void {
-  const reason = statusText(res.status)
+  const reason = res.statusText
   ctx.stdout.line(`HTTP/1.1 ${res.status}${reason ? ` ${reason}` : ''}`)
   for (const line of formatHeaders(res))
     ctx.stdout.line(line)
@@ -77,6 +64,7 @@ export default {
         headers: req.headers,
         body: req.body,
         signal: ctx.signal,
+        redirect: 'manual',
       })
     }
     catch {
@@ -91,7 +79,14 @@ export default {
       printResponseHeaders(ctx, res)
 
     if (!req.headersOnly) {
-      const body = await res.text()
+      let body: string
+      try {
+        body = await res.text()
+      }
+      catch {
+        ctx.stderr.line(`curl: (${EXIT_HOST}) Could not resolve host`)
+        return EXIT_HOST
+      }
       if (body.length > 0)
         ctx.stdout.write(body)
     }
