@@ -28,6 +28,32 @@ test.describe('desktop terminal', () => {
     await expect(page.getByLabel('Terminal input').locator('..')).toContainText('~/experience/thales$')
   })
 
+  test('the prompt stays flush with the terminal edge when scrolled up through long output', async ({ page }) => {
+    await page.goto('/')
+    const input = page.getByLabel('Terminal input')
+    await input.fill('cat projects/cue/README.md')
+    await input.press('Enter')
+    await expect(page.getByRole('log')).toContainText('MIT')
+
+    await page.evaluate(() => {
+      const terminal = document.querySelector<HTMLElement>('.terminal')!
+      terminal.scrollTop -= 200
+    })
+
+    // Safari anchors sticky elements to the scroller's content box, so any padding on the
+    // scroller opens a gap under the stuck footer where output shows through.
+    const gap = await page.evaluate(() => {
+      const terminal = document.querySelector<HTMLElement>('.terminal')!
+      const footer = document.querySelector<HTMLElement>('.terminal__footer')!
+      return {
+        scrollerPaddingBottom: getComputedStyle(terminal).paddingBottom,
+        footerToEdge: terminal.getBoundingClientRect().bottom - footer.getBoundingClientRect().bottom,
+      }
+    })
+    expect(gap.scrollerPaddingBottom).toBe('0px')
+    expect(Math.abs(gap.footerToEdge)).toBeLessThan(1)
+  })
+
   test('sudo is required for .secrets', async ({ page }) => {
     await page.goto('/')
     const input = page.getByLabel('Terminal input')
