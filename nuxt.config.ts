@@ -3,7 +3,7 @@ import process from 'node:process'
 export default defineNuxtConfig({
   compatibilityDate: '2026-09-01',
   devtools: { enabled: true },
-  modules: ['./modules/cv-content'],
+  modules: ['./modules/cv-content', '@vercel/speed-insights'],
   components: [{ path: '~/components', pathPrefix: false }],
   typescript: { strict: true, typeCheck: false },
   runtimeConfig: {
