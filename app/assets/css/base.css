@@ -50,12 +50,15 @@ button {
   color: inherit;
 }
 
-.output__line .s-pre {
-  display: block;
+.output__line:has(> .s-pre) {
   max-width: 100%;
   overflow-x: auto;
   overflow-wrap: normal;
   white-space: pre;
+}
+
+.output__line > .s-pre {
+  color: var(--accent);
 }
 
 code,

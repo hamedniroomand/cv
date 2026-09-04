@@ -46,6 +46,32 @@ describe('neofetch', () => {
 
     const colourBlocks = s.lines[expectedInfo.length - 1]!.spans.slice(1)
     expect(colourBlocks).toHaveLength(8)
-    expect(colourBlocks.every(span => span.text === '█' && span.style !== undefined)).toBe(true)
+    expect(colourBlocks.map(span => span.text)).toEqual(Array.from({ length: 8 }).fill('█'))
+    expect(colourBlocks.map(span => span.style)).toEqual([
+      'dim',
+      'error',
+      'success',
+      'accent',
+      'plain',
+      'prompt',
+      'accent',
+      'plain',
+    ])
+  })
+
+  it('falls back to the shell hostname for a malformed site URL', async () => {
+    const s = makeShell(commands, {
+      env: {
+        user: 'hamed',
+        host: 'hamed.sh',
+        lang: 'en',
+        theme: 'dark',
+        siteUrl: 'not a URL',
+      },
+    })
+
+    expect((await s.shell.exec('neofetch')).code).toBe(0)
+    const info = s.lines.map(line => line.spans.slice(1).map(span => span.text).join(''))
+    expect(info).toContain('Host:     hamed.sh')
   })
 })
