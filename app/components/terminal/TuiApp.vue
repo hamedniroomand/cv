@@ -178,10 +178,10 @@ function onEscape(): void {
 
 const escapeLabel = computed(() => {
   if (picker.value)
-    return 'Cancel picker'
+    return 'Esc · cancel'
   if (showMenu.value)
-    return 'Close slash menu'
-  return 'Exit interactive app'
+    return 'Esc · close menu'
+  return 'Esc · exit'
 })
 
 const menuItems = computed<MenuItem[]>(() => {
@@ -386,8 +386,8 @@ onMounted(() => {
           {{ status }}
         </p>
       </div>
-      <button type="button" class="tui__exit" :aria-label="escapeLabel" @click="onEscape">
-        Esc · exit
+      <button type="button" class="tui__exit" @click="onEscape">
+        {{ escapeLabel }}
       </button>
     </header>
 

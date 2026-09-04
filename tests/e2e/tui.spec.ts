@@ -198,7 +198,7 @@ test.describe('desktop interactive app', () => {
     await prompt.fill('ls')
     await prompt.press('Enter')
     await expect(output).toContainText('about.md')
-    const exit = page.getByRole('button', { name: 'Exit interactive app' })
+    const exit = page.getByRole('button', { name: 'Esc · exit' })
     await exit.focus()
     await exit.press('Control+l')
     await expect(output).toBeEmpty()
@@ -291,7 +291,7 @@ async function openAppOnDevice(page: Page, isMobile: boolean): Promise<Locator> 
 }
 
 function headerEscape(page: Page): Locator {
-  return page.getByRole('button', { name: /exit interactive app|close slash menu|cancel picker/i })
+  return page.getByRole('region', { name: 'Interactive app' }).getByRole('button')
 }
 
 async function expectAccessibleOptionNames(list: Locator): Promise<void> {
@@ -359,22 +359,34 @@ test.describe('interactive app accessibility', () => {
     const menu = page.getByRole('listbox', { name: 'Slash commands' })
     await expectAccessibleOptionNames(menu)
 
-    await headerEscape(page).click()
+    const esc = headerEscape(page)
+    await expect(esc).toHaveText('Esc · close menu')
+    await expect(esc).toHaveAccessibleName('Esc · close menu')
+    await expect(esc).not.toHaveText(/exit/i)
+    await expect(esc).not.toHaveAccessibleName(/exit/i)
+
+    await esc.click()
     await expect(menu).toBeHidden()
     await expect(page.getByRole('heading', { name: /hamed 1\.0/i })).toBeVisible()
     await expect(prompt).toHaveValue('/')
     await expect(prompt).toHaveAttribute('aria-expanded', 'false')
+    await expect(esc).toHaveText('Esc · exit')
+    await expect(esc).toHaveAccessibleName('Esc · exit')
 
     await prompt.fill('/experience')
     await prompt.press('Enter')
     const picker = page.getByRole('listbox', { name: 'Choose a company' })
     await expect(picker).toBeVisible()
     await expectAccessibleOptionNames(picker)
+    await expect(esc).toHaveText('Esc · cancel')
+    await expect(esc).toHaveAccessibleName('Esc · cancel')
 
     await headerEscape(page).click()
     await expect(picker).toBeHidden()
     await expect(page.getByRole('heading', { name: /hamed 1\.0/i })).toBeVisible()
     await expect(prompt).toBeFocused()
+    await expect(esc).toHaveText('Esc · exit')
+    await expect(esc).toHaveAccessibleName('Esc · exit')
 
     await headerEscape(page).click()
     await expect(page.getByLabel('Terminal input')).toBeFocused()
