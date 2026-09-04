@@ -130,12 +130,9 @@ add separate Bun containers for the WebSocket (`who`) and SSH services.
 
 ## Still to fill in
 
-- `content/experience/faro-creaform/index.md`: responsibilities and stack
-- `content/experience/joorchin/index.md`: responsibilities and notable work
-- `content/experience/xankoo/index.md`: anything beyond the SEO dashboard and WordPress work
-- `content/education.md`: exact start and end months (currently Sep 2018 – Jun 2022)
+- `content/education.md`: exact start and end months (currently Sep 2018 – Jun 2022; CV lists years only)
 - Domain (`NUXT_PUBLIC_SITE_URL`) and deploy target
-- Open Graph image (`public/og.png`)
+- Open Graph image (`public/og.png`) / README screenshot
 - Resend API key and recipient for the contact form
 
 ## Roadmap

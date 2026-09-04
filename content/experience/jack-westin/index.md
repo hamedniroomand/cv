@@ -17,9 +17,10 @@ stack:
   - Storybook
   - Vitest
   - Laravel
+  - AI SDK
 order: 1
 ---
 
-Jack Westin is an MCAT-prep e-learning platform. I joined as a senior frontend developer and became the frontend team lead nine months later, leading a team of five.
+Jack Westin is a US MCAT-prep e-learning platform serving thousands of daily active students. I joined as a senior frontend developer and became the frontend team lead eight months later, leading a team of five on Vue 3 / Nuxt 4 applications.
 
-The frontend is Vue 3 / Nuxt 4 on a Laravel backend. I design API contracts together with the backend lead, break product requirement documents into technical tasks for the team, and own the shared design-system and core-logic library that four projects consume.
+As team lead I owned frontend architecture, technical strategy, and delivery planning; designed REST API contracts with the backend lead before implementation; broke PRDs into phased technical tasks; and ran frontend hiring end to end (screened 40+ candidates, made 3 hires). I also owned the shared design-system and core-logic library that four projects consume, delivered product UI to marketing through micro-frontends on WordPress, and established code-review, testing, and CI/CD standards for the team.

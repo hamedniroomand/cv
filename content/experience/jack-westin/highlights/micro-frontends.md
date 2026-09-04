@@ -3,4 +3,4 @@ title: Micro-frontends for the marketing site
 order: 3
 ---
 
-Delivered product components to marketing's WordPress site through micro-frontends, so the marketing team could embed live product UI without a rebuild.
+Delivered reusable components and business logic to marketing through a micro-frontend architecture embedded in their WordPress site, removing duplicate implementations across stacks.

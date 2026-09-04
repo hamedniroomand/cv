@@ -3,4 +3,4 @@ title: Project resource-management system
 order: 2
 ---
 
-Built a project resource-management system with Nuxt 4 on a NestJS backend.
+Built a project resource-management system (Nuxt 4, NestJS) for planning team members, time allocation, and compensation.

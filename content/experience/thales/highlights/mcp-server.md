@@ -3,4 +3,4 @@ title: Private MCP server for AI agents
 order: 3
 ---
 
-Built a private MCP server with Hono on Bun that exposes internal tools to the CTO's AI agents.
+Built a private MCP server (Hono, Bun) exposing the company's internal data and operations as tools for AI coding agents, so the CTO could prototype new product ideas against production systems.

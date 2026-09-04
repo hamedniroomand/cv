@@ -16,6 +16,9 @@
       "items": [
         { "name": "Vue 3" },
         { "name": "Nuxt 4" },
+        { "name": "Pinia" },
+        { "name": "Nuxt UI" },
+        { "name": "Tailwind CSS" },
         { "name": "Vite" },
         { "name": "Storybook" },
         { "name": "CSS", "note": "custom properties, layout, print" },
@@ -30,6 +33,7 @@
         { "name": "Bun" },
         { "name": "NestJS" },
         { "name": "Hono" },
+        { "name": "Express" },
         { "name": "Laravel" },
         { "name": "WordPress", "note": "themes and plugins" }
       ]
@@ -40,6 +44,7 @@
       "items": [
         { "name": "Vitest" },
         { "name": "Playwright" },
+        { "name": "Cypress" },
         { "name": "Storybook" }
       ]
     },
@@ -49,7 +54,10 @@
       "items": [
         { "name": "Git" },
         { "name": "GitHub Actions" },
-        { "name": "Docker" }
+        { "name": "GitLab CI" },
+        { "name": "GitHub Packages" },
+        { "name": "Docker" },
+        { "name": "Vercel" }
       ]
     },
     {
@@ -58,6 +66,7 @@
       "items": [
         { "name": "Claude Code" },
         { "name": "Codex" },
+        { "name": "AI SDK" },
         { "name": "MCP servers" }
       ]
     },
@@ -66,6 +75,7 @@
       "label": "Leadership",
       "items": [
         { "name": "Team lead", "note": "team of 5" },
+        { "name": "Hiring & interviewing", "note": "40+ screened, 3 hires" },
         { "name": "API contract design" },
         { "name": "PRD breakdown" },
         { "name": "Design systems" }
