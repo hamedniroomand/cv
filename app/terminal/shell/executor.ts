@@ -26,6 +26,11 @@ export interface ExecResult {
   code: number
 }
 
+export interface ShellOutput {
+  sink: LineSink
+  nextId: () => number
+}
+
 const EXIT_SYNTAX = 2
 const EXIT_NOT_FOUND = 127
 
@@ -33,8 +38,13 @@ const EXIT_NOT_FOUND = 127
 export class Shell {
   constructor(private readonly deps: ShellDeps) {}
 
-  async exec(line: string, signal: AbortSignal = new AbortController().signal): Promise<ExecResult> {
-    const stderr = new LineWriter(this.deps.sink, this.deps.nextId, 'error')
+  async exec(
+    line: string,
+    signal: AbortSignal = new AbortController().signal,
+    output?: ShellOutput,
+  ): Promise<ExecResult> {
+    const { sink, nextId } = output ?? this.deps
+    const stderr = new LineWriter(sink, nextId, 'error')
     let segments: Segment[]
     try {
       segments = parse(line).segments
@@ -54,7 +64,7 @@ export class Shell {
     for (let i = 0; i < segments.length; i++) {
       const seg = segments[i]!
       const isLast = i === segments.length - 1
-      const stdout = isLast ? new LineWriter(this.deps.sink, this.deps.nextId) : new CaptureWriter()
+      const stdout = isLast ? new LineWriter(sink, nextId) : new CaptureWriter()
 
       code = await this.runSegment(seg, piped, stdout, stderr, signal)
 

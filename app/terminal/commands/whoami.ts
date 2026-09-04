@@ -20,7 +20,7 @@ export default {
     ctx.stdout.link(links.email, `mailto:${links.email}`)
     ctx.stdout.line()
     ctx.stdout.line()
-    ctx.stdout.line('Type \'help\' — or just read the panel on the right →', 'dim')
+    ctx.stdout.line('Type \'help\', run \'hamed\' for the guided mode — or just read the panel →', 'dim')
     ctx.panel.navigate({ section: 'top' })
     return 0
   },
