@@ -1,0 +1,59 @@
+/*
+ * Colour themes. Default is dark. `data-theme` on <html> wins; without it the OS preference applies.
+ * Contrast against --bg (WCAG AA needs 4.5:1 for text):
+ *   dark : fg 15.5, fg-dim 7.7, accent 12.6, accent-2 9.9, error 7.7, prompt 9.9
+ *   light: fg 16.7, fg-dim 5.7, accent 6.1, accent-2 7.3, error 6.3, prompt 6.2
+ */
+:root,
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --bg: #0b0e14;
+  --bg-elev: #121722;
+  --bg-hover: #1a2130;
+  --fg: #e6e6e6;
+  --fg-dim: #9aa4b2;
+  --accent: #7ee787;
+  --accent-2: #79c0ff;
+  --error: #ff7b72;
+  --success: #7ee787;
+  --prompt: #d2a8ff;
+  --border: #262d3a;
+  --selection: rgb(126 231 135 / 25%);
+  --shadow: 0 1px 2px rgb(0 0 0 / 40%), 0 8px 24px rgb(0 0 0 / 35%);
+}
+
+:root[data-theme='light'] {
+  color-scheme: light;
+  --bg: #fafafa;
+  --bg-elev: #ffffff;
+  --bg-hover: #f0f2f5;
+  --fg: #1a1a1a;
+  --fg-dim: #5c6470;
+  --accent: #0b6e3a;
+  --accent-2: #0550ae;
+  --error: #b42318;
+  --success: #0b6e3a;
+  --prompt: #6f42c1;
+  --border: #d8dde6;
+  --selection: rgb(11 110 58 / 20%);
+  --shadow: 0 1px 2px rgb(0 0 0 / 8%), 0 8px 24px rgb(0 0 0 / 8%);
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]) {
+    color-scheme: light;
+    --bg: #fafafa;
+    --bg-elev: #ffffff;
+    --bg-hover: #f0f2f5;
+    --fg: #1a1a1a;
+    --fg-dim: #5c6470;
+    --accent: #0b6e3a;
+    --accent-2: #0550ae;
+    --error: #b42318;
+    --success: #0b6e3a;
+    --prompt: #6f42c1;
+    --border: #d8dde6;
+    --selection: rgb(11 110 58 / 20%);
+    --shadow: 0 1px 2px rgb(0 0 0 / 8%), 0 8px 24px rgb(0 0 0 / 8%);
+  }
+}
