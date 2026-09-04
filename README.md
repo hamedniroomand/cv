@@ -1,147 +1,104 @@
-# hamed.sh — a resume you can `cat`
+# niroomand.dev
 
-Personal site of Hamed Niroomand. It is a real-feeling terminal for engineers and a readable resume
-panel for everyone else, both rendered from one content source. Whatever runs in the terminal, the
-panel scrolls to the matching section. The same data is served as JSON under `/api`, and a PDF
-version of the resume is available for download.
+This repository contains the source of my personal resume site. The site has two views of the same
+data. Engineers can use a terminal. Everyone else can read a resume panel. When you run a command in
+the terminal, the panel scrolls to the matching section.
 
-Live: `https://niroomand.dev` · Source: this repository
+Live site: <https://niroomand.dev>
 
-![Terminal resume — hamed.sh](docs/images/screenshot-1.png)
+![The terminal and the resume panel side by side](docs/images/screenshot-1.png)
 
-## Architecture
+## What you can do on the site
 
-```
-content/  ──Zod──▶  modules/cv-content.ts  ──▶  virtual `#cv`  ──┬─▶ app/terminal  (virtual filesystem)
-                     (local Nuxt module)         typed CvData     ├─▶ app/components/panel  (SSR resume)
-                                                                  └─▶ server/api/*  (JSON, CORS)
-public/hamed-niroomand-cv.pdf  ──▶  served as-is at /hamed-niroomand-cv.pdf (Download PDF, `cv --pdf`)
-```
+- Type `help` to see the commands. The shell supports pipes, `sudo`, Tab completion and command
+  history. Try `cat about.md | grep Nuxt` or `sudo cat .secrets`.
+- Type `bat <file>` to read a Markdown file with formatting. Type `cat <file>` to read the raw text.
+- Type `hamed` to start a guided full-screen app with slash commands such as `/experience` and
+  `/skills`.
+- Type `theme` to change between five color themes. The site remembers your choice.
+- Type `contact` to send me a message from the site.
+- Click **Download PDF** in the panel to get the resume as a file.
+- Run `curl -s https://niroomand.dev/api/cv | jq .profile` to get the resume as JSON.
 
-- **`content/`** is the single source of truth: Markdown with frontmatter for narrative, JSON for
-  structured data. Nothing is copied twice.
-- **`modules/cv-content.ts`** reads `content/`, validates every file with the Zod schemas in
-  `shared/schemas/`, fetches project READMEs from GitHub (falling back to the committed copy when
-  offline), renders Markdown to HTML, and exposes the result as the virtual module `#cv`. In dev it
-  hot-reloads when content changes. Invalid content fails the build with the offending file path.
-- **`shared/cv/build-tree.ts`** turns the data into the virtual filesystem the terminal mounts at `~`.
-  Every node is stamped with the panel section it represents, which is how `cd experience/thales`
-  scrolls the panel to Thales.
-- **`app/terminal/`** is the shell: tokenizer → parser (pipes, `sudo` prefix) → executor → commands.
-  It is plain TypeScript with no Vue imports, so all of it runs under Vitest in Node.
-- **`app/components/terminal/`** renders the shell. It is client-only and lazy-loaded; the panel and
-  every page are prerendered to static HTML at build time, so recruiters and crawlers see the full
-  resume without JavaScript and the CDN serves it without invoking the server.
-- **`server/api/`** serves the same data as JSON with CORS enabled for GET.
-- **`public/hamed-niroomand-cv.pdf`** is the downloadable resume. It is a committed static file,
-  replaced by hand when the resume changes; nothing generates it at build time.
+The site works on mobile. It has a Resume tab and a Terminal tab, and a key row for Tab, Ctrl+C and
+history.
 
-## Run locally
+## Technical notes
 
-Requirements: [Bun](https://bun.sh) 1.4+.
+These are the decisions in this repository that I think are worth your attention.
 
-```bash
-bun install
-bun run dev            # http://localhost:3000
-bun run test           # Vitest: shell core, filesystem, commands, schemas, API utils
-bun run build          # Nitro build (Bun preset)
-bun run preview
-bunx playwright install chromium   # once, for e2e and `bun run icons`
-bun run test:e2e
-```
+**One content source.** All resume data lives in Markdown and JSON files. A local Nuxt module reads
+the files at build time and validates them with Zod schemas. Invalid content stops the build and
+reports the file path. The terminal, the panel, the JSON API and the SEO tags all read the same typed
+data.
 
-Copy `.env.example` to `.env` and set `NUXT_PUBLIC_SITE_URL`. Without `NUXT_DISCORD_WEBHOOK_URL` the
-contact form logs messages to the server console instead of posting them to Discord. Set
-`NUXT_PUBLIC_TURNSTILE_SITE_KEY` (build time) and `NUXT_TURNSTILE_SECRET_KEY` (runtime) to put a
-Cloudflare Turnstile check in front of it; the API answers 403 to submissions without a valid token.
+**A framework-free shell.** The terminal core is plain TypeScript: a tokenizer, a parser for pipes and
+`sudo`, an executor and a command registry. It does not import Vue. Because of this, all of it runs
+under Vitest in Node without a browser. Each command is one file. The registry finds new commands
+automatically.
 
-## Interactive app
+**Fast and correct first paint.** The resume panel is prerendered to static HTML. A visitor without
+JavaScript, and a search engine, sees the full resume. The terminal is client-only and loads after
+the panel. A small inline script restores the saved theme, the split position and the panel state
+before the first frame, so hydration never moves the layout.
 
-Type `hamed` in the terminal (aliases: `app`, `tui`) to replace the shell with a guided full-pane
-interface. Type `/` to filter slash commands; plain text still runs as a shell command.
+**A contact form that resists bots.** The form has three layers: a honeypot field, a rate limit of ten
+messages per hour per IP, and a Cloudflare Turnstile check. The server verifies the Turnstile token
+and fails closed: a network error counts as "not verified". The form validates with the same Zod
+schema as the API and shows one error message under each invalid field.
 
-Slash commands: `/about`, `/api`, `/clear`, `/contact`, `/education`, `/exit`, `/experience`,
-`/help`, `/pdf` (alias `/export`), `/projects`, `/skills`, `/theme`. `/exit` is also `/quit` and
-`/q`. Leave with `/exit`, Esc on an empty prompt with the menu closed, or Ctrl+D.
+**Accessible by default.** The terminal output is a live region. The divider between the terminal and
+the panel is a keyboard-operable separator. Every modal and menu has a role, a name and focus
+management. Browser tests check the keyboard paths.
 
-The app is English-only; there is no `/lang` command.
+**Quality gates in CI.** Every push runs lint, type check, unit tests with coverage, a production
+build and the browser tests. Coverage thresholds are 90 percent for lines, branches, functions and
+statements. There are more than 300 unit tests and about 50 Playwright tests. Commits follow the
+Conventional Commits format and a commitlint hook rejects other formats.
 
-## Add a command
+## Stack
 
-Create `app/terminal/commands/<name>.ts` exporting a `Command`. That is the whole change; the
-registry globs the directory. The shell core never needs to know about individual commands.
+| Layer      | Choice                                    |
+| ---------- | ----------------------------------------- |
+| Framework  | Nuxt 5 (nightly) on Vue 3, Nitro 3 server |
+| Runtime    | Bun                                       |
+| Language   | TypeScript, strict mode                   |
+| Validation | Zod                                       |
+| Tests      | Vitest (unit), Playwright (browser)       |
+| CI         | GitHub Actions                            |
 
-```ts
-import type { Command } from '../types'
+I chose the Nuxt 5 nightly on purpose. It let me work with the new Nitro 3 and h3 v2 APIs early and
+find the differences from the stable release.
 
-export default {
-  name: 'uptime',
-  description: 'How long this has been running',
-  usage: 'uptime',
-  run(_argv, ctx) {
-    ctx.stdout.line(`up ${ctx.cv.experience.length} companies, 0 outages caused by the frontend`)
-    ctx.panel.navigate({ section: 'experience' })
-    return 0
-  },
-} satisfies Command
-```
+## Run the site locally
 
-`ctx` gives you the virtual filesystem, `stdin` (when piped into), `stdout`/`stderr` writers, the
-resume data, panel navigation, theme and language setters, history, the registry, UI hooks
-(clear, modals, open URL, download) and an `AbortSignal` for Ctrl+C. Optional `complete(argv, ctx)`
-powers Tab. Set `hidden: true` for easter eggs. Add a test in `tests/unit/terminal/commands/` using
-the `makeShell` fixture, which records every side effect.
+You need [Bun](https://bun.sh) 1.4 or later.
 
-## Content
+1. Install the dependencies:
 
-| File                                                     | Becomes                                                                              |
-| -------------------------------------------------------- | ------------------------------------------------------------------------------------ |
-| `content/profile.json`                                   | Header, `whoami`, `man hamed`, JSON-LD                                               |
-| `content/about.md`                                       | `~/about.md`, About section                                                          |
-| `content/experience/<slug>/index.md` + `highlights/*.md` | `~/experience/<slug>/`, Experience entries                                           |
-| `content/projects/*.md`                                  | `~/projects/<slug>/README.md` (live from GitHub when reachable), Open source section |
-| `content/skills.json`                                    | `~/skills.json`, `skills`, Skills section                                            |
-| `content/education.md`                                   | `~/education.md`, Education section                                                  |
-| `content/secrets.md`                                     | `~/.secrets` (needs `sudo`)                                                          |
+   ```bash
+   bun install
+   ```
 
-Copy rules: no invented metrics, no design-pattern name-dropping. Unknown facts are literally `<FILL>`.
+2. Start the development server:
 
-## API
+   ```bash
+   bun run dev
+   ```
 
-| Route               | Returns                                        |
-| ------------------- | ---------------------------------------------- |
-| `GET /api/cv`       | Everything except `.secrets`                   |
-| `POST /api/contact` | `{ name, email, message }`, 10 per hour per IP |
+3. Open <http://localhost:3000>.
+
+To run the tests:
 
 ```bash
-curl -s https://niroomand.dev/api/cv | jq .profile
+bun run test        # unit tests
+bun run build       # production build, required once before the browser tests
+bunx playwright install chromium
+bun run test:e2e    # browser tests
 ```
 
-## Deploy
-
-The site is a single Nitro server built with the `bun` preset.
-
-```bash
-docker build -t cv --build-arg NUXT_PUBLIC_SITE_URL=https://example.com --build-arg NUXT_PUBLIC_TURNSTILE_SITE_KEY=... .
-docker run -p 3000:3000 -e NUXT_DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/... -e NUXT_TURNSTILE_SECRET_KEY=... cv
-```
-
-Both stages are plain Bun images; the PDF is a static file in `public/`, so the build needs no
-browser. Later phases add separate Bun containers for the WebSocket (`who`) and SSH services.
-
-## Still to fill in
-
-- `content/education.md`: exact start and end months (currently Sep 2018 – Jun 2022; CV lists years only)
-- Domain (`NUXT_PUBLIC_SITE_URL`) and deploy target
-- Open Graph image (`public/og.png`) / README screenshot
-- Discord webhook URL for contact-form notifications
-
-## Roadmap
-
-1. Core (this): content pipeline, shell, panel, PDF, API, deploy config ✔
-2. Polish: pipes with `jq`/`wc`, themes, `lang fa`, mobile, easter eggs, `neofetch`, a11y pass, Lighthouse CI
-3. Wow: `cue demo`, `curl` from inside the terminal, `who` over WebSocket, OpenAPI
-4. Legend: `ssh` TUI server
+The contact form works without configuration. It logs messages to the server console. Copy
+`.env.example` to `.env` to connect it to Discord and to turn on the Turnstile check.
 
 ## License
 
