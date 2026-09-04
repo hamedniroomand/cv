@@ -21,7 +21,11 @@ export default defineNuxtConfig({
     },
     '/print': { headers: { 'X-Robots-Tag': 'noindex' } },
   },
-  nitro: { preset: process.env.NITRO_PRESET ?? 'bun' },
+  // Vercel sets VERCEL=1 during build; without the vercel preset, Nitro emits a
+  // Bun server layout and the CDN can serve sourcemaps as `/`.
+  nitro: {
+    preset: process.env.NITRO_PRESET ?? (process.env.VERCEL ? 'vercel' : 'bun'),
+  },
   css: ['~/assets/css/tokens.css', '~/assets/css/themes.css', '~/assets/css/crt.css', '~/assets/css/base.css'],
   app: {
     head: {
