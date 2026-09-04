@@ -80,4 +80,13 @@ describe('wc', () => {
     expect((await s.shell.exec('wc nope')).code).toBe(1)
     expect(s.text()).toBe('wc: nope: No such file or directory')
   })
+
+  it('rejects unknown flags and missing stdin', async () => {
+    const flags = makeShell(commands)
+    expect((await flags.shell.exec('wc -z')).code).toBe(1)
+    expect(flags.text()).toMatch(/^usage: wc/)
+    const bare = makeShell(commands)
+    expect((await bare.shell.exec('wc')).code).toBe(1)
+    expect(bare.text()).toMatch(/^usage: wc/)
+  })
 })

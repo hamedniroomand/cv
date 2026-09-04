@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { commands } from '~/terminal/commands'
 import { completeLine } from '~/terminal/shell/completion'
 import { makeShell } from '../../fixtures/context'
+import { fixtureCv } from '../../fixtures/cv'
 
 describe('whoami', () => {
   it('prints identity, links and the hint, then navigates top', async () => {
@@ -17,17 +18,27 @@ describe('whoami', () => {
     expect(hrefs).toContain('mailto:me@example.com')
     expect(s.calls.navigate).toEqual([{ section: 'top' }])
   })
+  it('omits the remote tag when not remote', async () => {
+    const s = makeShell(commands, {
+      cv: { ...fixtureCv, profile: { ...fixtureCv.profile, remote: false } },
+    })
+    await s.shell.exec('whoami')
+    expect(s.text()).toContain('Yerevan, Armenia (UTC+4)')
+    expect(s.text()).not.toContain('· Remote')
+  })
 })
 
 describe('open', () => {
   it('opens known targets', async () => {
     const s = makeShell(commands)
     await s.shell.exec('open github')
+    await s.shell.exec('open linkedin')
     await s.shell.exec('open email')
     await s.shell.exec('open cue')
     await s.shell.exec('open https://example.test/x')
     expect(s.calls.opened).toEqual([
       'https://github.com/hamedniroomand',
+      'https://linkedin.com/in/example',
       'mailto:me@example.com',
       'https://github.com/hamedniroomand/cue',
       'https://example.test/x',
@@ -43,6 +54,15 @@ describe('open', () => {
     expect((await s.shell.exec('open zzz')).code).toBe(1)
     expect(s.text()).toMatch(/github, linkedin, email, cue, pdf/)
     expect((await s.shell.exec('open')).code).toBe(1)
+  })
+  it('falls back when cue is missing', async () => {
+    const s = makeShell(commands, {
+      cv: { ...fixtureCv, projects: [{ ...fixtureCv.projects[0]!, slug: 'other', repo: 'o/r' }] },
+    })
+    await s.shell.exec('open cue')
+    expect(s.calls.opened).toEqual(['https://github.com/o/r'])
+    const empty = makeShell(commands, { cv: { ...fixtureCv, projects: [] } })
+    expect((await empty.shell.exec('open cue')).code).toBe(1)
   })
   it('completes targets', () => {
     const s = makeShell(commands)
@@ -71,6 +91,13 @@ describe('cv', () => {
     const s2 = makeShell(commands)
     await s2.shell.exec('cv --json | grep -c secrets')
     expect(s2.text()).toBe('0')
+  })
+  it('completes flags', () => {
+    const s = makeShell(commands)
+    expect(completeLine('cv --p', { fs: s.deps.fs, registry: s.deps.registry, cv: s.deps.cv })).toEqual({
+      line: 'cv --pdf ',
+      candidates: ['--pdf'],
+    })
   })
 })
 

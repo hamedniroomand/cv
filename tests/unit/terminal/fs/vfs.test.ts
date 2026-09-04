@@ -42,6 +42,7 @@ describe('stat/readFile/readdir', () => {
     expect(fs.stat('/').type).toBe('dir')
     expect(fs.exists('about.md')).toBe(true)
     expect(fs.exists('zzz')).toBe(false)
+    expect(fs.exists('about.md/x')).toBe(false)
   })
   it('throws ENOENT', () => {
     expect(() => fs.stat('nope')).toThrowError(FsError)

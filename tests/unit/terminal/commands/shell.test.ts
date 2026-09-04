@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import { commands } from '~/terminal/commands'
+import { completeLine } from '~/terminal/shell/completion'
 import { makeShell } from '../../fixtures/context'
+import { fixtureCv } from '../../fixtures/cv'
 
 describe('help', () => {
   it('lists visible commands with descriptions', async () => {
@@ -19,6 +21,11 @@ describe('help', () => {
     const s = makeShell(commands)
     expect((await s.shell.exec('help nope')).code).toBe(1)
     expect(s.text()).toBe('help: no such command: nope')
+  })
+  it('completes command names', () => {
+    const s = makeShell(commands)
+    const ctx = { fs: s.deps.fs, registry: s.deps.registry, cv: s.deps.cv }
+    expect(completeLine('help l', ctx).candidates).toContain('ls')
   })
 })
 
@@ -60,5 +67,35 @@ describe('man', () => {
     expect((await s.shell.exec('man zzz')).code).toBe(1)
     expect((await s.shell.exec('man')).code).toBe(1)
     expect(s.text()).toBe('No manual entry for zzz\nWhat manual page do you want?')
+  })
+  it('completes pages', () => {
+    const s = makeShell(commands)
+    const ctx = { fs: s.deps.fs, registry: s.deps.registry, cv: s.deps.cv }
+    expect(completeLine('man ha', ctx)).toEqual({ line: 'man hamed ', candidates: ['hamed'] })
+  })
+  it('wraps long synopsis lines', async () => {
+    const long = 'word '.repeat(40).trim()
+    const s = makeShell(commands, {
+      cv: {
+        ...fixtureCv,
+        profile: { ...fixtureCv.profile, summary: long },
+        skills: {
+          categories: [{
+            id: 'frontend',
+            label: 'Frontend',
+            items: Array.from({ length: 20 }, (_, i) => ({ name: `Skill${i}Name` })),
+          }],
+        },
+      },
+    })
+    expect((await s.shell.exec('man hamed')).code).toBe(0)
+    expect(s.text().split('\n').length).toBeGreaterThan(20)
+  })
+  it('skips current-role line without experience', async () => {
+    const s = makeShell(commands, {
+      cv: { ...fixtureCv, experience: [], profile: { ...fixtureCv.profile, summary: '' } },
+    })
+    expect((await s.shell.exec('man hamed')).code).toBe(0)
+    expect(s.text()).not.toContain('Currently:')
   })
 })

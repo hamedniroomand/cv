@@ -13,4 +13,7 @@ describe('parseFrontmatter', () => {
   it('handles CRLF and empty frontmatter', () => {
     expect(parseFrontmatter('---\r\n---\r\nx')).toEqual({ data: {}, body: 'x' })
   })
+  it('treats non-object yaml as empty data', () => {
+    expect(parseFrontmatter('---\n42\n---\nbody')).toEqual({ data: {}, body: 'body' })
+  })
 })

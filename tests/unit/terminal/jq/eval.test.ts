@@ -32,6 +32,14 @@ describe('evalJq', () => {
   it('reports type errors', () => {
     expect(() => run('.n.x')).toThrowError(new JqRuntimeError('Cannot index number with "x"'))
     expect(() => run('.n[]')).toThrow(JqRuntimeError)
+    expect(() => run('keys', null)).toThrowError(new JqRuntimeError('null has no keys'))
+    expect(() => run('keys', true)).toThrow(JqRuntimeError)
+    expect(() => run('.n[0]')).toThrow(JqRuntimeError)
+  })
+
+  it('reads null fields and iterates object values', () => {
+    expect(run('.missing.x')).toEqual([null])
+    expect(run('.[]', { b: 2, a: 1 })).toEqual([2, 1])
   })
 })
 

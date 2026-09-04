@@ -22,4 +22,13 @@ describe('createRateLimiter', () => {
     rl.hit('b')
     expect(rl.size()).toBe(1)
   })
+  it('sweeps stale windows when the map grows large', () => {
+    let t = 0
+    const rl = createRateLimiter({ limit: 1, windowMs: 100, now: () => t })
+    for (let i = 0; i < 1001; i++)
+      rl.hit(`k${i}`)
+    t = 1000
+    rl.hit('fresh')
+    expect(rl.size()).toBe(1)
+  })
 })

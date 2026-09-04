@@ -80,6 +80,22 @@ describe('grep', () => {
     await s.shell.exec('echo "a(b" | grep "a("')
     expect(s.text()).toBe('a(b')
   })
+  it('rejects directories without -r and counts matches with -c', async () => {
+    const s = makeShell(commands)
+    expect((await s.shell.exec('grep widgets experience')).code).toBe(1)
+    expect(s.text()).toBe('grep: experience: Is a directory')
+    const c = makeShell(commands)
+    expect((await c.shell.exec('grep -c widgets experience/acme/README.md')).code).toBe(0)
+    expect(c.text()).toBe('1')
+  })
+  it('prefixes line numbers with -n and shows usage without stdin', async () => {
+    const s = makeShell(commands)
+    await s.shell.exec('grep -n widgets experience/acme/README.md')
+    expect(s.text()).toMatch(/^\d+:Acme builds widgets\.$/)
+    const bare = makeShell(commands)
+    expect((await bare.shell.exec('grep widgets')).code).toBe(2)
+    expect(bare.text()).toMatch(/^usage: grep/)
+  })
 })
 
 describe('head / tail', () => {
@@ -103,6 +119,16 @@ describe('head / tail', () => {
     const s = makeShell(commands)
     await s.shell.exec('echo "a\nb\nc" | tail -n 2')
     expect(s.text()).toBe('b\nc')
+  })
+  it('shows usage without input', async () => {
+    const s = makeShell(commands)
+    expect((await s.shell.exec('tail')).code).toBe(1)
+    expect(s.text()).toMatch(/^usage: tail/)
+  })
+  it('prints nothing for -n 0', async () => {
+    const s = makeShell(commands)
+    expect((await s.shell.exec('echo hi | tail -n 0')).code).toBe(0)
+    expect(s.lines).toEqual([])
   })
 })
 

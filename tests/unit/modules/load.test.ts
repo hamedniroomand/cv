@@ -1,3 +1,6 @@
+import { mkdtemp, writeFile } from 'node:fs/promises'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 import { loadContent } from '../../../modules/cv-content/load'
@@ -28,5 +31,10 @@ describe('loadContent', () => {
   it('stamps generatedAt from the clock', async () => {
     const cv = await loadContent(dir, async () => null, new Date('2026-09-04T00:00:00Z'))
     expect(cv.generatedAt).toBe('2026-09-04T00:00:00.000Z')
+  })
+  it('throws ContentError on invalid content', async () => {
+    const tmp = await mkdtemp(join(tmpdir(), 'cv-bad-'))
+    await writeFile(join(tmp, 'profile.json'), '{}')
+    await expect(loadContent(tmp, async () => null)).rejects.toThrow(/content validation failed/)
   })
 })

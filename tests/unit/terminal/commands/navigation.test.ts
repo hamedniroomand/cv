@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { commands } from '~/terminal/commands'
+import { completeLine } from '~/terminal/shell/completion'
 import { makeShell } from '../../fixtures/context'
 
 describe('ls', () => {
@@ -62,6 +63,11 @@ describe('cd / pwd', () => {
     expect((await s.shell.exec('cd about.md')).code).toBe(1)
     expect(s.text()).toBe('cd: nope: No such file or directory\ncd: about.md: Not a directory')
   })
+  it('completes directories only', () => {
+    const s = makeShell(commands)
+    const ctx = { fs: s.deps.fs, registry: s.deps.registry, cv: s.deps.cv }
+    expect(completeLine('cd exp', ctx).line).toBe('cd experience/')
+  })
 })
 
 describe('tree', () => {
@@ -90,5 +96,14 @@ describe('tree', () => {
     const s = makeShell(commands)
     expect((await s.shell.exec('tree nope')).code).toBe(1)
     expect(s.text()).toBe('tree: nope: No such file or directory')
+  })
+  it('prints a single file without walking', async () => {
+    const s = makeShell(commands)
+    expect((await s.shell.exec('tree about.md')).code).toBe(0)
+    expect(s.text()).toBe('about.md\n\n0 directories, 1 file')
+  })
+  it('completes directories', () => {
+    const s = makeShell(commands)
+    expect(completeLine('tree exp', { fs: s.deps.fs, registry: s.deps.registry, cv: s.deps.cv }).line).toBe('tree experience/')
   })
 })

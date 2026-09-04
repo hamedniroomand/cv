@@ -36,6 +36,7 @@ export default {
       ctx.view.print(`api: unknown endpoint '${argv.join(' ')}' (try: ${endpoints.map(item => item.name).join(', ')})`, 'error')
       return 1
     }
-    return ctx.shell(pipeline(endpoint.path))
+    ctx.view.print(pipeline(endpoint.path))
+    return 0
   },
 } satisfies AppCommand

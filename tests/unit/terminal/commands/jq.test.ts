@@ -31,6 +31,15 @@ describe('jq', () => {
     const s = makeShell(commands)
     expect((await s.shell.exec('jq')).code).toBe(2)
     expect(s.text()).toMatch(/^usage: jq/)
+    const filterOnly = makeShell(commands)
+    expect((await filterOnly.shell.exec('jq .')).code).toBe(2)
+    expect(filterOnly.text()).toMatch(/^usage: jq/)
+  })
+
+  it('reports missing files', async () => {
+    const s = makeShell(commands)
+    expect((await s.shell.exec('jq . nope.json')).code).toBe(1)
+    expect(s.text()).toBe('jq: nope.json: No such file or directory')
   })
 
   it('reads JSON from a named file', async () => {

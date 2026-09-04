@@ -121,13 +121,12 @@ describe('action slash commands', () => {
     expect(app.calls.shell).toHaveLength(0)
   })
 
-  it('/api cv delegates the exact real curl and jq pipeline', async () => {
+  it('/api cv prints the curl and jq pipeline without running a shell command', async () => {
     const app = makeApp()
 
     expect(await app.run('/api cv')).toBe(0)
-    expect(app.calls.shell).toEqual(['curl -s /api/cv | jq .'])
-    expect(app.calls.requests.at(-1)?.url).toBe('https://hamed.test/api/cv')
-    expect(app.text()).toContain('"name": "Hamed Niroomand"')
+    expect(app.calls.shell).toHaveLength(0)
+    expect(app.text()).toContain('curl -s /api/cv | jq .')
   })
 
   it('/api rejects unsupported endpoint shortcuts without running shell code', async () => {
