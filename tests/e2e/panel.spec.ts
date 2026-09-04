@@ -21,4 +21,13 @@ test.describe('panel', () => {
     await expect(page.getByRole('log')).toContainText('bat ~/about.md')
     await expect(page.getByRole('log')).toContainText('senior web developer based in Yerevan')
   })
+
+  test('the header links to the site source on GitHub', async ({ page }) => {
+    await page.goto('/')
+    const link = page.getByRole('link', { name: 'Source on GitHub' })
+    await expect(link).toBeVisible()
+    await expect(link).toHaveAttribute('href', 'https://github.com/hamedniroomand/cv')
+    await expect(link).toHaveAttribute('target', '_blank')
+    await expect(link.locator('svg')).toHaveCount(1)
+  })
 })
