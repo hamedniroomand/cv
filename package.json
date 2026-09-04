@@ -18,7 +18,8 @@
     "test": "bun --bun vitest run --passWithNoTests",
     "test:watch": "bun --bun vitest",
     "test:e2e": "playwright test",
-    "prepare": "husky"
+    "prepare": "husky",
+    "icons": "bun run scripts/build-icons.ts"
   },
   "dependencies": {
     "@vercel/speed-insights": "^2.0.0",

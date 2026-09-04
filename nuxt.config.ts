@@ -30,7 +30,16 @@ export default defineNuxtConfig({
   app: {
     head: {
       htmlAttrs: { lang: 'en' },
-      meta: [{ name: 'color-scheme', content: 'dark light' }],
+      meta: [
+        { name: 'color-scheme', content: 'dark light' },
+        { name: 'theme-color', content: '#10141c' },
+      ],
+      link: [
+        { rel: 'icon', href: '/favicon.svg', type: 'image/svg+xml' },
+        { rel: 'icon', href: '/favicon.ico', sizes: '32x32' },
+        { rel: 'apple-touch-icon', href: '/apple-touch-icon.png' },
+        { rel: 'manifest', href: '/site.webmanifest' },
+      ],
       script: [
         {
           // Apply the stored theme before first paint so there is no flash. Mirrors useTheme().
