@@ -31,3 +31,6 @@ coverage
 
 # Local git worktrees
 .worktrees/
+
+# Planning docs stay local
+docs/superpowers/
