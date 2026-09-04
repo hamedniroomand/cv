@@ -1,7 +1,7 @@
 import type { AppContext, AppRegistry } from './types'
 import { parseSlashInput } from './slash'
 
-export type AppRunnerContext = Omit<AppContext, 'argv0' | 'shell' | 'signal' | 'slash' | 'sudo'>
+export type AppRunnerContext = Omit<AppContext, 'argv0' | 'registry' | 'shell' | 'signal' | 'slash' | 'sudo'>
 
 export interface AppRunnerDeps {
   registry: AppRegistry
@@ -25,6 +25,7 @@ export function createAppRunner({ registry, context, shell }: AppRunnerDeps) {
     const ctx: AppContext = {
       ...context,
       argv0: `/${parsed.name}`,
+      registry,
       sudo: false,
       signal,
       shell: nestedLine => shell(nestedLine, signal),

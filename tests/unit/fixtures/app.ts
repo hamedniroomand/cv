@@ -2,11 +2,7 @@ import type { LineStyle, Span } from '~/terminal/types'
 import type { AppCommand, AppContext, PickerItem, View } from '~/tui/types'
 import { commands as shellCommands } from '~/terminal/commands'
 import { LineWriter } from '~/terminal/io/writer'
-import about from '~/tui/commands/about'
-import education from '~/tui/commands/education'
-import experience from '~/tui/commands/experience'
-import projects from '~/tui/commands/projects'
-import skills from '~/tui/commands/skills'
+import { commands as defaultAppCommands } from '~/tui/commands'
 import { createAppRegistry } from '~/tui/registry'
 import { createAppRunner } from '~/tui/runner'
 import { makeShell } from './context'
@@ -62,10 +58,10 @@ export function makeApp({ commands = [], picks = [] }: AppOptions = {}) {
     },
   }
 
-  const appCommands: AppCommand[] = [about, experience, projects, skills, education, ...commands]
+  const appCommands: AppCommand[] = [...defaultAppCommands, ...commands]
   const registry = createAppRegistry(appCommands)
   const deps = shellFixture.deps
-  const context: Omit<AppContext, 'argv0' | 'shell' | 'signal' | 'slash' | 'sudo'> = {
+  const context: Omit<AppContext, 'argv0' | 'registry' | 'shell' | 'signal' | 'slash' | 'sudo'> = {
     fs: deps.fs,
     env: deps.env,
     cv: deps.cv,
@@ -73,7 +69,6 @@ export function makeApp({ commands = [], picks = [] }: AppOptions = {}) {
     theme: deps.theme,
     lang: deps.lang,
     history: deps.history,
-    registry: deps.registry,
     ui: deps.ui,
     net: deps.net,
     view,

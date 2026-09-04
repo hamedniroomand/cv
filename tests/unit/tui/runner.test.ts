@@ -4,7 +4,7 @@ import { createAppRegistry } from '~/tui/registry'
 import { createAppRunner } from '~/tui/runner'
 import { makeShell } from '../fixtures/context'
 
-type BaseAppContext = Omit<AppContext, 'argv0' | 'shell' | 'signal' | 'slash' | 'sudo'>
+type BaseAppContext = Omit<AppContext, 'argv0' | 'registry' | 'shell' | 'signal' | 'slash' | 'sudo'>
 
 function makeRunner(commands: AppCommand[], shellCode = 7) {
   const errors: string[] = []
@@ -29,7 +29,6 @@ function makeRunner(commands: AppCommand[], shellCode = 7) {
     theme: deps.theme,
     lang: deps.lang,
     history: deps.history,
-    registry: deps.registry,
     ui: deps.ui,
     net: deps.net,
     view,
