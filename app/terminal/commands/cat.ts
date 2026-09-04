@@ -1,5 +1,6 @@
 import type { Command } from '../types'
-import { navigateFor, reportFsError } from './_util'
+import { ensureNewline } from '../io/text'
+import { navigateFor, printUsage, reportFsError } from './_util'
 
 export default {
   name: 'cat',
@@ -7,19 +8,16 @@ export default {
   usage: 'cat <file>...',
   run(argv, ctx) {
     if (argv.length === 0) {
-      if (ctx.stdin === null) {
-        ctx.stderr.line('usage: cat <file>...')
-        return 1
-      }
+      if (ctx.stdin === null)
+        return printUsage(ctx)
       ctx.stdout.write(ctx.stdin)
       return 0
     }
     let code = 0
-    argv.forEach((path, i) => {
+    argv.forEach((path, index) => {
       try {
-        const content = ctx.fs.readFile(path, { sudo: ctx.sudo })
-        ctx.stdout.write(content.endsWith('\n') ? content : `${content}\n`)
-        if (i === 0)
+        ctx.stdout.write(ensureNewline(ctx.fs.readFile(path, { sudo: ctx.sudo })))
+        if (index === 0)
           navigateFor(ctx, path)
         if (ctx.tty && path.endsWith('.md'))
           ctx.stdout.line(`tip: bat ${path} renders this as formatted text`, 'dim')

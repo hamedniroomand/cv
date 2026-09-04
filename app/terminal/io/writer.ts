@@ -2,7 +2,6 @@ import type { LineStyle, OutputLine, Span, Writer } from '../types'
 
 export type LineSink = (line: OutputLine) => void
 
-/** Writer that turns text into `OutputLine`s for the terminal view. */
 export class LineWriter implements Writer {
   private pending: Span[] = []
   private dirty = false
@@ -15,10 +14,10 @@ export class LineWriter implements Writer {
 
   write(text: string, style?: LineStyle): void {
     const parts = text.split('\n')
-    parts.forEach((part, i) => {
+    parts.forEach((part, index) => {
       if (part.length > 0)
         this.push({ text: part, style: style ?? this.defaultStyle })
-      if (i < parts.length - 1)
+      if (index < parts.length - 1)
         this.emit()
     })
   }
@@ -58,30 +57,29 @@ export class LineWriter implements Writer {
   }
 }
 
-/** Writer used for the left side of a pipe: collects plain text. */
 export class CaptureWriter implements Writer {
-  private buf = ''
+  private buffer = ''
 
   write(text: string): void {
-    this.buf += text
+    this.buffer += text
   }
 
   line(text = ''): void {
-    this.buf += `${text}\n`
+    this.buffer += `${text}\n`
   }
 
   link(label: string): void {
-    this.buf += label
+    this.buffer += label
   }
 
   raw(spans: Span[]): void {
     for (const span of spans)
-      this.buf += span.text
+      this.buffer += span.text
   }
 
   flush(): void {}
 
   text(): string {
-    return this.buf
+    return this.buffer
   }
 }

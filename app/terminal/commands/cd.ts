@@ -7,9 +7,8 @@ export default {
   usage: 'cd [path]',
   complete: (argv, ctx) => ctx.fs.complete(argv[argv.length - 1] ?? '', { dirsOnly: true }),
   run(argv, ctx) {
-    const target = argv[0] ?? '~'
     try {
-      ctx.fs.chdir(target)
+      ctx.fs.chdir(argv[0] ?? '~')
     }
     catch (err) {
       return reportFsError(ctx, err)

@@ -1,6 +1,7 @@
 import type { Command } from '../types'
+import { splitLines } from '../io/text'
 import { parseFlags } from '../shell/flags'
-import { parseCount, readInput, splitLines } from './_util'
+import { parseCount, readInput } from './_util'
 
 export default {
   name: 'head',
@@ -11,8 +12,7 @@ export default {
     const text = readInput(ctx, positionals)
     if (text === null)
       return 1
-    const n = parseCount(values.n, 10)
-    for (const line of splitLines(text).slice(0, n))
+    for (const line of splitLines(text).slice(0, parseCount(values.n, 10)))
       ctx.stdout.line(line)
     return 0
   },

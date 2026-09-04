@@ -1,6 +1,6 @@
 import type { AppCommand } from '~/tui/types'
 import { describe, expect, it } from 'vitest'
-import { filterCommands, parseSlashInput } from '~/tui/slash'
+import { filterCommands, parseSlashInput, slashOptionId } from '~/tui/slash'
 
 function cmd(name: string, aliases?: string[]): AppCommand {
   return {
@@ -57,5 +57,12 @@ describe('filterCommands', () => {
       cmd('experience'),
     ]
     expect(filterCommands('exp', shuffled).map(c => c.name)).toEqual(['experience', 'export'])
+  })
+})
+
+describe('slashOptionId', () => {
+  it('builds a safe DOM id from the key', () => {
+    expect(slashOptionId('help')).toBe('tui-slash-option-help')
+    expect(slashOptionId('argument-Vue 3/Nuxt')).toBe('tui-slash-option-argument-vue-3-nuxt')
   })
 })

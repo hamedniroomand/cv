@@ -1,6 +1,36 @@
-import type { FsDir } from '../fs/types'
+import type { FsDir, FsNode } from '../fs/types'
 import type { Command, CommandContext } from '../types'
+import { isHidden, sortByName } from '../fs/vfs'
 import { navigateFor, reportFsError } from './_util'
+
+interface Counts {
+  dirs: number
+  files: number
+}
+
+function visibleChildren(dir: FsDir): FsNode[] {
+  return sortByName([...dir.children.values()].filter(node => !isHidden(node)))
+}
+
+function plural(count: number, one: string, many: string): string {
+  return `${count} ${count === 1 ? one : many}`
+}
+
+function printBranch(ctx: CommandContext, dir: FsDir, indent: string, counts: Counts): void {
+  const children = visibleChildren(dir)
+  children.forEach((child, index) => {
+    const last = index === children.length - 1
+    ctx.stdout.write(`${indent}${last ? '└── ' : '├── '}`, 'dim')
+    if (child.type === 'file') {
+      counts.files++
+      ctx.stdout.line(child.name)
+      return
+    }
+    counts.dirs++
+    ctx.stdout.line(child.name, 'accent')
+    printBranch(ctx, child, `${indent}${last ? '    ' : '│   '}`, counts)
+  })
+}
 
 export default {
   name: 'tree',
@@ -9,46 +39,26 @@ export default {
   complete: (argv, ctx) => ctx.fs.complete(argv[argv.length - 1] ?? '', { dirsOnly: true }),
   run(argv, ctx) {
     const path = argv[0] ?? '.'
-    let root: FsDir
+    let node: FsNode
     try {
-      const node = ctx.fs.stat(path)
-      if (node.type !== 'dir') {
-        ctx.stdout.line(path)
-        ctx.stdout.line()
-        ctx.stdout.line('0 directories, 1 file')
-        return 0
-      }
-      root = node
+      node = ctx.fs.stat(path)
     }
     catch (err) {
       return reportFsError(ctx, err)
     }
+    if (node.type === 'file') {
+      ctx.stdout.line(path)
+      ctx.stdout.line()
+      ctx.stdout.line('0 directories, 1 file')
+      return 0
+    }
 
-    const counts = { dirs: 0, files: 0 }
+    const counts: Counts = { dirs: 0, files: 0 }
     ctx.stdout.line(path, 'accent')
-    walk(ctx, root, '', counts)
+    printBranch(ctx, node, '', counts)
     ctx.stdout.line()
-    ctx.stdout.line(`${counts.dirs} ${counts.dirs === 1 ? 'directory' : 'directories'}, ${counts.files} ${counts.files === 1 ? 'file' : 'files'}`)
+    ctx.stdout.line(`${plural(counts.dirs, 'directory', 'directories')}, ${plural(counts.files, 'file', 'files')}`)
     navigateFor(ctx, path)
     return 0
   },
 } satisfies Command
-
-function walk(ctx: CommandContext, dir: FsDir, indent: string, counts: { dirs: number, files: number }): void {
-  const children = [...dir.children.values()]
-    .filter(n => !n.name.startsWith('.'))
-    .sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0))
-  children.forEach((child, i) => {
-    const last = i === children.length - 1
-    ctx.stdout.write(`${indent}${last ? '└── ' : '├── '}`, 'dim')
-    if (child.type === 'dir') {
-      counts.dirs++
-      ctx.stdout.line(child.name, 'accent')
-      walk(ctx, child, `${indent}${last ? '    ' : '│   '}`, counts)
-    }
-    else {
-      counts.files++
-      ctx.stdout.line(child.name)
-    }
-  })
-}

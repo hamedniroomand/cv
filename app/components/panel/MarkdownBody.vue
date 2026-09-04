@@ -3,7 +3,7 @@ defineProps<{ html: string }>()
 </script>
 
 <template>
-  <!-- eslint-disable-next-line vue/no-v-html -- html is rendered at build time from our own Markdown -->
+  <!-- eslint-disable-next-line vue/no-v-html -->
   <div class="prose" v-html="html" />
 </template>
 

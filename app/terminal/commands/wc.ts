@@ -1,6 +1,7 @@
 import type { Command, CommandContext } from '../types'
+import { byteLength } from '../io/text'
 import { parseFlags } from '../shell/flags'
-import { reportFsError } from './_util'
+import { printUsage, reportFsError } from './_util'
 
 interface Counts {
   lines: number
@@ -8,20 +9,19 @@ interface Counts {
   bytes: number
 }
 
+type CountKey = keyof Counts
+
+const ALL_COUNTS: CountKey[] = ['lines', 'words', 'bytes']
+const FLAG_TO_COUNT: Record<string, CountKey> = { l: 'lines', w: 'words', c: 'bytes' }
+const ZERO: Counts = { lines: 0, words: 0, bytes: 0 }
+
 function count(text: string): Counts {
+  const trimmed = text.trim()
   return {
     lines: text.match(/\n/g)?.length ?? 0,
-    words: text.trim() === '' ? 0 : text.trim().split(/\s+/).length,
-    bytes: new TextEncoder().encode(text).length,
+    words: trimmed === '' ? 0 : trimmed.split(/\s+/).length,
+    bytes: byteLength(text),
   }
-}
-
-function format(counts: Counts, selected: (keyof Counts)[], label?: string): string {
-  const values = selected.map(key => counts[key])
-  const numbers = values.length === 1
-    ? String(values[0])
-    : values.map(value => String(value).padStart(7)).join(' ')
-  return label ? `${numbers} ${label}` : numbers
 }
 
 function add(left: Counts, right: Counts): Counts {
@@ -32,23 +32,24 @@ function add(left: Counts, right: Counts): Counts {
   }
 }
 
-function selectedCounts(flags: Set<string>): (keyof Counts)[] {
-  if (flags.size === 0)
-    return ['lines', 'words', 'bytes']
-  const selected: (keyof Counts)[] = []
-  if (flags.has('l'))
-    selected.push('lines')
-  if (flags.has('w'))
-    selected.push('words')
-  if (flags.has('c'))
-    selected.push('bytes')
-  return selected
+function format(counts: Counts, selected: CountKey[], label?: string): string {
+  const values = selected.map(key => counts[key])
+  const numbers = values.length === 1
+    ? String(values[0])
+    : values.map(value => String(value).padStart(7)).join(' ')
+  return label ? `${numbers} ${label}` : numbers
 }
 
-function countFiles(ctx: CommandContext, paths: string[], selected: (keyof Counts)[]): number {
+function selectedCounts(flags: Set<string>): CountKey[] {
+  if (flags.size === 0)
+    return ALL_COUNTS
+  return ALL_COUNTS.filter(key => [...flags].some(flag => FLAG_TO_COUNT[flag] === key))
+}
+
+function countFiles(ctx: CommandContext, paths: string[], selected: CountKey[]): number {
   let code = 0
   let successes = 0
-  let total: Counts = { lines: 0, words: 0, bytes: 0 }
+  let total = ZERO
   for (const path of paths) {
     try {
       const counts = count(ctx.fs.readFile(path, { sudo: ctx.sudo }))
@@ -71,17 +72,13 @@ export default {
   usage: 'wc [-lwc] [file...]',
   run(argv, ctx) {
     const { flags, positionals, unknown } = parseFlags(argv, { boolean: ['l', 'w', 'c'] })
-    if (unknown.length > 0) {
-      ctx.stderr.line('usage: wc [-lwc] [file...]')
-      return 1
-    }
+    if (unknown.length > 0)
+      return printUsage(ctx)
     const selected = selectedCounts(flags)
     if (positionals.length > 0)
       return countFiles(ctx, positionals, selected)
-    if (ctx.stdin === null) {
-      ctx.stderr.line('usage: wc [-lwc] [file...]')
-      return 1
-    }
+    if (ctx.stdin === null)
+      return printUsage(ctx)
     ctx.stdout.line(format(count(ctx.stdin), selected))
     return 0
   },

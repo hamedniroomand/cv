@@ -15,6 +15,13 @@ interface Token {
   text: string
 }
 
+const SINGLE_CHAR_TOKENS: Partial<Record<string, TokenType>> = {
+  '.': 'dot',
+  '[': 'leftBracket',
+  ']': 'rightBracket',
+  '|': 'pipe',
+}
+
 function tokenize(expr: string): Token[] {
   const tokens: Token[] = []
   let offset = 0
@@ -28,15 +35,9 @@ function tokenize(expr: string): Token[] {
     }
 
     const ch = expr[offset]!
-    const simple: Partial<Record<string, TokenType>> = {
-      '.': 'dot',
-      '[': 'leftBracket',
-      ']': 'rightBracket',
-      '|': 'pipe',
-    }
-    const type = simple[ch]
-    if (type) {
-      tokens.push({ type, text: ch })
+    const single = SINGLE_CHAR_TOKENS[ch]
+    if (single) {
+      tokens.push({ type: single, text: ch })
       offset++
       continue
     }
@@ -92,44 +93,34 @@ class Parser {
 
     let node: JqNode = { type: 'identity' }
     let hasPath = false
-    while (true) {
-      const next = this.peek()
-      let path: JqNode
-      if (next.type === 'identifier') {
-        this.offset++
-        path = { type: 'field', name: next.text }
-      }
-      else if (next.type === 'leftBracket') {
-        path = this.bracket()
-      }
-      else if (next.type === 'dot') {
-        this.offset++
-        const field = this.peek()
-        if (field.type !== 'identifier')
-          this.fail(field)
-        this.offset++
-        path = { type: 'field', name: field.text }
-      }
-      else {
-        break
-      }
+    for (let path = this.pathStep(); path; path = this.pathStep()) {
       node = hasPath ? { type: 'pipe', left: node, right: path } : path
       hasPath = true
     }
     return node
   }
 
+  private pathStep(): JqNode | null {
+    const next = this.peek()
+    if (next.type === 'identifier') {
+      this.offset++
+      return { type: 'field', name: next.text }
+    }
+    if (next.type === 'leftBracket')
+      return this.bracket()
+    if (next.type === 'dot') {
+      this.offset++
+      return { type: 'field', name: this.expect('identifier').text }
+    }
+    return null
+  }
+
   private bracket(): JqNode {
     this.offset++
     if (this.match('rightBracket'))
       return { type: 'iterate' }
-
-    const integer = this.peek()
-    if (integer.type !== 'integer')
-      this.fail(integer)
-    this.offset++
-    if (!this.match('rightBracket'))
-      this.fail(this.peek())
+    const integer = this.expect('integer')
+    this.expect('rightBracket')
     return { type: 'index', index: Number.parseInt(integer.text, 10) }
   }
 
@@ -142,6 +133,14 @@ class Parser {
       return false
     this.offset++
     return true
+  }
+
+  private expect(type: TokenType): Token {
+    const token = this.peek()
+    if (token.type !== type)
+      this.fail(token)
+    this.offset++
+    return token
   }
 
   private fail(token: Token): never {

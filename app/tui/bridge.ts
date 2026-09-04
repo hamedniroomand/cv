@@ -9,34 +9,18 @@ export type AppContextBase = Omit<AppRunnerContext, 'view'>
 export interface AppBridge {
   context: AppContextBase
   registry: AppRegistry
-  exec: (
-    line: string,
-    sink: LineSink,
-    nextId: () => number,
-    signal: AbortSignal,
-  ) => Promise<number>
+  exec: (line: string, sink: LineSink, nextId: () => number, signal: AbortSignal) => Promise<number>
 }
 
-/** Reuses the live shell and its dependencies while redirecting one execution's output. */
 export function createAppBridge(
   shell: Shell,
   deps: ShellDeps,
   registry: AppRegistry,
   liveTheme: () => ThemeName = () => deps.env.theme,
 ): AppBridge {
-  const context: AppContextBase = {
-    fs: deps.fs,
-    env: deps.env,
-    cv: deps.cv,
-    panel: deps.panel,
-    theme: deps.theme,
-    lang: deps.lang,
-    history: deps.history,
-    ui: deps.ui,
-  }
-
+  const { fs, env, cv, panel, theme, lang, history, ui } = deps
   return {
-    context,
+    context: { fs, env, cv, panel, theme, lang, history, ui },
     registry,
     exec: async (line, sink, nextId, signal) => {
       deps.env.theme = liveTheme()

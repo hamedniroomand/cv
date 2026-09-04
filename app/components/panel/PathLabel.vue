@@ -1,8 +1,6 @@
 <script setup lang="ts">
 const props = defineProps<{
-  /** Path as shown in the terminal, e.g. `~/about.md`. */
   path: string
-  /** Command to run when clicked. Defaults to `bat <path>`. */
   command?: string
 }>()
 

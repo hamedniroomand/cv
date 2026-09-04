@@ -2,17 +2,15 @@ import { ShellSyntaxError } from './errors'
 
 export type Token = { type: 'word', value: string } | { type: 'pipe' }
 
-/**
- * Split a command line into words and `|` operators.
- * Supports single quotes (literal), double quotes (backslash escapes `"` and `\`), and backslash escapes outside quotes.
- */
+type Quote = '"' | '\''
+
 export function tokenize(input: string): Token[] {
   const tokens: Token[] = []
   let word = ''
   let inWord = false
-  let quote: '"' | '\'' | null = null
+  let quote: Quote | null = null
 
-  const endWord = () => {
+  const endWord = (): void => {
     if (inWord)
       tokens.push({ type: 'word', value: word })
     word = ''
@@ -21,6 +19,7 @@ export function tokenize(input: string): Token[] {
 
   for (let i = 0; i < input.length; i++) {
     const ch = input[i]!
+    const next = input[i + 1]
     if (quote === '\'') {
       if (ch === '\'')
         quote = null
@@ -29,15 +28,12 @@ export function tokenize(input: string): Token[] {
       continue
     }
     if (quote === '"') {
-      if (ch === '"') {
+      if (ch === '"')
         quote = null
-      }
-      else if (ch === '\\' && i + 1 < input.length && (input[i + 1] === '"' || input[i + 1] === '\\')) {
+      else if (ch === '\\' && (next === '"' || next === '\\'))
         word += input[++i]
-      }
-      else {
+      else
         word += ch
-      }
       continue
     }
     if (ch === '\'' || ch === '"') {
@@ -45,7 +41,7 @@ export function tokenize(input: string): Token[] {
       inWord = true
       continue
     }
-    if (ch === '\\' && i + 1 < input.length) {
+    if (ch === '\\' && next !== undefined) {
       word += input[++i]
       inWord = true
       continue

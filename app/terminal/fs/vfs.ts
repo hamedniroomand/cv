@@ -1,7 +1,9 @@
 import type { CompleteOptions, FsBase, FsDir, FsFile, FsNode, ReaddirOptions, ReadFileOptions, VirtualFS } from './types'
+import { byteLength } from '../io/text'
 import { FsError } from './errors'
 
 const DEFAULT_MTIME = '1970-01-01T00:00:00.000Z'
+const WORLD_READ_BITS = 0o044
 
 export function dir(name: string, children: FsNode[] = [], extra: Partial<FsBase> = {}): FsDir {
   return {
@@ -10,7 +12,7 @@ export function dir(name: string, children: FsNode[] = [], extra: Partial<FsBase
     mode: 0o755,
     mtime: DEFAULT_MTIME,
     ...extra,
-    children: new Map(children.map(c => [c.name, c])),
+    children: new Map(children.map(child => [child.name, child])),
   }
 }
 
@@ -22,45 +24,44 @@ export function file(name: string, content: string, extra: Partial<FsBase> & { e
     mtime: DEFAULT_MTIME,
     ...extra,
     content,
-    size: new TextEncoder().encode(content).length,
+    size: byteLength(content),
   }
 }
 
-function sortByName(nodes: FsNode[]): FsNode[] {
-  // Byte order like `ls` in the C locale: dotfiles, then uppercase, then lowercase.
+export function sortByName(nodes: FsNode[]): FsNode[] {
   return nodes.sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0))
+}
+
+export function isHidden(node: FsNode): boolean {
+  return node.name.startsWith('.')
+}
+
+function joinPath(base: string, name: string): string {
+  return base === '/' ? `/${name}` : `${base}/${name}`
 }
 
 export class Vfs implements VirtualFS {
   readonly home: string
-  private _cwd: string
+  private currentDir: string
 
   constructor(private readonly root: FsDir, opts: { home?: string, cwd?: string } = {}) {
     this.home = opts.home ?? '/home/hamed'
-    this._cwd = opts.cwd ?? this.home
+    this.currentDir = opts.cwd ?? this.home
   }
 
   get cwd(): string {
-    return this._cwd
+    return this.currentDir
   }
 
-  resolve(path: string, from: string = this._cwd): string {
-    let full: string
-    if (path === '~' || path.startsWith('~/'))
-      full = this.home + path.slice(1)
-    else if (path.startsWith('/'))
-      full = path
-    else
-      full = `${from}/${path}`
-
+  resolve(path: string, from: string = this.currentDir): string {
     const parts: string[] = []
-    for (const seg of full.split('/')) {
-      if (seg === '' || seg === '.')
+    for (const segment of this.expand(path, from).split('/')) {
+      if (segment === '' || segment === '.')
         continue
-      if (seg === '..')
+      if (segment === '..')
         parts.pop()
       else
-        parts.push(seg)
+        parts.push(segment)
     }
     return `/${parts.join('/')}`
   }
@@ -71,22 +72,6 @@ export class Vfs implements VirtualFS {
     if (absPath.startsWith(`${this.home}/`))
       return `~${absPath.slice(this.home.length)}`
     return absPath
-  }
-
-  private lookup(path: string): FsNode | undefined {
-    const abs = this.resolve(path)
-    if (abs === '/')
-      return this.root
-    let node: FsNode = this.root
-    for (const seg of abs.slice(1).split('/')) {
-      if (node.type !== 'dir')
-        throw new FsError('ENOTDIR', path)
-      const next = node.children.get(seg)
-      if (!next)
-        return undefined
-      node = next
-    }
-    return node
   }
 
   stat(path: string): FsNode {
@@ -109,37 +94,31 @@ export class Vfs implements VirtualFS {
     const node = this.stat(path)
     if (node.type === 'dir')
       throw new FsError('EISDIR', path)
-    const worldReadable = (node.mode & 0o044) !== 0
+    const worldReadable = (node.mode & WORLD_READ_BITS) !== 0
     if (!worldReadable && !opts.sudo)
       throw new FsError('EACCES', path)
     return node.content
   }
 
   readdir(path: string, opts: ReaddirOptions = {}): FsNode[] {
-    const node = this.stat(path)
-    if (node.type !== 'dir')
-      throw new FsError('ENOTDIR', path)
-    const nodes = [...node.children.values()].filter(n => opts.all || !n.name.startsWith('.'))
-    return sortByName(nodes)
+    const nodes = [...this.statDir(path).children.values()]
+    return sortByName(opts.all ? nodes : nodes.filter(node => !isHidden(node)))
   }
 
   chdir(path: string): void {
-    const node = this.stat(path)
-    if (node.type !== 'dir')
-      throw new FsError('ENOTDIR', path)
-    this._cwd = this.resolve(path)
+    this.statDir(path)
+    this.currentDir = this.resolve(path)
   }
 
   walk(path: string, visit: (absPath: string, node: FsNode) => void): void {
-    const start = this.resolve(path)
-    const recurse = (abs: string, node: FsNode) => {
+    const recurse = (abs: string, node: FsNode): void => {
       visit(abs, node)
-      if (node.type === 'dir') {
-        for (const child of sortByName([...node.children.values()]))
-          recurse(abs === '/' ? `/${child.name}` : `${abs}/${child.name}`, child)
-      }
+      if (node.type !== 'dir')
+        return
+      for (const child of sortByName([...node.children.values()]))
+        recurse(joinPath(abs, child.name), child)
     }
-    recurse(start, this.stat(path))
+    recurse(this.resolve(path), this.stat(path))
   }
 
   complete(partial: string, opts: CompleteOptions = {}): string[] {
@@ -154,8 +133,39 @@ export class Vfs implements VirtualFS {
       return []
     }
     return entries
-      .filter(n => n.name.startsWith(prefix))
-      .filter(n => !opts.dirsOnly || n.type === 'dir')
-      .map(n => `${dirPart}${n.name}${n.type === 'dir' ? '/' : ''}`)
+      .filter(node => node.name.startsWith(prefix))
+      .filter(node => !opts.dirsOnly || node.type === 'dir')
+      .map(node => `${dirPart}${node.name}${node.type === 'dir' ? '/' : ''}`)
+  }
+
+  private expand(path: string, from: string): string {
+    if (path === '~' || path.startsWith('~/'))
+      return this.home + path.slice(1)
+    if (path.startsWith('/'))
+      return path
+    return `${from}/${path}`
+  }
+
+  private lookup(path: string): FsNode | undefined {
+    const abs = this.resolve(path)
+    if (abs === '/')
+      return this.root
+    let node: FsNode = this.root
+    for (const segment of abs.slice(1).split('/')) {
+      if (node.type !== 'dir')
+        throw new FsError('ENOTDIR', path)
+      const next = node.children.get(segment)
+      if (!next)
+        return undefined
+      node = next
+    }
+    return node
+  }
+
+  private statDir(path: string): FsDir {
+    const node = this.stat(path)
+    if (node.type !== 'dir')
+      throw new FsError('ENOTDIR', path)
+    return node
   }
 }

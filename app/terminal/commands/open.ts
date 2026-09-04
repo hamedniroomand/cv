@@ -1,18 +1,20 @@
 import type { Command, CommandContext } from '../types'
+import { githubUrl, mailtoUrl } from '#shared/cv/links'
 
-export const PDF_PATH = '/hamed-niroomand-cv.pdf'
+export const PDF_FILENAME = 'hamed-niroomand-cv.pdf'
+export const PDF_PATH = `/${PDF_FILENAME}`
 
 const TARGETS = ['github', 'linkedin', 'email', 'cue', 'pdf'] as const
 
 function urlFor(target: string, ctx: CommandContext): string | null {
   const { links } = ctx.cv.profile
   switch (target) {
-    case 'github': return `https://github.com/${links.github}`
+    case 'github': return githubUrl(links.github)
     case 'linkedin': return links.linkedin
-    case 'email': return `mailto:${links.email}`
+    case 'email': return mailtoUrl(links.email)
     case 'cue': {
-      const cue = ctx.cv.projects.find(p => p.slug === 'cue') ?? ctx.cv.projects[0]
-      return cue ? `https://github.com/${cue.repo}` : null
+      const project = ctx.cv.projects.find(item => item.slug === 'cue') ?? ctx.cv.projects[0]
+      return project ? githubUrl(project.repo) : null
     }
     default: return /^https?:\/\//.test(target) ? target : null
   }
@@ -26,7 +28,7 @@ export default {
   run(argv, ctx) {
     const target = argv[0]
     if (target === 'pdf') {
-      ctx.ui.download(PDF_PATH, 'hamed-niroomand-cv.pdf')
+      ctx.ui.download(PDF_PATH, PDF_FILENAME)
       return 0
     }
     const url = target ? urlFor(target, ctx) : null

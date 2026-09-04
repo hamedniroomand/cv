@@ -1,7 +1,5 @@
-/** In-memory command history with bash-like ↑/↓ navigation. */
 export class History {
   private entries: string[] = []
-  /** Index into entries while navigating; equals entries.length when at the draft. */
   private cursor = 0
   private draft = ''
 
@@ -17,7 +15,6 @@ export class History {
     this.cursor = this.entries.length
   }
 
-  /** Move to the previous entry. Saves `draft` when leaving the prompt. Null at the oldest entry. */
   up(draft: string): string | null {
     if (this.cursor === 0)
       return null
@@ -27,7 +24,6 @@ export class History {
     return this.entries[this.cursor] ?? null
   }
 
-  /** Move to the next entry; returns the saved draft when passing the newest entry. Null at the draft. */
   down(): string | null {
     if (this.cursor >= this.entries.length)
       return null

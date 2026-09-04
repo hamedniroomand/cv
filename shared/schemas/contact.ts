@@ -39,3 +39,20 @@ export function contactFieldErrors(input: unknown): ContactFieldErrors {
   const parsed = ContactSchema.safeParse(input)
   return parsed.success ? {} : issuesToFieldErrors(z.treeifyError(parsed.error).properties)
 }
+
+export interface ContactFailureFeedback {
+  errors: ContactFieldErrors
+  message: string
+}
+
+const GENERIC_FAILURE = 'Could not send. Try email instead.'
+
+export function contactFailureFeedback(data: unknown): ContactFailureFeedback {
+  const payload = (typeof data === 'object' && data !== null ? data : {}) as { message?: unknown, issues?: unknown }
+  const errors = issuesToFieldErrors(payload.issues)
+  const { website, turnstileToken, ...fieldErrors } = errors
+  if (Object.keys(fieldErrors).length > 0)
+    return { errors, message: '' }
+  const message = website ?? turnstileToken ?? (typeof payload.message === 'string' ? payload.message : GENERIC_FAILURE)
+  return { errors, message }
+}

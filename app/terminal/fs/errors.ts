@@ -1,6 +1,6 @@
 export type FsErrorCode = 'ENOENT' | 'EACCES' | 'ENOTDIR' | 'EISDIR'
 
-const MESSAGES: Record<FsErrorCode, string> = {
+const REASONS: Record<FsErrorCode, string> = {
   ENOENT: 'No such file or directory',
   EACCES: 'Permission denied',
   ENOTDIR: 'Not a directory',
@@ -9,14 +9,17 @@ const MESSAGES: Record<FsErrorCode, string> = {
 
 export class FsError extends Error {
   constructor(public readonly code: FsErrorCode, public readonly path: string) {
-    super(`${path}: ${MESSAGES[code]}`)
+    super(`${path}: ${REASONS[code]}`)
     this.name = 'FsError'
   }
 }
 
-/** `cat: .secrets: Permission denied` style message. */
+export function fsErrorReason(err: FsError): string {
+  return REASONS[err.code]
+}
+
 export function fsErrorMessage(cmd: string, err: FsError): string {
-  return `${cmd}: ${err.path}: ${MESSAGES[err.code]}`
+  return `${cmd}: ${err.path}: ${fsErrorReason(err)}`
 }
 
 export function isFsError(err: unknown): err is FsError {

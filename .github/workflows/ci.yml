@@ -57,11 +57,6 @@ jobs:
       - name: Install Chromium system libraries
         if: steps.playwright-cache.outputs.cache-hit == 'true'
         run: bunx playwright install-deps chromium
-      - run: bun run build
-        env:
-          NUXT_PUBLIC_SITE_URL: http://localhost:3457
-          # Cloudflare's always-pass test site key; the matching secret is set by playwright.config.
-          NUXT_PUBLIC_TURNSTILE_SITE_KEY: 1x00000000000000000000AA
       - run: bun run test:e2e
         env:
           CI: 'true'

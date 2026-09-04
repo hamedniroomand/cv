@@ -1,4 +1,6 @@
 import type { Command } from '../types'
+import { githubUrl, mailtoUrl, stripScheme } from '#shared/cv/links'
+import { writeLink } from './_util'
 
 export default {
   name: 'contact',
@@ -6,15 +8,9 @@ export default {
   usage: 'contact',
   async run(_argv, ctx) {
     const { links } = ctx.cv.profile
-    ctx.stdout.write('Email:    ')
-    ctx.stdout.link(links.email, `mailto:${links.email}`)
-    ctx.stdout.line()
-    ctx.stdout.write('GitHub:   ')
-    ctx.stdout.link(`github.com/${links.github}`, `https://github.com/${links.github}`)
-    ctx.stdout.line()
-    ctx.stdout.write('LinkedIn: ')
-    ctx.stdout.link(links.linkedin.replace(/^https?:\/\//, ''), links.linkedin)
-    ctx.stdout.line()
+    writeLink(ctx.stdout, 'Email:    ', links.email, mailtoUrl(links.email))
+    writeLink(ctx.stdout, 'GitHub:   ', `github.com/${links.github}`, githubUrl(links.github))
+    writeLink(ctx.stdout, 'LinkedIn: ', stripScheme(links.linkedin), links.linkedin)
     ctx.panel.navigate({ section: 'contact' })
     await ctx.ui.openModal('contact')
     return 0

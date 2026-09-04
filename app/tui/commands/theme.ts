@@ -1,10 +1,9 @@
 import type { AppCommand, PickerItem } from '../types'
-import { THEMES } from '~/composables/useTheme'
+import { THEMES } from '#shared/theme'
+import { chooseValue } from '../choose'
+import { EXIT_CANCELLED } from '../types'
 
-const choices: PickerItem[] = THEMES.map(theme => ({
-  value: theme,
-  label: theme,
-}))
+const choices: PickerItem[] = THEMES.map(theme => ({ value: theme, label: theme }))
 
 export default {
   name: 'theme',
@@ -12,13 +11,12 @@ export default {
   args: '[name]',
   complete: () => choices,
   async run(argv, ctx) {
-    const selected = argv[0] ?? await ctx.view.pick('Choose a theme', choices, {
+    const selected = await chooseValue(argv, ctx, 'Choose a theme', choices, {
       initial: ctx.env.theme,
       placeholder: 'Filter themes',
     })
     if (selected === null)
-      return 130
-
+      return EXIT_CANCELLED
     return ctx.shell(`theme ${selected}`)
   },
 } satisfies AppCommand

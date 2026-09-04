@@ -1,14 +1,3 @@
-/*
- * Colour themes. Default is dark. `data-theme` on <html> wins; without it the OS preference applies.
- * Contrast against --bg (WCAG AA needs 4.5:1 for text):
- *   dark : fg 14.8, fg-dim 7.2, accent 9.5, accent-2 9.0, error 6.5, prompt 8.9, success 10.0
- *   light: fg 15.1, fg-dim 5.6, accent 5.4, accent-2 5.6, error 6.0, prompt 6.5, success 4.9
- *   gruvbox: fg 10.75, fg-dim 5.30, accent 8.69, accent-2 5.48, error 5.08 (4.52 on bg-elev), prompt 5.37, success 7.14
- *   dracula: fg 13.36, fg-dim 6.07, accent 10.38, accent-2 10.29, error 4.98 (4.50 on bg-elev), prompt 5.90, success 10.38
- *   crt: fg 15.87, fg-dim 7.84, accent 17.70, accent-2 15.87, error 10.97, prompt 17.70, success 15.87
- * Gruvbox error was lifted from #fb4934 to #ff6550 and Dracula error from #ff5555 to #ff6666
- * so error text also meets AA on elevated modal surfaces.
- */
 :root,
 :root[data-theme='dark'] {
   color-scheme: dark;

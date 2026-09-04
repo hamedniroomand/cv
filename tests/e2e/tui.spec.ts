@@ -28,7 +28,7 @@ test.describe('desktop interactive app', () => {
     const output = page.getByRole('log', { name: 'App output' })
     await expect(output).toContainText('about.md')
     // Each command is echoed before its response, picker-driven ones included.
-    const echoes = output.locator('.tui__line', { hasText: /^› / })
+    const echoes = output.locator('.output__line', { hasText: /^› / })
     await expect(echoes).toHaveCount(2)
     await expect(echoes.nth(0)).toContainText('/experience')
     await expect(echoes.nth(1)).toHaveText('› ls')

@@ -1,56 +1,8 @@
 <script setup lang="ts">
 import type { MobileKey } from './MobileKeys.vue'
-import type { ModalKind } from '~/terminal/types'
+import type { TerminalInputHandle } from './TerminalInput.vue'
 
-const { navigate } = usePanelNav()
-const { toggle } = useSplitPane()
-const { set: setTheme } = useTheme()
-const reduced = useReducedMotion()
-const bus = useTerminalBus()
-
-const modal = ref<{ kind: ModalKind, resolve: () => void } | null>(null)
-const appOpen = ref(false)
-let appPromise: Promise<void> | null = null
-let resolveApp: (() => void) | null = null
-
-function openApp(): Promise<void> {
-  if (appPromise)
-    return appPromise
-  appOpen.value = true
-  appPromise = new Promise<void>((resolve) => {
-    resolveApp = resolve
-  })
-  return appPromise
-}
-
-const shell = useShell({
-  navigate,
-  togglePanel: toggle,
-  setTheme,
-  setLang: () => {},
-  openApp,
-  openModal: kind => new Promise<void>((resolve) => {
-    modal.value = { kind, resolve }
-  }),
-  destroy: () => {},
-})
-
-const booted = ref(false)
-const root = ref<HTMLElement | null>(null)
-interface InputHandle {
-  focus: () => void
-  submit: (line?: string) => void
-  complete: () => void
-  historyUp: () => void
-  historyDown: () => void
-  interrupt: () => void
-  clearLine: () => void
-  insert: (text: string) => void
-}
-const inputRef = ref<InputHandle | null>(null)
-const isMobile = useMediaQuery('(max-width: 899px)')
-
-const mobileKeys: MobileKey[] = [
+const MOBILE_KEYS: MobileKey[] = [
   { id: 'tab', label: 'Tab', aria: 'Complete' },
   { id: 'up', label: '↑', aria: 'Previous command' },
   { id: 'down', label: '↓', aria: 'Next command' },
@@ -60,21 +12,28 @@ const mobileKeys: MobileKey[] = [
   { id: 'run', label: 'Run ↵', aria: 'Run command' },
 ]
 
-function onMobileKey(id: string): void {
-  const handle = inputRef.value
-  if (!handle)
-    return
-  switch (id) {
-    case 'tab': return handle.complete()
-    case 'up': return handle.historyUp()
-    case 'down': return handle.historyDown()
-    case 'interrupt': return handle.interrupt()
-    case 'clear': return shell.clear()
-    case 'help': return handle.submit('help')
-    case 'run': return handle.submit()
-  }
-}
-const terminalHeight = ref<string>()
+const { navigate } = usePanelNav()
+const { toggle } = useSplitPane()
+const { set: setTheme } = useTheme()
+const reduced = useReducedMotion()
+const bus = useTerminalBus()
+const isMobile = useMediaQuery('(max-width: 899px)')
+const app = useAppMode()
+const modal = useModalRequest()
+
+const shell = useShell({
+  navigate,
+  togglePanel: toggle,
+  setTheme,
+  setLang: () => {},
+  openApp: app.request,
+  openModal: modal.request,
+  destroy: () => {},
+})
+
+const booted = ref(false)
+const root = ref<HTMLElement | null>(null)
+const inputRef = ref<TerminalInputHandle | null>(null)
 
 function focusInput(): void {
   inputRef.value?.focus()
@@ -85,36 +44,29 @@ function scrollToBottom(): void {
     root.value.scrollTop = root.value.scrollHeight
 }
 
-function syncVisualViewport(): void {
-  if (typeof window === 'undefined' || !window.visualViewport || !root.value)
-    return
+const { height } = useViewportHeight(root, () => nextTick(() => requestAnimationFrame(scrollToBottom)))
 
-  const rect = root.value.getBoundingClientRect()
-  // Hidden (mobile tab not selected): measurements are meaningless, keep the last value.
-  if (rect.height === 0)
-    return
-  const next = `${Math.max(0, window.visualViewport.height - rect.top)}px`
-  if (next === terminalHeight.value)
-    return
-  terminalHeight.value = next
-  nextTick(() => requestAnimationFrame(scrollToBottom))
+const mobileActions: Record<string, () => void> = {
+  tab: () => inputRef.value?.complete(),
+  up: () => inputRef.value?.historyUp(),
+  down: () => inputRef.value?.historyDown(),
+  interrupt: () => inputRef.value?.interrupt(),
+  clear: () => shell.clear(),
+  help: () => inputRef.value?.submit('help'),
+  run: () => inputRef.value?.submit(),
 }
 
-let resizeObserver: ResizeObserver | null = null
+function onMobileKey(id: string): void {
+  mobileActions[id]?.()
+}
 
 function closeModal(): void {
-  modal.value?.resolve()
-  modal.value = null
+  modal.close()
   nextTick(focusInput)
 }
 
 function closeApp(): void {
-  if (!appOpen.value)
-    return
-  appOpen.value = false
-  resolveApp?.()
-  resolveApp = null
-  appPromise = null
+  app.close()
   nextTick(focusInput)
 }
 
@@ -146,91 +98,56 @@ async function onBoot(): Promise<void> {
   nextTick(focusInput)
 }
 
-watch(() => bus.queue.value.length, (n) => {
-  if (n > 0 && booted.value)
-    drainBus()
-})
-
-watch(() => shell.lines.value.length, () => {
-  nextTick(scrollToBottom)
-})
-
 function onRootClick(): void {
-  if (appOpen.value)
-    return
-  if (window.getSelection()?.toString())
+  if (app.open.value || hasTextSelection())
     return
   focusInput()
 }
 
-onMounted(() => {
-  if (typeof window === 'undefined' || !window.visualViewport)
-    return
-  window.visualViewport.addEventListener('resize', syncVisualViewport)
-  // Re-measure when the terminal is shown again after being hidden behind another tab.
-  if ('ResizeObserver' in window && root.value) {
-    resizeObserver = new ResizeObserver(syncVisualViewport)
-    resizeObserver.observe(root.value)
-  }
-  syncVisualViewport()
+watch(() => bus.queue.value.length, (count) => {
+  if (count > 0 && booted.value)
+    drainBus()
 })
 
-onBeforeUnmount(() => {
-  resizeObserver?.disconnect()
-  resizeObserver = null
-  if (typeof window === 'undefined' || !window.visualViewport)
-    return
-  window.visualViewport.removeEventListener('resize', syncVisualViewport)
-})
+watch(() => shell.lines.value.length, () => nextTick(scrollToBottom))
 </script>
 
 <template>
   <div
     ref="root"
     class="terminal"
-    :class="{ 'terminal--app': appOpen }"
-    :style="{ height: terminalHeight }"
+    :class="{ 'terminal--app': app.open.value }"
+    :style="{ height }"
     @click="onRootClick"
   >
     <div v-if="!booted" class="terminal__body">
       <BootSequence :skip="reduced" @done="onBoot" />
     </div>
+    <TuiApp v-else-if="app.open.value" :bridge="shell.bridge" @exit="closeApp" />
     <template v-else>
-      <TuiApp
-        v-if="appOpen"
-        :bridge="shell.bridge"
-        @exit="closeApp"
-      />
-      <template v-else>
-        <div class="terminal__body">
-          <TerminalOutput :lines="shell.lines.value" />
-        </div>
-        <div class="terminal__footer">
-          <TerminalInput
-            ref="inputRef"
-            :prompt="shell.prompt()"
-            :busy="shell.busy.value"
-            :history="shell.history"
-            :complete="shell.complete"
-            @submit="submit"
-            @candidates="onCandidates"
-            @clear="shell.clear"
-            @interrupt="onInterrupt"
-          />
-          <MobileKeys v-if="isMobile" label="Terminal shortcuts" :keys="mobileKeys" @press="onMobileKey" />
-        </div>
-      </template>
+      <div class="terminal__body">
+        <OutputLog :lines="shell.lines.value" label="Terminal output" />
+      </div>
+      <div class="terminal__footer">
+        <TerminalInput
+          ref="inputRef"
+          :prompt="shell.prompt()"
+          :busy="shell.busy.value"
+          :history="shell.history"
+          :complete="shell.complete"
+          @submit="submit"
+          @candidates="onCandidates"
+          @clear="shell.clear"
+          @interrupt="onInterrupt"
+        />
+        <MobileKeys v-if="isMobile" label="Terminal shortcuts" :keys="MOBILE_KEYS" @press="onMobileKey" />
+      </div>
     </template>
-    <ContactModal v-if="modal?.kind === 'contact'" @close="closeModal" />
+    <ContactModal v-if="modal.kind.value === 'contact'" @close="closeModal" />
   </div>
 </template>
 
 <style scoped>
-/*
- * The scroller carries no padding of its own: Safari anchors a sticky element to the
- * scroller's content box, so padding here would leave a gap under the stuck footer where
- * scrolled output shows through. The body and footer pad themselves instead.
- */
 .terminal {
   height: 100%;
   overflow-y: auto;

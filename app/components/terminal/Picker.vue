@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import type { PickerItem } from '~/tui/types'
+import { pickerItemMatches } from '~/tui/picker'
 
 interface PickerEntry {
   item: PickerItem<unknown>
   id: string
-  key: string
 }
 
 const props = defineProps<{
@@ -21,51 +21,12 @@ const emit = defineEmits<{
 
 const root = ref<HTMLElement | null>(null)
 const query = ref('')
-const selected = ref(0)
-const entries: PickerEntry[] = props.items.map((item, index) => ({
-  item,
-  id: `tui-picker-option-${index}`,
-  key: `picker-option-${index}`,
-}))
+const entries: PickerEntry[] = props.items.map((item, index) => ({ item, id: `tui-picker-option-${index}` }))
 
-const filtered = computed(() => {
-  const needle = query.value.trim().toLocaleLowerCase()
-  if (!needle)
-    return entries
-  return entries.filter(({ item }) => {
-    const searchable = [
-      item.label,
-      item.description ?? '',
-      ...(item.keywords ?? []),
-    ].join(' ').toLocaleLowerCase()
-    return searchable.includes(needle)
-  })
-})
-
-const activeId = computed(() => {
-  return filtered.value[selected.value]?.id
-})
-
-watch(filtered, (items) => {
-  if (selected.value >= items.length)
-    selected.value = 0
-})
-
-function scrollActiveOption(): void {
-  nextTick(() => {
-    root.value
-      ?.querySelector<HTMLElement>('[role="option"][aria-selected="true"]')
-      ?.scrollIntoView({ block: 'nearest' })
-  })
-}
-
-watch(selected, scrollActiveOption)
-
-function move(delta: number): void {
-  if (filtered.value.length === 0)
-    return
-  selected.value = (selected.value + delta + filtered.value.length) % filtered.value.length
-}
+const filtered = computed(() => entries.filter(entry => pickerItemMatches(entry.item, query.value)))
+const { selected, move, reset } = useListSelection(() => filtered.value.length)
+const { scrollToActive } = useActiveOptionScroll(root, selected)
+const activeId = computed(() => filtered.value[selected.value]?.id)
 
 function choose(index = selected.value): void {
   const entry = filtered.value[index]
@@ -73,46 +34,34 @@ function choose(index = selected.value): void {
     emit('select', entry.item.value)
 }
 
+function editQuery(next: string): void {
+  query.value = next
+  reset()
+}
+
+const keyActions: Record<string, () => void> = {
+  ArrowUp: () => move(-1),
+  ArrowDown: () => move(1),
+  Enter: () => choose(),
+  Escape: () => emit('cancel'),
+  Backspace: () => editQuery(query.value.slice(0, -1)),
+}
+
 function onKeydown(event: KeyboardEvent): void {
-  if (event.ctrlKey && !event.altKey && !event.metaKey && event.key.toLocaleLowerCase() === 'c') {
+  if (isControlKey(event, 'c')) {
     event.preventDefault()
     emit('cancel')
     return
   }
-
-  switch (event.key) {
-    case 'ArrowUp':
-      event.preventDefault()
-      move(-1)
-      return
-    case 'ArrowDown':
-      event.preventDefault()
-      move(1)
-      return
-    case 'Enter':
-      event.preventDefault()
-      choose()
-      return
-    case 'Escape':
-      event.preventDefault()
-      emit('cancel')
-      return
-    case 'Backspace':
-      event.preventDefault()
-      query.value = query.value.slice(0, -1)
-      selected.value = 0
-      return
-  }
-
-  if (
-    event.key.length === 1
-    && !event.ctrlKey
-    && !event.altKey
-    && !event.metaKey
-  ) {
+  const action = keyActions[event.key]
+  if (action) {
     event.preventDefault()
-    query.value += event.key
-    selected.value = 0
+    action()
+    return
+  }
+  if (event.key.length === 1 && isPlainKey(event)) {
+    event.preventDefault()
+    editQuery(query.value + event.key)
   }
 }
 
@@ -121,7 +70,7 @@ onMounted(() => {
   if (initial >= 0)
     selected.value = initial
   root.value?.focus()
-  scrollActiveOption()
+  scrollToActive()
 })
 </script>
 
@@ -148,7 +97,7 @@ onMounted(() => {
       <div
         v-for="(entry, index) in filtered"
         :id="entry.id"
-        :key="entry.key"
+        :key="entry.id"
         class="picker__option"
         :class="{ 'is-selected': index === selected }"
         role="option"
@@ -239,14 +188,6 @@ onMounted(() => {
   .picker__option {
     min-height: 44px;
     align-items: center;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .picker,
-  .picker__option {
-    animation: none;
-    transition: none;
   }
 }
 </style>

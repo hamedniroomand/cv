@@ -3,7 +3,6 @@ import { panelTargetId } from '#shared/cv/panel-target'
 
 const HIGHLIGHT_MS = 1200
 
-/** Scroll the resume panel to a target and briefly highlight it. Shared between terminal and panel. */
 export function usePanelNav() {
   const active = useState<string | null>('panel-active', () => null)
   const reduced = useReducedMotion()
@@ -26,4 +25,9 @@ export function usePanelNav() {
   }
 
   return { navigate, active: readonly(active) }
+}
+
+export function usePanelHighlight(id: MaybeRefOrGetter<string>) {
+  const { active } = usePanelNav()
+  return computed(() => active.value === toValue(id))
 }

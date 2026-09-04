@@ -6,7 +6,6 @@ export interface SlashInput {
   partial: boolean
 }
 
-/** Parse a prompt line when slash is the first character; otherwise null. */
 export function parseSlashInput(line: string): SlashInput | null {
   if (!line.startsWith('/'))
     return null
@@ -20,9 +19,12 @@ export function parseSlashInput(line: string): SlashInput | null {
     return { name: rest, argv: [], partial: true }
 
   const name = rest.slice(0, spaceIndex)
-  const argPart = rest.slice(spaceIndex + 1)
-  const argv = argPart.length === 0 ? [] : argPart.split(/\s+/).filter(Boolean)
+  const argv = rest.slice(spaceIndex + 1).split(/\s+/).filter(Boolean)
   return { name, argv, partial: false }
+}
+
+export function slashOptionId(key: string): string {
+  return `tui-slash-option-${key.toLocaleLowerCase().replace(/[^a-z0-9]+/g, '-')}`
 }
 
 function isSubsequence(needle: string, haystack: string): boolean {
@@ -36,23 +38,23 @@ function isSubsequence(needle: string, haystack: string): boolean {
   return i === needle.length
 }
 
-function matchTier(query: string, command: AppCommand): number | null {
-  const q = query.toLowerCase()
-  const keys = [command.name, ...(command.aliases ?? [])]
-  let best: number | null = null
-  for (const key of keys) {
-    const k = key.toLowerCase()
-    if (k === q)
-      best = best === null ? 0 : Math.min(best, 0)
-    else if (k.startsWith(q))
-      best = best === null ? 1 : Math.min(best, 1)
-    else if (isSubsequence(q, k))
-      best = best === null ? 2 : Math.min(best, 2)
-  }
-  return best
+function keyTier(query: string, key: string): number | null {
+  if (key === query)
+    return 0
+  if (key.startsWith(query))
+    return 1
+  if (isSubsequence(query, key))
+    return 2
+  return null
 }
 
-/** Rank commands for the slash menu: exact, prefix, then subsequence; stable by name within each tier. */
+function matchTier(query: string, command: AppCommand): number | null {
+  const tiers = [command.name, ...(command.aliases ?? [])]
+    .map(key => keyTier(query.toLowerCase(), key.toLowerCase()))
+    .filter((tier): tier is number => tier !== null)
+  return tiers.length > 0 ? Math.min(...tiers) : null
+}
+
 export function filterCommands(query: string, commands: AppCommand[]): AppCommand[] {
   const tiers: AppCommand[][] = [[], [], []]
   for (const command of commands) {

@@ -7,7 +7,6 @@ export default {
     const commands = ctx.registry.list()
     const usages = commands.map(command => `/${command.name}${command.args ? ` ${command.args}` : ''}`)
     const width = Math.max(...usages.map(usage => usage.length))
-
     commands.forEach((command, index) => {
       ctx.view.print(`${usages[index]!.padEnd(width)}  ${command.description}`)
     })

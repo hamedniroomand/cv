@@ -3,6 +3,7 @@ import type { NuxtError } from '#app'
 import { siteHost } from '#shared/site-host'
 
 const props = defineProps<{ error: NuxtError }>()
+const route = useRoute()
 const host = siteHost(useRuntimeConfig().public.siteUrl)
 const message = computed(() => (props.error.statusCode === 404 ? 'No such file or directory' : 'Something went wrong'))
 </script>
@@ -10,10 +11,10 @@ const message = computed(() => (props.error.statusCode === 404 ? 'No such file o
 <template>
   <main class="error">
     <p class="error__prompt">
-      hamed@{{ host }}:~$ open {{ $route.fullPath }}
+      hamed@{{ host }}:~$ open {{ route.fullPath }}
     </p>
     <p class="error__message">
-      bash: {{ $route.fullPath }}: {{ message }} ({{ error.statusCode }})
+      bash: {{ route.fullPath }}: {{ message }} ({{ error.status }})
     </p>
     <p>
       <a href="/" @click.prevent="clearError({ redirect: '/' })">cd ~</a>

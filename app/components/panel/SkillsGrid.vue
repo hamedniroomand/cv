@@ -2,13 +2,17 @@
 import type { SkillCategory } from '#shared/schemas/skills'
 
 defineProps<{ categories: SkillCategory[] }>()
+
+function itemNames(category: SkillCategory): string {
+  return category.items.map(item => item.name).join(', ')
+}
 </script>
 
 <template>
   <dl class="skills">
-    <div v-for="cat in categories" :key="cat.id" class="skills__row">
-      <dt>{{ cat.label }}</dt>
-      <dd>{{ cat.items.map(item => item.name).join(', ') }}</dd>
+    <div v-for="category in categories" :key="category.id" class="skills__row">
+      <dt>{{ category.label }}</dt>
+      <dd>{{ itemNames(category) }}</dd>
     </div>
   </dl>
 </template>

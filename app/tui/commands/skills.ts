@@ -1,13 +1,13 @@
 import type { AppCommand, AppContext, PickerItem } from '../types'
+import { unknownValueMessage } from '~/terminal/messages'
+import { chooseValue } from '../choose'
+import { EXIT_CANCELLED } from '../types'
+
+const ALL = 'all'
 
 function choices(ctx: AppContext): PickerItem[] {
   return [
-    {
-      value: 'all',
-      label: 'All skills',
-      description: 'Show every category',
-      keywords: ['all'],
-    },
+    { value: ALL, label: 'All skills', description: 'Show every category', keywords: [ALL] },
     ...ctx.cv.skills.categories.map(category => ({
       value: category.id,
       label: category.label,
@@ -23,23 +23,18 @@ export default {
   args: '[category]',
   complete: (_argv, ctx) => choices(ctx),
   async run(argv, ctx) {
-    const requested = argv[0] ?? await ctx.view.pick('Choose a skill category', choices(ctx), {
-      placeholder: 'Filter skill categories',
-    })
+    const requested = await chooseValue(argv, ctx, 'Choose a skill category', choices(ctx), { placeholder: 'Filter skill categories' })
     if (requested === null)
-      return 130
+      return EXIT_CANCELLED
 
-    if (requested.toLocaleLowerCase() === 'all')
+    const query = requested.toLocaleLowerCase()
+    if (query === ALL)
       return ctx.shell('skills')
 
-    const category = ctx.cv.skills.categories.find(
-      item => item.id.toLocaleLowerCase() === requested.toLocaleLowerCase(),
-    )
+    const { categories } = ctx.cv.skills
+    const category = categories.find(item => item.id.toLocaleLowerCase() === query)
     if (!category) {
-      ctx.view.print(
-        `skills: unknown category '${requested}' (try: all, ${ctx.cv.skills.categories.map(item => item.id).join(', ')})`,
-        'error',
-      )
+      ctx.view.print(unknownValueMessage('skills', 'category', requested, [ALL, ...categories.map(item => item.id)]), 'error')
       return 1
     }
     return ctx.shell(`skills --category ${category.id}`)

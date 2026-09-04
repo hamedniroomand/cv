@@ -1,26 +1,35 @@
-import type { Command } from '../types'
+import type { SkillCategory } from '#shared/schemas/skills'
+import type { Command, CommandContext } from '../types'
+import { unknownValueMessage } from '../messages'
 import { parseFlags } from '../shell/flags'
+
+function itemLabel(item: SkillCategory['items'][number]): string {
+  return item.note ? `${item.name} (${item.note})` : item.name
+}
+
+function printCategory(ctx: CommandContext, category: SkillCategory): void {
+  ctx.stdout.line(category.label, 'accent')
+  ctx.stdout.line(`  ${category.items.map(itemLabel).join(', ')}`)
+}
 
 export default {
   name: 'skills',
   description: 'List skills by category',
   usage: 'skills [--category <id>]',
   complete(argv, ctx) {
-    return argv.includes('--category') ? ctx.cv.skills.categories.map(c => c.id) : ['--category']
+    return argv.includes('--category') ? ctx.cv.skills.categories.map(category => category.id) : ['--category']
   },
   run(argv, ctx) {
     const { values } = parseFlags(argv, { string: ['category'] })
     const { categories } = ctx.cv.skills
     const wanted = values.category
-    const shown = wanted ? categories.filter(c => c.id === wanted) : categories
+    const shown = wanted ? categories.filter(category => category.id === wanted) : categories
     if (wanted && shown.length === 0) {
-      ctx.stderr.line(`skills: unknown category '${wanted}' (try: ${categories.map(c => c.id).join(', ')})`)
+      ctx.stderr.line(unknownValueMessage('skills', 'category', wanted, categories.map(category => category.id)))
       return 1
     }
-    for (const cat of shown) {
-      ctx.stdout.line(cat.label, 'accent')
-      ctx.stdout.line(`  ${cat.items.map(i => (i.note ? `${i.name} (${i.note})` : i.name)).join(', ')}`)
-    }
+    for (const category of shown)
+      printCategory(ctx, category)
     ctx.panel.navigate({ section: 'skills' })
     return 0
   },

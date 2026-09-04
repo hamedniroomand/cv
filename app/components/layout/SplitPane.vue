@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { SPLIT_DEFAULT, SPLIT_MAX, SPLIT_MIN } from '#shared/split'
+import { clampSplitRatio, SPLIT_DEFAULT, SPLIT_MAX, SPLIT_MIN } from '#shared/split'
 
 const props = defineProps<{
   ratio: number
@@ -7,46 +7,47 @@ const props = defineProps<{
 }>()
 const emit = defineEmits<{ 'update:ratio': [value: number] }>()
 
+const KEY_STEP = 0.02
+
 const root = ref<HTMLElement | null>(null)
 const dragging = ref(false)
 const percent = computed(() => Math.round(props.ratio * 100))
 
-function clamp(value: number): number {
-  return Math.min(SPLIT_MAX, Math.max(SPLIT_MIN, value))
+function update(value: number): void {
+  emit('update:ratio', clampSplitRatio(value))
 }
 
-function onPointerDown(e: PointerEvent): void {
+function onPointerDown(event: PointerEvent): void {
   if (!root.value)
     return
   dragging.value = true
-  ;(e.currentTarget as HTMLElement).setPointerCapture(e.pointerId)
+  ;(event.currentTarget as HTMLElement).setPointerCapture(event.pointerId)
 }
 
-function onPointerMove(e: PointerEvent): void {
+function onPointerMove(event: PointerEvent): void {
   if (!dragging.value || !root.value)
     return
   const rect = root.value.getBoundingClientRect()
-  emit('update:ratio', clamp((e.clientX - rect.left) / rect.width))
+  update((event.clientX - rect.left) / rect.width)
 }
 
-function onPointerUp(e: PointerEvent): void {
+function onPointerUp(event: PointerEvent): void {
   dragging.value = false
-  ;(e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId)
+  ;(event.currentTarget as HTMLElement).releasePointerCapture(event.pointerId)
 }
 
-function onKeydown(e: KeyboardEvent): void {
-  const step = 0.02
-  const map: Record<string, number> = {
-    ArrowLeft: props.ratio - step,
-    ArrowRight: props.ratio + step,
+function onKeydown(event: KeyboardEvent): void {
+  const targets: Record<string, number> = {
+    ArrowLeft: props.ratio - KEY_STEP,
+    ArrowRight: props.ratio + KEY_STEP,
     Home: SPLIT_MIN,
     End: SPLIT_MAX,
   }
-  const next = map[e.key]
+  const next = targets[event.key]
   if (next === undefined)
     return
-  e.preventDefault()
-  emit('update:ratio', clamp(next))
+  event.preventDefault()
+  update(next)
 }
 </script>
 
@@ -84,10 +85,6 @@ function onKeydown(e: KeyboardEvent): void {
 </template>
 
 <style scoped>
-/*
- * `--split` lives on <html>: the pre-paint script restores the saved ratio before the first frame and the
- * composable updates it on drag, so server HTML and hydrated DOM never disagree on the column widths.
- */
 .split {
   display: grid;
   grid-template-columns: calc(var(--split, var(--split-default)) * 100%) var(--divider-width) minmax(0, 1fr);

@@ -1,28 +1,37 @@
 import type { Experience } from '#shared/schemas/experience'
 import type { AppCommand, AppContext, PickerItem } from '../types'
 import { formatRange } from '#shared/cv/format'
+import { unknownValueMessage } from '~/terminal/messages'
+import { chooseValue } from '../choose'
 import { printMarkdown } from '../markdown'
+import { EXIT_CANCELLED } from '../types'
 
 function choices(ctx: AppContext): PickerItem[] {
   return [...ctx.cv.experience]
     .sort((a, b) => a.order - b.order)
-    .map(exp => ({
-      value: exp.slug,
-      label: exp.company,
-      description: exp.roles
+    .map(experience => ({
+      value: experience.slug,
+      label: experience.company,
+      description: experience.roles
         .map(role => `${role.title} · ${formatRange(role.start, role.end)}`)
         .join('; '),
-      keywords: [exp.slug, ...exp.stack],
+      keywords: [experience.slug, ...experience.stack],
     }))
 }
 
 function resolveExperience(input: string, experiences: Experience[]): Experience | undefined {
   const query = input.toLocaleLowerCase()
-  const exact = experiences.find(exp => exp.slug.toLocaleLowerCase() === query)
+  const exact = experiences.find(experience => experience.slug.toLocaleLowerCase() === query)
   if (exact)
     return exact
-  const companyMatches = experiences.filter(exp => exp.company.toLocaleLowerCase().startsWith(query))
-  return companyMatches.length === 1 ? companyMatches[0] : undefined
+  const byCompany = experiences.filter(experience => experience.company.toLocaleLowerCase().startsWith(query))
+  return byCompany.length === 1 ? byCompany[0] : undefined
+}
+
+function highlightsMarkdown(experience: Experience): string[] {
+  if (experience.highlights.length === 0)
+    return []
+  return ['', '## Highlights', ...experience.highlights.map(highlight => `- ${highlight.title} — ${highlight.body}`)]
 }
 
 export default {
@@ -31,29 +40,19 @@ export default {
   args: '[company]',
   complete: (_argv, ctx) => choices(ctx),
   async run(argv, ctx) {
-    const requested = argv[0] ?? await ctx.view.pick('Choose a company', choices(ctx), {
-      placeholder: 'Filter companies',
-    })
+    const requested = await chooseValue(argv, ctx, 'Choose a company', choices(ctx), { placeholder: 'Filter companies' })
     if (requested === null)
-      return 130
+      return EXIT_CANCELLED
 
     const experience = resolveExperience(requested, ctx.cv.experience)
     if (!experience) {
-      ctx.view.print(
-        `experience: unknown company '${requested}' (try: ${ctx.cv.experience.map(exp => exp.slug).join(', ')})`,
-        'error',
-      )
+      const slugs = ctx.cv.experience.map(item => item.slug)
+      ctx.view.print(unknownValueMessage('experience', 'company', requested, slugs), 'error')
       return 1
     }
 
     const readme = ctx.fs.readFile(`~/experience/${experience.slug}/README.md`)
-    const highlights = experience.highlights.map(
-      highlight => `- ${highlight.title} — ${highlight.body}`,
-    )
-    printMarkdown(ctx.view, [
-      readme,
-      ...(highlights.length > 0 ? ['', '## Highlights', ...highlights] : []),
-    ].join('\n'))
+    printMarkdown(ctx.view, [readme, ...highlightsMarkdown(experience)].join('\n'))
     ctx.panel.navigate({ section: 'experience', slug: experience.slug })
     return 0
   },

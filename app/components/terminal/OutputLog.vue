@@ -1,13 +1,16 @@
 <script setup lang="ts">
 import type { OutputLine } from '~/terminal/types'
 
-defineProps<{ lines: OutputLine[] }>()
+defineProps<{
+  lines: OutputLine[]
+  label: string
+}>()
 </script>
 
 <template>
-  <div class="output" role="log" aria-live="polite" aria-relevant="additions" aria-label="Terminal output">
+  <div class="output" role="log" aria-live="polite" aria-relevant="additions" :aria-label="label">
     <div v-for="line in lines" :key="line.id" class="output__line">
-      <template v-for="(span, i) in line.spans" :key="i">
+      <template v-for="(span, index) in line.spans" :key="index">
         <a
           v-if="span.href"
           :href="span.href"
@@ -31,6 +34,13 @@ defineProps<{ lines: OutputLine[] }>()
   min-height: 1.5em;
 }
 
+.output__line:has(> .s-pre) {
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-wrap: normal;
+  white-space: pre;
+}
+
 .s-dim {
   color: var(--fg-dim);
 }
@@ -52,6 +62,7 @@ defineProps<{ lines: OutputLine[] }>()
 }
 
 .s-pre {
+  color: var(--accent);
   white-space: pre;
 }
 

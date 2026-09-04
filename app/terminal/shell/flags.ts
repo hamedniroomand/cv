@@ -10,14 +10,50 @@ export interface ParsedArgs {
   unknown: string[]
 }
 
-/**
- * Minimal getopt: `-la`, `-n 3`, `-n3`, `--long`, `--key=value`, `--key value`, `--` terminator.
- * A lone `-` is positional (stdin convention).
- */
 export function parseFlags(argv: string[], spec: FlagSpec): ParsedArgs {
   const booleans = new Set(spec.boolean ?? [])
   const strings = new Set(spec.string ?? [])
   const out: ParsedArgs = { flags: new Set(), values: {}, positionals: [], unknown: [] }
+
+  const readLong = (arg: string, index: number): number => {
+    const eq = arg.indexOf('=')
+    const key = eq >= 0 ? arg.slice(2, eq) : arg.slice(2)
+    if (booleans.has(key)) {
+      out.flags.add(key)
+      return index
+    }
+    if (strings.has(key)) {
+      if (eq >= 0) {
+        out.values[key] = arg.slice(eq + 1)
+        return index
+      }
+      out.values[key] = argv[index + 1] ?? ''
+      return index + 1
+    }
+    out.unknown.push(arg)
+    return index
+  }
+
+  const readShort = (arg: string, index: number): number => {
+    for (let j = 1; j < arg.length; j++) {
+      const ch = arg[j]!
+      if (booleans.has(ch)) {
+        out.flags.add(ch)
+        continue
+      }
+      if (strings.has(ch)) {
+        const rest = arg.slice(j + 1)
+        if (rest.length > 0) {
+          out.values[ch] = rest
+          return index
+        }
+        out.values[ch] = argv[index + 1] ?? ''
+        return index + 1
+      }
+      out.unknown.push(`-${ch}`)
+    }
+    return index
+  }
 
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i]!
@@ -25,38 +61,12 @@ export function parseFlags(argv: string[], spec: FlagSpec): ParsedArgs {
       out.positionals.push(...argv.slice(i + 1))
       break
     }
-    if (arg.startsWith('--') && arg.length > 2) {
-      const eq = arg.indexOf('=')
-      const key = eq >= 0 ? arg.slice(2, eq) : arg.slice(2)
-      if (booleans.has(key)) {
-        out.flags.add(key)
-      }
-      else if (strings.has(key)) {
-        out.values[key] = eq >= 0 ? arg.slice(eq + 1) : (argv[++i] ?? '')
-      }
-      else {
-        out.unknown.push(arg)
-      }
-      continue
-    }
-    if (arg.startsWith('-') && arg.length > 1) {
-      for (let j = 1; j < arg.length; j++) {
-        const ch = arg[j]!
-        if (booleans.has(ch)) {
-          out.flags.add(ch)
-        }
-        else if (strings.has(ch)) {
-          const rest = arg.slice(j + 1)
-          out.values[ch] = rest.length > 0 ? rest : (argv[++i] ?? '')
-          break
-        }
-        else {
-          out.unknown.push(`-${ch}`)
-        }
-      }
-      continue
-    }
-    out.positionals.push(arg)
+    if (arg.startsWith('--') && arg.length > 2)
+      i = readLong(arg, i)
+    else if (arg.startsWith('-') && arg.length > 1)
+      i = readShort(arg, i)
+    else
+      out.positionals.push(arg)
   }
   return out
 }

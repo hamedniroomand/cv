@@ -2,6 +2,7 @@
 export type ShellTab = 'resume' | 'terminal'
 
 const tab = defineModel<ShellTab>({ required: true })
+
 const tabs: { id: ShellTab, label: string }[] = [
   { id: 'resume', label: 'Resume' },
   { id: 'terminal', label: 'Terminal' },
@@ -11,18 +12,18 @@ const tabs: { id: ShellTab, label: string }[] = [
 <template>
   <nav class="tabs" role="tablist" aria-label="View">
     <button
-      v-for="t in tabs"
-      :id="`tab-${t.id}`"
-      :key="t.id"
+      v-for="item in tabs"
+      :id="`tab-${item.id}`"
+      :key="item.id"
       type="button"
       role="tab"
       class="tabs__tab"
-      :class="{ 'is-active': tab === t.id }"
-      :aria-selected="tab === t.id"
-      :aria-controls="t.id === 'resume' ? 'resume' : 'terminal'"
-      @click="tab = t.id"
+      :class="{ 'is-active': tab === item.id }"
+      :aria-selected="tab === item.id"
+      :aria-controls="item.id"
+      @click="tab = item.id"
     >
-      {{ t.label }}
+      {{ item.label }}
     </button>
   </nav>
 </template>

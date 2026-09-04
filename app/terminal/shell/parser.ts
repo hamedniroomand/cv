@@ -3,7 +3,6 @@ import { tokenize } from './tokenizer'
 
 export interface Segment {
   argv: string[]
-  /** The segment was prefixed with `sudo`. There is no `sudo` command; it only sets a flag. */
   sudo: boolean
 }
 
@@ -11,7 +10,17 @@ export interface Pipeline {
   segments: Segment[]
 }
 
-/** Parse a command line into a pipeline of simple commands. */
+const UNEXPECTED_PIPE = 'syntax error near unexpected token `|\''
+
+function toSegment(words: string[]): Segment {
+  let sudo = false
+  while (words[0] === 'sudo') {
+    sudo = true
+    words.shift()
+  }
+  return { argv: words, sudo }
+}
+
 export function parse(input: string): Pipeline {
   const tokens = tokenize(input)
   if (tokens.length === 0)
@@ -19,26 +28,17 @@ export function parse(input: string): Pipeline {
 
   const groups: string[][] = [[]]
   for (const token of tokens) {
-    if (token.type === 'pipe') {
-      if (groups[groups.length - 1]!.length === 0)
-        throw new ShellSyntaxError('syntax error near unexpected token `|\'')
-      groups.push([])
+    const current = groups[groups.length - 1]!
+    if (token.type === 'word') {
+      current.push(token.value)
+      continue
     }
-    else {
-      groups[groups.length - 1]!.push(token.value)
-    }
+    if (current.length === 0)
+      throw new ShellSyntaxError(UNEXPECTED_PIPE)
+    groups.push([])
   }
   if (groups[groups.length - 1]!.length === 0)
-    throw new ShellSyntaxError('syntax error near unexpected token `|\'')
+    throw new ShellSyntaxError(UNEXPECTED_PIPE)
 
-  return {
-    segments: groups.map((words) => {
-      let sudo = false
-      while (words[0] === 'sudo') {
-        sudo = true
-        words.shift()
-      }
-      return { argv: words, sudo }
-    }),
-  }
+  return { segments: groups.map(toSegment) }
 }

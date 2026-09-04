@@ -1,113 +1,28 @@
 <script setup lang="ts">
 import type { MobileKey } from './MobileKeys.vue'
-import type { OutputLine, Span } from '~/terminal/types'
 import type { AppBridge } from '~/tui/bridge'
-import type { AppCommand, AppContext, PickerItem, View } from '~/tui/types'
-import { LineWriter } from '~/terminal/io/writer'
-import { History } from '~/terminal/shell/history'
-import { createAppRunner } from '~/tui/runner'
-import { filterCommands, parseSlashInput } from '~/tui/slash'
-
-interface MenuItem {
-  key: string
-  label: string
-  detail?: string
-  description?: string
-  completion: string
-  runLine: string
-}
-
-interface PickerState {
-  title: string
-  items: PickerItem<unknown>[]
-  initial?: unknown
-  placeholder?: string
-  resolve: (value: unknown | null) => void
-}
+import type { View } from '~/tui/types'
 
 const props = defineProps<{ bridge: AppBridge }>()
 const emit = defineEmits<{ exit: [] }>()
 
-const lines = ref<OutputLine[]>([])
 const value = ref('')
 const status = ref('Type / for commands · ↑↓ to choose · Esc to leave')
-const busy = ref(false)
-const selected = ref(0)
-const menuSuppressed = ref(false)
-const picker = ref<PickerState | null>(null)
-const input = ref<HTMLInputElement | null>(null)
-const output = ref<HTMLElement | null>(null)
-const history = new History()
-let nextId = 0
-let controller: AbortController | null = null
+const prompt = ref<{ focus: () => void } | null>(null)
+const outputEl = ref<HTMLElement | null>(null)
+const isMobile = useMediaQuery('(max-width: 899px)')
 let exited = false
 
-function sink(line: OutputLine): void {
-  lines.value.push(line)
-}
-const getNextId = (): number => ++nextId
-
-function print(spans: Span[] | string, style?: OutputLine['spans'][number]['style']): void {
-  const writer = new LineWriter(sink, getNextId, style)
-  if (typeof spans === 'string') {
-    if (spans.length === 0)
-      writer.line()
-    else
-      writer.write(spans)
-  }
-  else if (spans.length === 0) {
-    writer.line()
-  }
-  else {
-    writer.raw(spans)
-  }
-  writer.flush()
-}
-
 function focusPrompt(): void {
-  input.value?.focus()
+  nextTick(() => prompt.value?.focus())
 }
 
-function settlePicker(result: unknown | null): void {
-  const current = picker.value
-  if (!current)
-    return
-  picker.value = null
-  current.resolve(result)
-  nextTick(focusPrompt)
-}
-
-function pick<T>(
-  title: string,
-  items: PickerItem<T>[],
-  opts: { initial?: T, placeholder?: string } = {},
-): Promise<T | null> {
-  settlePicker(null)
-  return new Promise<T | null>((resolve) => {
-    picker.value = {
-      title,
-      items: items as PickerItem<unknown>[],
-      initial: opts.initial,
-      placeholder: opts.placeholder,
-      resolve: result => resolve(result as T | null),
-    }
-  })
-}
-
-function exit(): void {
-  if (exited)
-    return
-  exited = true
-  controller?.abort()
-  settlePicker(null)
-  emit('exit')
-}
+const output = useTuiOutput()
+const { picker, pick, settle: settlePicker } = useTuiPicker(focusPrompt)
 
 const view: View = {
-  print,
-  clear: () => {
-    lines.value = []
-  },
+  print: output.print,
+  clear: output.clear,
   pick,
   status: (text) => {
     status.value = text
@@ -115,62 +30,61 @@ const view: View = {
   exit,
 }
 
-function runShell(
-  line: string,
-  signal: AbortSignal,
-): Promise<number> {
-  return props.bridge.exec(line, sink, getNextId, signal)
-}
-
-const runner = createAppRunner({
+const runner = useTuiRunner({ bridge: props.bridge, view, sink: output.sink, nextId: output.nextId, onSettled: focusPrompt })
+const { up: historyUp, down: historyDown } = usePromptHistory(value, runner.history)
+const menu = useSlashMenu({
+  value,
   registry: props.bridge.registry,
-  context: { ...props.bridge.context, view },
-  shell: runShell,
+  blocked: () => picker.value !== null,
+  completionContext: runner.completionContext,
 })
 
-function completionContext(command: AppCommand): AppContext {
-  const signal = controller?.signal ?? new AbortController().signal
-  return {
-    ...props.bridge.context,
-    argv0: `/${command.name}`,
-    registry: props.bridge.registry,
-    sudo: false,
-    signal,
-    view,
-    shell: line => runShell(line, signal),
-    slash: line => runner.run(line, signal),
-  }
+function exit(): void {
+  if (exited)
+    return
+  exited = true
+  runner.abort()
+  settlePicker(null)
+  emit('exit')
 }
 
-function matchesPickerItem(item: PickerItem, query: string): boolean {
-  if (!query)
-    return true
-  const searchable = [
-    item.label,
-    item.description ?? '',
-    ...(item.keywords ?? []),
-  ].join(' ').toLocaleLowerCase()
-  return searchable.includes(query.toLocaleLowerCase())
+function submitLine(line = value.value): void {
+  if (runner.busy.value)
+    return
+  value.value = ''
+  menu.reveal()
+  if (line.trim())
+    void runner.run(line)
 }
 
-const parsed = computed(() => parseSlashInput(value.value))
+function activateMenu(index: number): void {
+  const item = menu.items.value[index]
+  if (item)
+    submitLine(item.runLine)
+}
 
-const showMenu = computed(() => {
-  if (picker.value || menuSuppressed.value || !parsed.value)
-    return false
-  if (parsed.value.partial)
-    return true
-  return Boolean(props.bridge.registry.get(parsed.value.name)?.complete)
-})
+function completeMenu(): void {
+  const item = menu.current.value
+  if (!item)
+    return
+  value.value = item.completion
+  menu.reveal()
+}
+
+function interrupt(): void {
+  runner.abort()
+  value.value = ''
+  menu.suppress()
+}
 
 function onEscape(): void {
   if (picker.value) {
     settlePicker(null)
     return
   }
-  if (showMenu.value) {
-    menuSuppressed.value = true
-    nextTick(focusPrompt)
+  if (menu.visible.value) {
+    menu.suppress()
+    focusPrompt()
     return
   }
   if (!value.value)
@@ -180,299 +94,127 @@ function onEscape(): void {
 const escapeLabel = computed(() => {
   if (picker.value)
     return 'Esc · cancel'
-  if (showMenu.value)
+  if (menu.visible.value)
     return 'Esc · close menu'
   return 'Esc · exit'
 })
 
-const menuItems = computed<MenuItem[]>(() => {
-  const slash = parsed.value
-  if (!showMenu.value || !slash)
-    return []
-
-  if (slash.partial) {
-    return filterCommands(slash.name, props.bridge.registry.list()).map(command => ({
-      key: command.name,
-      label: `/${command.name}`,
-      detail: command.args,
-      description: command.description,
-      completion: `/${command.name}${command.args ? ' ' : ''}`,
-      runLine: `/${command.name}`,
-    }))
+function onControlKey(event: KeyboardEvent): boolean {
+  if (isControlKey(event, 'c')) {
+    event.preventDefault()
+    interrupt()
+    return true
   }
-
-  const command = props.bridge.registry.get(slash.name)
-  const choices = command?.complete?.(slash.argv, completionContext(command))
-  if (!command || !choices)
-    return []
-
-  const query = value.value.endsWith(' ') ? '' : (slash.argv.at(-1) ?? '')
-  return choices
-    .filter(item => matchesPickerItem(item, query))
-    .map(item => ({
-      key: `argument-${String(item.value)}`,
-      label: item.label,
-      description: item.description,
-      completion: `/${command.name} ${String(item.value)}`,
-      runLine: `/${command.name} ${String(item.value)}`,
-    }))
-})
-
-const activeMenuId = computed(() => {
-  const item = menuItems.value[selected.value]
-  if (!showMenu.value || !item)
-    return undefined
-  const key = item.key.toLocaleLowerCase().replace(/[^a-z0-9]+/g, '-')
-  return `tui-slash-option-${key}`
-})
-
-watch(value, () => {
-  selected.value = 0
-})
-
-watch(() => lines.value.length, () => {
-  nextTick(() => {
-    if (output.value)
-      output.value.scrollTop = output.value.scrollHeight
-  })
-})
-
-function moveMenu(delta: number): void {
-  if (menuItems.value.length === 0)
-    return
-  selected.value = (selected.value + delta + menuItems.value.length) % menuItems.value.length
+  if (isControlKey(event, 'd') && !value.value && !menu.visible.value) {
+    event.preventDefault()
+    exit()
+    return true
+  }
+  return event.ctrlKey
 }
 
-async function submitLine(line = value.value): Promise<void> {
-  if (busy.value)
-    return
-  const submitted = line
-  value.value = ''
-  menuSuppressed.value = false
-  if (!submitted.trim())
-    return
-
-  history.push(submitted)
-  // Echo the command so every response reads under the line that produced it.
-  print([{ text: '› ', style: 'prompt' }, { text: submitted }])
-  busy.value = true
-  controller = new AbortController()
-  try {
-    await runner.run(submitted, controller.signal)
+function onMenuKey(event: KeyboardEvent): boolean {
+  const actions: Record<string, () => void> = {
+    ArrowUp: () => menu.move(-1),
+    ArrowDown: () => menu.move(1),
+    Tab: completeMenu,
+    Escape: onEscape,
   }
-  finally {
-    busy.value = false
-    controller = null
-    nextTick(focusPrompt)
-  }
+  if (event.key === 'Enter' && menu.items.value.length > 0)
+    actions.Enter = () => activateMenu(menu.selected.value)
+  const action = actions[event.key]
+  if (!action)
+    return false
+  event.preventDefault()
+  action()
+  return true
 }
 
-function activateMenu(index: number): void {
-  const item = menuItems.value[index]
-  if (!item)
+const promptActions: Record<string, () => void> = {
+  Enter: () => submitLine(),
+  Escape: onEscape,
+  ArrowUp: historyUp,
+  ArrowDown: historyDown,
+}
+
+function onKeydown(event: KeyboardEvent): void {
+  if (onControlKey(event))
     return
-  void submitLine(item.runLine)
-}
-
-function completeMenu(): void {
-  const item = menuItems.value[selected.value]
-  if (item) {
-    value.value = item.completion
-    menuSuppressed.value = false
-  }
-}
-
-function onInput(): void {
-  menuSuppressed.value = false
+  if (menu.visible.value && onMenuKey(event))
+    return
+  const action = promptActions[event.key]
+  if (!action)
+    return
+  event.preventDefault()
+  action()
 }
 
 function onAppKeydown(event: KeyboardEvent): void {
-  if (
-    event.ctrlKey
-    && !event.altKey
-    && !event.metaKey
-    && event.key.toLocaleLowerCase() === 'l'
-  ) {
+  if (isControlKey(event, 'l')) {
     event.preventDefault()
     event.stopPropagation()
     view.clear()
   }
 }
 
-function onKeydown(event: KeyboardEvent): void {
-  if (event.ctrlKey && !event.altKey && !event.metaKey) {
-    switch (event.key.toLocaleLowerCase()) {
-      case 'c':
-        event.preventDefault()
-        if (controller)
-          controller.abort()
-        value.value = ''
-        menuSuppressed.value = true
-        return
-      case 'd':
-        if (!value.value && !showMenu.value) {
-          event.preventDefault()
-          exit()
-        }
-        return
-    }
-  }
+const mobileKeys = computed<MobileKey[]>(() => {
+  const menuOpen = menu.visible.value
+  return [
+    { id: 'slash', label: '/', aria: 'Show commands' },
+    { id: 'tab', label: 'Tab', aria: 'Complete', disabled: !menuOpen },
+    { id: 'up', label: '↑', aria: menuOpen ? 'Previous option' : 'Previous command' },
+    { id: 'down', label: '↓', aria: menuOpen ? 'Next option' : 'Next command' },
+    { id: 'interrupt', label: '^C', aria: 'Interrupt' },
+    { id: 'esc', label: 'Esc', aria: 'Escape' },
+    { id: 'run', label: 'Run ↵', aria: 'Run command' },
+  ]
+})
 
-  if (showMenu.value) {
-    switch (event.key) {
-      case 'ArrowUp':
-        event.preventDefault()
-        moveMenu(-1)
-        return
-      case 'ArrowDown':
-        event.preventDefault()
-        moveMenu(1)
-        return
-      case 'Tab':
-        event.preventDefault()
-        completeMenu()
-        return
-      case 'Enter':
-        if (menuItems.value.length > 0) {
-          event.preventDefault()
-          activateMenu(selected.value)
-          return
-        }
-        break
-      case 'Escape':
-        event.preventDefault()
-        onEscape()
-        return
-    }
-  }
-
-  switch (event.key) {
-    case 'Enter':
-      event.preventDefault()
-      void submitLine()
-      return
-    case 'Escape':
-      event.preventDefault()
-      onEscape()
-      return
-    case 'ArrowUp': {
-      event.preventDefault()
-      const previous = history.up(value.value)
-      if (previous !== null)
-        value.value = previous
-      return
-    }
-    case 'ArrowDown': {
-      event.preventDefault()
-      const next = history.down()
-      if (next !== null)
-        value.value = next
-    }
-  }
+const mobileActions: Record<string, () => void> = {
+  slash: () => {
+    value.value = '/'
+    menu.reveal()
+    focusPrompt()
+  },
+  tab: () => {
+    if (menu.visible.value)
+      completeMenu()
+  },
+  up: () => (menu.visible.value ? menu.move(-1) : historyUp()),
+  down: () => (menu.visible.value ? menu.move(1) : historyDown()),
+  interrupt,
+  esc: onEscape,
+  run: () => {
+    if (menu.visible.value && menu.items.value.length > 0)
+      activateMenu(menu.selected.value)
+    else
+      submitLine()
+  },
 }
-
-const isMobile = useMediaQuery('(max-width: 899px)')
-
-const mobileKeys = computed<MobileKey[]>(() => [
-  { id: 'slash', label: '/', aria: 'Show commands' },
-  { id: 'tab', label: 'Tab', aria: 'Complete', disabled: !showMenu.value },
-  { id: 'up', label: '↑', aria: showMenu.value ? 'Previous option' : 'Previous command' },
-  { id: 'down', label: '↓', aria: showMenu.value ? 'Next option' : 'Next command' },
-  { id: 'interrupt', label: '^C', aria: 'Interrupt' },
-  { id: 'esc', label: 'Esc', aria: 'Escape' },
-  { id: 'run', label: 'Run ↵', aria: 'Run command' },
-])
 
 function onMobileKey(id: string): void {
-  switch (id) {
-    case 'slash':
-      value.value = '/'
-      menuSuppressed.value = false
-      focusPrompt()
-      return
-    case 'tab':
-      if (showMenu.value)
-        completeMenu()
-      return
-    case 'up':
-      if (showMenu.value) {
-        moveMenu(-1)
-      }
-      else {
-        const previous = history.up(value.value)
-        if (previous !== null)
-          value.value = previous
-      }
-      return
-    case 'down':
-      if (showMenu.value) {
-        moveMenu(1)
-      }
-      else {
-        const next = history.down()
-        if (next !== null)
-          value.value = next
-      }
-      return
-    case 'interrupt':
-      controller?.abort()
-      value.value = ''
-      menuSuppressed.value = true
-      return
-    case 'esc':
-      onEscape()
-      return
-    case 'run':
-      if (showMenu.value && menuItems.value.length > 0)
-        activateMenu(selected.value)
-      else
-        void submitLine()
-  }
+  mobileActions[id]?.()
 }
 
-print('Welcome. Try /experience to browse companies, /skills for the stack,')
-print('or /pdf to grab the one-pager.')
-
-onMounted(() => {
-  focusPrompt()
+watch(() => output.lines.value.length, () => {
+  nextTick(() => {
+    if (outputEl.value)
+      outputEl.value.scrollTop = outputEl.value.scrollHeight
+  })
 })
+
+view.print('Welcome. Try /experience to browse companies, /skills for the stack,')
+view.print('or /pdf to grab the one-pager.')
+
+onMounted(focusPrompt)
 </script>
 
 <template>
   <section class="tui" aria-label="Interactive app" @keydown.capture="onAppKeydown">
-    <header class="tui__header">
-      <div>
-        <h2>hamed 1.0</h2>
-        <p>Hamed Niroomand — Senior TypeScript Engineer</p>
-        <p class="tui__status">
-          {{ status }}
-        </p>
-      </div>
-      <button type="button" class="tui__exit" @click="onEscape">
-        {{ escapeLabel }}
-      </button>
-    </header>
+    <TuiHeader :status="status" :escape-label="escapeLabel" @escape="onEscape" />
 
-    <div
-      ref="output"
-      class="tui__output"
-      role="log"
-      aria-live="polite"
-      aria-relevant="additions"
-      aria-label="App output"
-    >
-      <div v-for="line in lines" :key="line.id" class="tui__line">
-        <template v-for="(span, index) in line.spans" :key="index">
-          <a
-            v-if="span.href"
-            :href="span.href"
-            :class="`s-${span.style ?? 'accent'}`"
-            target="_blank"
-            rel="noopener"
-          >{{ span.text }}</a>
-          <span v-else :class="span.style ? `s-${span.style}` : undefined">{{ span.text }}</span>
-        </template>
-      </div>
+    <div ref="outputEl" class="tui__output">
+      <OutputLog :lines="output.lines.value" label="App output" />
     </div>
 
     <Picker
@@ -487,36 +229,21 @@ onMounted(() => {
 
     <footer v-else class="tui__prompt-area">
       <SlashMenu
-        v-if="showMenu"
-        :items="menuItems"
-        :selected="selected"
-        @highlight="selected = $event"
+        v-if="menu.visible.value"
+        :items="menu.items.value"
+        :selected="menu.selected.value"
+        @highlight="menu.selected.value = $event"
         @select="activateMenu"
       />
-      <label class="tui__prompt">
-        <span aria-hidden="true">› </span>
-        <input
-          id="tui-app-prompt"
-          ref="input"
-          v-model="value"
-          role="combobox"
-          class="tui__input"
-          type="text"
-          aria-label="App command"
-          aria-autocomplete="list"
-          :aria-busy="busy"
-          :aria-controls="showMenu ? 'tui-slash-listbox' : undefined"
-          :aria-expanded="showMenu"
-          :aria-activedescendant="activeMenuId"
-          autocapitalize="off"
-          autocomplete="off"
-          autocorrect="off"
-          spellcheck="false"
-          enterkeyhint="send"
-          @input="onInput"
-          @keydown="onKeydown"
-        >
-      </label>
+      <TuiPrompt
+        ref="prompt"
+        v-model="value"
+        :busy="runner.busy.value"
+        :menu-open="menu.visible.value"
+        :active-descendant="menu.activeId.value"
+        @input="menu.reveal"
+        @keydown="onKeydown"
+      />
       <MobileKeys v-if="isMobile" label="App shortcuts" :keys="mobileKeys" @press="onMobileKey" />
     </footer>
   </section>
@@ -533,57 +260,11 @@ onMounted(() => {
   font-family: var(--font-mono);
 }
 
-.tui__header {
-  display: flex;
-  justify-content: space-between;
-  gap: var(--space-4);
-  padding: var(--space-3) var(--space-4);
-  border-bottom: 1px solid var(--border);
-  background: var(--bg-elev);
-}
-
-.tui__header > div {
-  min-width: 0;
-}
-
-.tui__header h2,
-.tui__header p {
-  margin: 0;
-  font: inherit;
-}
-
-.tui__header h2 {
-  color: var(--accent);
-  font-weight: 700;
-}
-
-.tui__status {
-  color: var(--fg-dim);
-}
-
-.tui__exit {
-  align-self: start;
-  padding: var(--space-1) var(--space-2);
-  border: 1px solid var(--border);
-  background: transparent;
-  cursor: pointer;
-}
-
-.tui__exit:hover {
-  background: var(--bg-hover);
-}
-
 .tui__output {
   min-height: 0;
   padding: var(--space-4);
   overflow-y: auto;
   overscroll-behavior: contain;
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
-}
-
-.tui__line {
-  min-height: 1.5em;
 }
 
 .tui__prompt-area {
@@ -592,66 +273,5 @@ onMounted(() => {
   padding: var(--space-2) var(--space-3);
   border-top: 1px solid var(--border);
   background: var(--bg);
-}
-
-.tui__prompt {
-  display: flex;
-  align-items: baseline;
-}
-
-.tui__prompt > span {
-  color: var(--prompt);
-}
-
-.tui__input {
-  flex: 1;
-  min-width: 0;
-  padding: 0;
-  border: 0;
-  outline: none;
-  background: transparent;
-  color: var(--fg);
-  font: inherit;
-  caret-color: var(--accent);
-}
-
-.s-dim {
-  color: var(--fg-dim);
-}
-
-.s-accent {
-  color: var(--accent);
-}
-
-.s-error {
-  color: var(--error);
-}
-
-.s-success {
-  color: var(--success);
-}
-
-.s-prompt {
-  color: var(--prompt);
-}
-
-.s-pre {
-  white-space: pre;
-}
-
-@media (max-width: 899px) {
-  .tui__exit {
-    flex-shrink: 0;
-    min-width: 44px;
-    min-height: 44px;
-  }
-
-  .tui__prompt {
-    font-size: 1rem;
-  }
-
-  .tui__input {
-    min-height: 44px;
-  }
 }
 </style>

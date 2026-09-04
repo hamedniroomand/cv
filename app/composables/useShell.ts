@@ -1,5 +1,6 @@
 import type { PanelTarget } from '#shared/cv/panel-target'
-import type { Lang, ModalKind, OutputLine, ShellEnv, TerminalUi, ThemeName } from '~/terminal/types'
+import type { ShellDeps } from '~/terminal/shell/executor'
+import type { Lang, LineStyle, ModalKind, OutputLine, ShellEnv, TerminalUi, ThemeName } from '~/terminal/types'
 import { buildTree, HOME } from '#shared/cv/build-tree'
 import { siteHost } from '#shared/site-host'
 import { commands } from '~/terminal/commands'
@@ -22,73 +23,74 @@ export interface ShellHooks {
   destroy: () => void
 }
 
-/** Wires the pure terminal core to reactive state for the Terminal component. Client only. */
+export interface RunOptions {
+  echo?: boolean
+  record?: boolean
+}
+
+function createTerminalUi(hooks: ShellHooks, clear: () => void): TerminalUi {
+  return {
+    clear,
+    openApp: hooks.openApp,
+    openModal: hooks.openModal,
+    openUrl: openInNewTab,
+    download: downloadFile,
+    destroy: hooks.destroy,
+  }
+}
+
 export function useShell(hooks: ShellHooks) {
   const cv = useCv()
   const siteUrl = useRuntimeConfig().public.siteUrl
   const { theme } = useTheme()
 
   const lines = ref<OutputLine[]>([])
+  const busy = ref(false)
   let nextId = 0
+  let controller: AbortController | null = null
+
   const history = new History()
   const fs = new Vfs(buildTree(cv), { home: HOME })
-  const registry = createRegistry(commands)
-  const appRegistry = createAppRegistry(appCommands)
   const env: ShellEnv = { user: 'hamed', host: siteHost(siteUrl), lang: 'en', theme: theme.value, siteUrl }
+  const cwdLabel = ref(fs.display(fs.cwd))
 
-  const ui: TerminalUi = {
-    clear: () => {
-      lines.value = []
-    },
-    openApp: hooks.openApp,
-    openModal: hooks.openModal,
-    openUrl: (url) => {
-      window.open(url, '_blank', 'noopener')
-    },
-    download: (url, filename) => {
-      const a = document.createElement('a')
-      a.href = url
-      a.download = filename ?? ''
-      a.rel = 'noopener'
-      document.body.appendChild(a)
-      a.click()
-      a.remove()
-    },
-    destroy: hooks.destroy,
+  const push = (line: OutputLine): void => {
+    lines.value.push(line)
+  }
+  const clear = (): void => {
+    lines.value = []
   }
 
-  const shellDeps = {
+  const deps: ShellDeps = {
     fs,
-    registry,
+    registry: createRegistry(commands),
     cv,
     env,
-    sink: (line: OutputLine) => {
-      lines.value.push(line)
-    },
+    sink: push,
     nextId: () => ++nextId,
     panel: { navigate: hooks.navigate, toggle: hooks.togglePanel },
     theme: { set: hooks.setTheme },
     lang: { set: hooks.setLang },
-    ui,
+    ui: createTerminalUi(hooks, clear),
     history: history.list(),
   }
-  const shell = new Shell(shellDeps)
-  const bridge = createAppBridge(shell, shellDeps, appRegistry, () => theme.value)
+  const shell = new Shell(deps)
+  const bridge = createAppBridge(shell, deps, createAppRegistry(appCommands), () => theme.value)
 
-  const cwdLabel = ref(fs.display(fs.cwd))
-  const busy = ref(false)
-  let controller: AbortController | null = null
+  const prompt = (): string => `${env.user}@${env.host}:${cwdLabel.value}$ `
 
-  const prompt = () => `${env.user}@${env.host}:${cwdLabel.value}$ `
-
-  function print(text: string, style?: OutputLine['spans'][number]['style']): void {
-    lines.value.push({ id: ++nextId, spans: text ? [{ text, style }] : [] })
+  function print(text: string, style?: LineStyle): void {
+    push({ id: ++nextId, spans: text ? [{ text, style }] : [] })
   }
 
-  async function run(line: string, opts: { echo?: boolean, record?: boolean } = {}): Promise<void> {
+  function echo(line: string): void {
+    push({ id: ++nextId, spans: [{ text: prompt(), style: 'prompt' }, { text: line }] })
+  }
+
+  async function run(line: string, opts: RunOptions = {}): Promise<void> {
     env.theme = theme.value
     if (opts.echo !== false)
-      lines.value.push({ id: ++nextId, spans: [{ text: prompt(), style: 'prompt' }, { text: line }] })
+      echo(line)
     if (opts.record !== false)
       history.push(line)
     busy.value = true
@@ -108,8 +110,8 @@ export function useShell(hooks: ShellHooks) {
   }
 
   function complete(line: string) {
-    return completeLine(line, { fs, registry, cv })
+    return completeLine(line, { fs, registry: deps.registry, cv })
   }
 
-  return { lines, run, abort, clear: ui.clear, complete, history, cwdLabel, busy, prompt, print, bridge }
+  return { lines, run, abort, clear, complete, history, cwdLabel, busy, prompt, print, bridge }
 }

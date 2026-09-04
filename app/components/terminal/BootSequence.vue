@@ -9,17 +9,22 @@ const STEPS = [
   'Starting shell …',
 ]
 const STEP_MS = 220
+const FINISH_DELAY_MS = 150
 
 const shown = ref<string[]>([])
 let timers: ReturnType<typeof setTimeout>[] = []
 let finished = false
 
+function cleanup(): void {
+  timers.forEach(clearTimeout)
+  window.removeEventListener('keydown', finish)
+}
+
 function finish(): void {
   if (finished)
     return
   finished = true
-  timers.forEach(clearTimeout)
-  window.removeEventListener('keydown', finish)
+  cleanup()
   emit('done')
 }
 
@@ -29,14 +34,11 @@ onMounted(() => {
     return
   }
   window.addEventListener('keydown', finish)
-  timers = STEPS.map((step, i) => setTimeout(() => shown.value.push(step), i * STEP_MS))
-  timers.push(setTimeout(finish, STEPS.length * STEP_MS + 150))
+  timers = STEPS.map((step, index) => setTimeout(() => shown.value.push(step), index * STEP_MS))
+  timers.push(setTimeout(finish, STEPS.length * STEP_MS + FINISH_DELAY_MS))
 })
 
-onBeforeUnmount(() => {
-  timers.forEach(clearTimeout)
-  window.removeEventListener('keydown', finish)
-})
+onBeforeUnmount(cleanup)
 </script>
 
 <template>

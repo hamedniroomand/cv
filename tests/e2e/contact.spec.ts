@@ -3,7 +3,7 @@ import { expect, test } from '@playwright/test'
 test.describe('contact form', () => {
   test.skip(({ isMobile }) => isMobile, 'desktop only')
 
-  test('sends once the turnstile widget has issued a token', async ({ page }) => {
+  test('sends once the turnstile widget has issued a token', async ({ page, request }) => {
     await page.goto('/')
     const input = page.getByLabel('Terminal input')
     await input.fill('contact')
@@ -20,6 +20,9 @@ test.describe('contact form', () => {
     await expect(send).toBeEnabled({ timeout: 15_000 })
     await send.click()
     await expect(dialog.getByRole('status')).toContainText('Sent.')
+
+    const delivered = await (await request.get('http://localhost:3458/messages')).json()
+    expect(JSON.stringify(delivered)).toContain('ada@example.com')
   })
 
   test('shows a validation error under every invalid field and does not send', async ({ page }) => {

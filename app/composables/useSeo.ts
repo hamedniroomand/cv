@@ -1,6 +1,6 @@
 import type { CvData } from '#shared/schemas/cv'
+import { personJsonLd } from '#shared/cv/json-ld'
 
-/** Page-level meta and JSON-LD for the resume. */
 export function useResumeSeo(cv: CvData) {
   const siteUrl = useRuntimeConfig().public.siteUrl
   const { profile } = cv
@@ -20,22 +20,6 @@ export function useResumeSeo(cv: CvData) {
 
   useHead({
     link: [{ rel: 'canonical', href: url }],
-    script: [
-      {
-        type: 'application/ld+json',
-        innerHTML: JSON.stringify({
-          '@context': 'https://schema.org',
-          '@type': 'Person',
-          'name': profile.name,
-          'jobTitle': profile.title,
-          'url': siteUrl,
-          'email': profile.links.email.includes('@') ? `mailto:${profile.links.email}` : undefined,
-          'sameAs': [`https://github.com/${profile.links.github}`, profile.links.linkedin].filter(l => l.startsWith('http')),
-          'address': { '@type': 'PostalAddress', 'addressLocality': profile.location.city, 'addressCountry': profile.location.country },
-          'knowsLanguage': profile.languages.map(l => l.name),
-          'worksFor': cv.experience[0] ? { '@type': 'Organization', 'name': cv.experience[0].company } : undefined,
-        }),
-      },
-    ],
+    script: [{ type: 'application/ld+json', innerHTML: JSON.stringify(personJsonLd(cv, siteUrl)) }],
   })
 }

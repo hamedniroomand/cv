@@ -1,10 +1,6 @@
 <script setup lang="ts">
-interface SlashMenuItem {
-  key: string
-  label: string
-  detail?: string
-  description?: string
-}
+import type { SlashMenuItem } from '~/composables/useSlashMenu'
+import { slashOptionId } from '~/tui/slash'
 
 const props = defineProps<{
   items: SlashMenuItem[]
@@ -16,21 +12,8 @@ const emit = defineEmits<{
   highlight: [index: number]
 }>()
 
-function optionId(key: string): string {
-  return `tui-slash-option-${key.toLocaleLowerCase().replace(/[^a-z0-9]+/g, '-')}`
-}
-
 const root = ref<HTMLElement | null>(null)
-
-function scrollActiveOption(): void {
-  nextTick(() => {
-    root.value
-      ?.querySelector<HTMLElement>('[role="option"][aria-selected="true"]')
-      ?.scrollIntoView({ block: 'nearest' })
-  })
-}
-
-watch(() => props.selected, scrollActiveOption)
+useActiveOptionScroll(root, () => props.selected)
 </script>
 
 <template>
@@ -43,7 +26,7 @@ watch(() => props.selected, scrollActiveOption)
   >
     <div
       v-for="(item, index) in items"
-      :id="optionId(item.key)"
+      :id="slashOptionId(item.key)"
       :key="item.key"
       class="slash-menu__option"
       :class="{ 'is-selected': index === selected }"
@@ -109,14 +92,6 @@ watch(() => props.selected, scrollActiveOption)
   .slash-menu__option {
     min-height: 44px;
     align-items: center;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .slash-menu,
-  .slash-menu__option {
-    animation: none;
-    transition: none;
   }
 }
 </style>

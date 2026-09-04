@@ -10,15 +10,10 @@ const bus = useTerminalBus()
 const isDesktop = useMediaQuery('(min-width: 900px)', true)
 const tab = ref<ShellTab>('resume')
 const mounted = ref(false)
-
-/** The terminal chunk is only requested on desktop, or once the mobile user opens its tab. */
-const showTerminal = computed(() => mounted.value && (isDesktop.value || tab.value === 'terminal'))
-/**
- * Once loaded, the terminal stays mounted for the rest of the visit. Resizing across the
- * breakpoint or switching tabs only hides it; unmounting would throw away the shell state
- * (history, cwd, output) and replay the boot sequence.
- */
 const terminalLoaded = ref(false)
+
+const showTerminal = computed(() => mounted.value && (isDesktop.value || tab.value === 'terminal'))
+
 watch(showTerminal, (shown) => {
   if (shown)
     terminalLoaded.value = true
@@ -29,9 +24,9 @@ watch(() => bus.requested.value, () => {
     tab.value = 'terminal'
 })
 
-function onKeydown(e: KeyboardEvent): void {
-  if (e.ctrlKey && e.key === '`') {
-    e.preventDefault()
+function onKeydown(event: KeyboardEvent): void {
+  if (event.ctrlKey && event.key === '`') {
+    event.preventDefault()
     toggle()
   }
 }

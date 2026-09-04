@@ -1,4 +1,3 @@
-/* Design tokens. Colours live in themes.css; everything else is theme-independent. */
 :root {
   --font-mono: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;

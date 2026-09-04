@@ -2,6 +2,17 @@
 import type { CompletionResult } from '~/terminal/shell/completion'
 import type { History } from '~/terminal/shell/history'
 
+export interface TerminalInputHandle {
+  focus: () => void
+  submit: (line?: string) => void
+  complete: () => void
+  historyUp: () => void
+  historyDown: () => void
+  interrupt: () => void
+  clearLine: () => void
+  insert: (text: string) => void
+}
+
 const props = defineProps<{
   prompt: string
   busy: boolean
@@ -18,12 +29,12 @@ const emit = defineEmits<{
 
 const value = ref('')
 const input = ref<HTMLInputElement | null>(null)
+const { up: historyUp, down: historyDown } = usePromptHistory(value, props.history)
 
 function focus(): void {
   input.value?.focus()
 }
 
-/** Submit the current line (or `line` when given) unless a command is still running. */
 function submit(line = value.value): void {
   if (props.busy)
     return
@@ -36,18 +47,6 @@ function complete(): void {
   if (result.candidates.length > 1 && result.line === value.value)
     emit('candidates', result.candidates)
   value.value = result.line
-}
-
-function historyUp(): void {
-  const prev = props.history.up(value.value)
-  if (prev !== null)
-    value.value = prev
-}
-
-function historyDown(): void {
-  const next = props.history.down()
-  if (next !== null)
-    value.value = next
 }
 
 function interrupt(): void {
@@ -64,47 +63,30 @@ function insert(text: string): void {
   focus()
 }
 
-function onKeydown(e: KeyboardEvent): void {
-  if (e.ctrlKey && !e.altKey && !e.metaKey) {
-    const key = e.key.toLowerCase()
-    if (key === 'l') {
-      e.preventDefault()
-      emit('clear')
-      return
-    }
-    if (key === 'c') {
-      e.preventDefault()
-      interrupt()
-      return
-    }
-    if (key === 'u') {
-      e.preventDefault()
-      clearLine()
-      return
-    }
-    return
-  }
-  switch (e.key) {
-    case 'Enter':
-      e.preventDefault()
-      submit()
-      break
-    case 'Tab':
-      e.preventDefault()
-      complete()
-      break
-    case 'ArrowUp':
-      e.preventDefault()
-      historyUp()
-      break
-    case 'ArrowDown':
-      e.preventDefault()
-      historyDown()
-      break
-  }
+const controlActions: Record<string, () => void> = {
+  l: () => emit('clear'),
+  c: interrupt,
+  u: clearLine,
 }
 
-defineExpose({ focus, submit, complete, historyUp, historyDown, interrupt, clearLine, insert })
+const keyActions: Record<string, () => void> = {
+  Enter: submit,
+  Tab: complete,
+  ArrowUp: historyUp,
+  ArrowDown: historyDown,
+}
+
+function onKeydown(event: KeyboardEvent): void {
+  const action = isPlainKey(event)
+    ? keyActions[event.key]
+    : event.ctrlKey && !event.altKey && !event.metaKey ? controlActions[event.key.toLowerCase()] : undefined
+  if (!action)
+    return
+  event.preventDefault()
+  action()
+}
+
+defineExpose<TerminalInputHandle>({ focus, submit, complete, historyUp, historyDown, interrupt, clearLine, insert })
 </script>
 
 <template>
@@ -153,7 +135,6 @@ defineExpose({ focus, submit, complete, historyUp, historyDown, interrupt, clear
   outline: none;
 }
 
-/* iOS Safari zooms into inputs smaller than 16px; keep the prompt row at 16px on small screens. */
 @media (max-width: 899px) {
   .input {
     align-items: center;

@@ -9,13 +9,12 @@ export interface AppRunnerDeps {
   shell: (line: string, signal: AbortSignal) => Promise<number>
 }
 
-/** Dispatch submitted lines to exact slash commands or the existing shell. */
+const EXIT_NOT_FOUND = 127
+
 export function createAppRunner({ registry, context, shell }: AppRunnerDeps) {
   const runShell = async (line: string, signal: AbortSignal): Promise<number> => {
     const previousClear = context.ui.clear
-    context.ui.clear = () => {
-      context.view.clear()
-    }
+    context.ui.clear = () => context.view.clear()
     try {
       return await shell(line, signal)
     }
@@ -32,7 +31,7 @@ export function createAppRunner({ registry, context, shell }: AppRunnerDeps) {
     const command = registry.get(parsed.name)
     if (!command) {
       context.view.print(`${context.env.user}: unknown command /${parsed.name} — type / to see the list`, 'error')
-      return 127
+      return EXIT_NOT_FOUND
     }
 
     const ctx: AppContext = {
@@ -41,8 +40,8 @@ export function createAppRunner({ registry, context, shell }: AppRunnerDeps) {
       registry,
       sudo: false,
       signal,
-      shell: nestedLine => runShell(nestedLine, signal),
-      slash: nestedLine => run(nestedLine, signal),
+      shell: nested => runShell(nested, signal),
+      slash: nested => run(nested, signal),
     }
     try {
       return await command.run(parsed.argv, ctx)

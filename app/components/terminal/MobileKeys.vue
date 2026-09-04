@@ -1,19 +1,19 @@
 <script setup lang="ts">
 export interface MobileKey {
   id: string
-  /** Short label shown on the key. */
   label: string
-  /** Accessible name. */
   aria: string
   disabled?: boolean
 }
 
-defineProps<{ keys: MobileKey[], label: string }>()
+defineProps<{
+  keys: MobileKey[]
+  label: string
+}>()
 const emit = defineEmits<{ press: [id: string] }>()
 
-/** Keep focus (and the virtual keyboard) on the input while tapping keys. */
-function onPointerDown(e: PointerEvent): void {
-  e.preventDefault()
+function keepInputFocus(event: PointerEvent): void {
+  event.preventDefault()
 }
 </script>
 
@@ -26,7 +26,7 @@ function onPointerDown(e: PointerEvent): void {
       class="keys__key"
       :aria-label="key.aria"
       :disabled="key.disabled"
-      @pointerdown="onPointerDown"
+      @pointerdown="keepInputFocus"
       @click="emit('press', key.id)"
     >
       {{ key.label }}

@@ -1,11 +1,11 @@
-import type { LineStyle, Span, ThemeName } from '~/terminal/types'
+import type { ThemeName } from '~/terminal/types'
 import type { AppCommand, AppContext, PickerItem, View } from '~/tui/types'
 import { commands as shellCommands } from '~/terminal/commands'
-import { LineWriter } from '~/terminal/io/writer'
 import { createAppBridge } from '~/tui/bridge'
 import { commands as defaultAppCommands } from '~/tui/commands'
 import { createAppRegistry } from '~/tui/registry'
 import { createAppRunner } from '~/tui/runner'
+import { createPrinter } from '~/tui/view'
 import { makeShell } from './context'
 
 interface AppOptions {
@@ -34,16 +34,7 @@ export function makeApp({ commands = [], picks = [] }: AppOptions = {}) {
   }
   let nextViewId = 10_000
 
-  const print = (value: Span[] | string, style?: LineStyle) => {
-    const writer = new LineWriter(line => shellFixture.lines.push(line), () => ++nextViewId)
-    if (value.length === 0)
-      writer.line()
-    else if (typeof value === 'string')
-      writer.write(value, style)
-    else
-      writer.raw(value)
-    writer.flush()
-  }
+  const print = createPrinter(line => shellFixture.lines.push(line), () => ++nextViewId)
 
   const view: View = {
     print,

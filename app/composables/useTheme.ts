@@ -1,16 +1,6 @@
-import type { ThemeName } from '~/terminal/types'
+import type { ThemeName } from '#shared/theme'
+import { isThemeName, THEME_STORAGE_KEY } from '#shared/theme'
 
-export const THEMES: readonly ThemeName[] = ['dark', 'light', 'gruvbox', 'dracula', 'crt']
-export const THEME_STORAGE_KEY = 'cv:theme'
-
-export function isThemeName(value: unknown): value is ThemeName {
-  return typeof value === 'string' && (THEMES as readonly string[]).includes(value)
-}
-
-/**
- * Current theme. The pre-paint script in nuxt.config applies the stored choice before hydration;
- * this composable mirrors it into state and persists changes.
- */
 export function useTheme() {
   const theme = useState<ThemeName>('theme', () => 'dark')
 
@@ -25,12 +15,7 @@ export function useTheme() {
     if (!import.meta.client)
       return
     document.documentElement.dataset.theme = name
-    try {
-      localStorage.setItem(THEME_STORAGE_KEY, name)
-    }
-    catch {
-      // Storage may be unavailable (private mode); the attribute still applies for this visit.
-    }
+    writeStorage(THEME_STORAGE_KEY, name)
   }
 
   return { theme: readonly(theme), set }
