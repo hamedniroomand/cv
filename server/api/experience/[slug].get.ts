@@ -1,4 +1,4 @@
-import { createError, defineEventHandler, getRouterParam } from 'h3'
+import { createError, defineEventHandler, getRouterParam } from 'nitro/h3'
 import { getPublicCv } from '../../utils/cv'
 
 export default defineEventHandler((event) => {

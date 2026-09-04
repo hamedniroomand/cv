@@ -1,4 +1,4 @@
-import { defineEventHandler, noContent } from 'h3'
+import { defineEventHandler, noContent } from 'nitro/h3'
 
 /** Public read-only API: anyone may GET it from anywhere. */
 export default defineEventHandler((event) => {

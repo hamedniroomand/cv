@@ -1,4 +1,4 @@
-import { createError, defineEventHandler, getQuery } from 'h3'
+import { createError, defineEventHandler, getQuery } from 'nitro/h3'
 import { getPublicCv } from '../utils/cv'
 
 export default defineEventHandler((event) => {

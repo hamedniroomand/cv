@@ -1,4 +1,4 @@
-import { createError, defineEventHandler, getRequestIP } from 'h3'
+import { createError, defineEventHandler, getRequestIP } from 'nitro/h3'
 import { useRuntimeConfig } from 'nitro/runtime-config'
 import { z } from 'zod'
 import { ContactSchema } from '#shared/schemas/contact'
