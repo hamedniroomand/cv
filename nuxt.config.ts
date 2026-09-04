@@ -4,6 +4,7 @@ export default defineNuxtConfig({
   compatibilityDate: '2026-09-01',
   devtools: { enabled: true },
   modules: ['./modules/cv-content'],
+  components: [{ path: '~/components', pathPrefix: false }],
   typescript: { strict: true, typeCheck: false },
   runtimeConfig: {
     resendApiKey: '',
@@ -11,6 +12,12 @@ export default defineNuxtConfig({
     contactFrom: 'cv@localhost',
     public: { siteUrl: 'http://localhost:3000' },
   },
+  components: [
+    {
+      path: '~/components',
+      pathPrefix: false,
+    },
+  ],
   nitro: { preset: process.env.NITRO_PRESET ?? 'bun' },
   css: ['~/assets/css/tokens.css', '~/assets/css/themes.css', '~/assets/css/base.css'],
   app: {
