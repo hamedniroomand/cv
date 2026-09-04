@@ -29,7 +29,7 @@ export interface Writer {
   flush: () => void
 }
 
-export type ModalKind = 'contact' | 'hire' | 'editor'
+export type ModalKind = 'contact' | 'editor'
 
 /** Side effects on the terminal component. */
 export interface TerminalUi {

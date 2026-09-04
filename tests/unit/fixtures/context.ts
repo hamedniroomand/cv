@@ -19,8 +19,6 @@ export interface ShellCalls {
   opened: string[]
   downloads: string[]
   modals: string[]
-  /** Props passed alongside each `modals` entry, same order. */
-  modalProps: (Record<string, unknown> | undefined)[]
   cleared: number
   destroyed: number
   themes: string[]
@@ -32,7 +30,7 @@ export interface ShellCalls {
 export function makeShell(commands: Command[], overrides: Partial<ShellDeps> = {}) {
   const lines: OutputLine[] = []
   let id = 0
-  const calls: ShellCalls = { navigate: [], toggled: 0, apps: 0, opened: [], downloads: [], modals: [], modalProps: [], cleared: 0, destroyed: 0, themes: [], langs: [], requests: [] }
+  const calls: ShellCalls = { navigate: [], toggled: 0, apps: 0, opened: [], downloads: [], modals: [], cleared: 0, destroyed: 0, themes: [], langs: [], requests: [] }
   const history: string[] = []
   const deps: ShellDeps = {
     fs: new Vfs(buildTree(fixtureCv), { home: HOME }),
@@ -47,10 +45,7 @@ export function makeShell(commands: Command[], overrides: Partial<ShellDeps> = {
     ui: {
       clear: () => calls.cleared++,
       openApp: async () => { calls.apps++ },
-      openModal: async (kind, props) => {
-        calls.modals.push(kind)
-        calls.modalProps.push(props)
-      },
+      openModal: async (kind) => { calls.modals.push(kind) },
       openUrl: url => calls.opened.push(url),
       download: url => calls.downloads.push(url),
       destroy: () => calls.destroyed++,
