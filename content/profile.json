@@ -14,8 +14,8 @@
   ],
   "links": {
     "github": "hamedniroomand",
-    "linkedin": "<FILL>",
-    "email": "<FILL>"
+    "linkedin": "https://www.linkedin.com/in/hamedniroomand",
+    "email": "hamed@niroomand.dev"
   },
   "summary": "Frontend team lead and senior TypeScript engineer with seven years in production across the JavaScript ecosystem. I lead a team of five at Jack Westin, own the frontend architecture of a Vue 3 / Nuxt 4 product, and design the API contracts it depends on. On the side I build full-stack tools with Bun, NestJS and Hono, and maintain Cue, an open-source CLI that drives headless coding agents through a GitHub-issue pipeline."
 }

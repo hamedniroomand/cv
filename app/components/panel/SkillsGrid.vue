@@ -8,13 +8,7 @@ defineProps<{ categories: SkillCategory[] }>()
   <dl class="skills">
     <div v-for="cat in categories" :key="cat.id" class="skills__row">
       <dt>{{ cat.label }}</dt>
-      <dd>
-        <template v-for="(item, i) in cat.items" :key="item.name">
-          <span :title="item.note">{{ item.name }}</span><template v-if="i < cat.items.length - 1">
-            ,
-          </template>
-        </template>
-      </dd>
+      <dd>{{ cat.items.map(item => item.name).join(', ') }}</dd>
     </div>
   </dl>
 </template>

@@ -17,9 +17,7 @@ const linkedinLabel = computed(() => profile.links.linkedin.replace(/^https?:\/\
       {{ profile.title }}
     </p>
     <p class="header__meta">
-      {{ profile.location.city }}, {{ profile.location.country }} ({{ profile.location.tz }})<template v-if="profile.remote">
-        , remote
-      </template>
+      {{ locationLine }}
     </p>
     <ul class="header__links">
       <li>
@@ -93,3 +91,4 @@ const linkedinLabel = computed(() => profile.links.linkedin.replace(/^https?:\/\
   margin-top: var(--space-6);
 }
 </style>
+const locationLine = computed(() => `${profile.location.city}, ${profile.location.country} (${profile.location.tz})${profile.remote ? ', remote' : ''}`)

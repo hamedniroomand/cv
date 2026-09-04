@@ -93,11 +93,7 @@ const id = (section: Parameters<typeof panelTargetId>[0]['section']) => panelTar
           and <a :href="`https://github.com/${cv.profile.links.github}`" rel="me noopener" target="_blank">GitHub</a>.
         </p>
         <p class="languages">
-          <template v-for="(lang, i) in cv.profile.languages" :key="lang.name">
-            {{ lang.name }} ({{ lang.level }})<template v-if="i < cv.profile.languages.length - 1">
-              ,
-            </template>
-          </template>
+          {{ cv.profile.languages.map(l => `${l.name} (${l.level})`).join(', ') }}
         </p>
       </section>
 
