@@ -27,6 +27,15 @@ function formatHeaders(res: Response): string[] {
   return lines
 }
 
+/** In the browser, fetch same-origin relative paths so the live deployment is hit even when siteUrl differs by port. */
+function fetchTarget(resolved: string): string {
+  if (typeof globalThis.location !== 'undefined') {
+    const u = new URL(resolved)
+    return u.pathname + u.search
+  }
+  return resolved
+}
+
 function printResponseHeaders(ctx: CommandContext, res: Response): void {
   const reason = statusText(res.status)
   ctx.stdout.line(`HTTP/1.1 ${res.status}${reason ? ` ${reason}` : ''}`)
@@ -63,7 +72,7 @@ export default {
 
     let res: Response
     try {
-      res = await ctx.net.fetch(resolved, {
+      res = await ctx.net.fetch(fetchTarget(resolved), {
         method: req.method,
         headers: req.headers,
         body: req.body,
