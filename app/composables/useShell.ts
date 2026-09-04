@@ -82,7 +82,7 @@ export function useShell(hooks: ShellHooks) {
     history: history.list(),
   }
   const shell = new Shell(shellDeps)
-  const bridge = createAppBridge(shell, shellDeps, appRegistry)
+  const bridge = createAppBridge(shell, shellDeps, appRegistry, () => theme.value)
 
   const cwdLabel = ref(fs.display(fs.cwd))
   const busy = ref(false)

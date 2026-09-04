@@ -11,10 +11,23 @@ export interface AppRunnerDeps {
 
 /** Dispatch submitted lines to exact slash commands or the existing shell. */
 export function createAppRunner({ registry, context, shell }: AppRunnerDeps) {
+  const runShell = async (line: string, signal: AbortSignal): Promise<number> => {
+    const previousClear = context.ui.clear
+    context.ui.clear = () => {
+      context.view.clear()
+    }
+    try {
+      return await shell(line, signal)
+    }
+    finally {
+      context.ui.clear = previousClear
+    }
+  }
+
   const run = async (line: string, signal: AbortSignal): Promise<number> => {
     const parsed = parseSlashInput(line)
     if (parsed === null)
-      return shell(line, signal)
+      return runShell(line, signal)
 
     const command = registry.get(parsed.name)
     if (!command) {
@@ -28,7 +41,7 @@ export function createAppRunner({ registry, context, shell }: AppRunnerDeps) {
       registry,
       sudo: false,
       signal,
-      shell: nestedLine => shell(nestedLine, signal),
+      shell: nestedLine => runShell(nestedLine, signal),
       slash: nestedLine => run(nestedLine, signal),
     }
     try {

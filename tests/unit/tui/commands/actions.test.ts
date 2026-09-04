@@ -67,6 +67,25 @@ describe('action slash commands', () => {
     expect(app.calls.themes).toEqual(['dracula'])
   })
 
+  it('/theme picker initial follows the live theme after a previous pick', async () => {
+    const app = makeApp({ picks: ['dracula', 'crt'] })
+
+    expect(await app.run('/theme')).toBe(0)
+    expect(app.calls.pick[0]?.opts?.initial).toBe('dark')
+    expect(await app.run('/theme')).toBe(0)
+    expect(app.calls.pick[1]?.opts?.initial).toBe('dracula')
+    expect(app.calls.shell).toEqual(['theme dracula', 'theme crt'])
+  })
+
+  it('shell theme inside the app stars the theme last applied by /theme', async () => {
+    const app = makeApp()
+
+    expect(await app.run('/theme dracula')).toBe(0)
+    expect(await app.run('theme')).toBe(0)
+    expect(app.text()).toMatch(/^\* dracula$/m)
+    expect(app.text()).not.toMatch(/^\* dark$/m)
+  })
+
   it('/theme exposes argument completion and accepts a direct theme', async () => {
     const app = makeApp()
 
@@ -126,6 +145,15 @@ describe('action slash commands', () => {
     expect(await app.run('/clear')).toBe(0)
     expect(app.calls.cleared).toBe(1)
     expect(app.calls.shell).not.toContain('clear')
+    expect(app.text()).toBe('')
+  })
+
+  it.each(['clear', 'cls'])('%s typed in the app clears app content', async (line) => {
+    const app = makeApp()
+    await app.run('echo parked-app')
+    expect(app.text()).toContain('parked-app')
+
+    expect(await app.run(line)).toBe(0)
     expect(app.text()).toBe('')
   })
 

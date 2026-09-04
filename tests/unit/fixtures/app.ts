@@ -1,7 +1,8 @@
-import type { LineStyle, Span } from '~/terminal/types'
+import type { LineStyle, Span, ThemeName } from '~/terminal/types'
 import type { AppCommand, AppContext, PickerItem, View } from '~/tui/types'
 import { commands as shellCommands } from '~/terminal/commands'
 import { LineWriter } from '~/terminal/io/writer'
+import { createAppBridge } from '~/tui/bridge'
 import { commands as defaultAppCommands } from '~/tui/commands'
 import { createAppRegistry } from '~/tui/registry'
 import { createAppRunner } from '~/tui/runner'
@@ -58,9 +59,16 @@ export function makeApp({ commands = [], picks = [] }: AppOptions = {}) {
     },
   }
 
+  const deps = shellFixture.deps
+  let liveTheme: ThemeName = deps.env.theme
+  const applyTheme = deps.theme.set
+  deps.theme.set = (name) => {
+    liveTheme = name
+    applyTheme(name)
+  }
   const appCommands: AppCommand[] = [...defaultAppCommands, ...commands]
   const registry = createAppRegistry(appCommands)
-  const deps = shellFixture.deps
+  const bridge = createAppBridge(shellFixture.shell, deps, registry, () => liveTheme)
   const context: Omit<AppContext, 'argv0' | 'registry' | 'shell' | 'signal' | 'slash' | 'sudo'> = {
     fs: deps.fs,
     env: deps.env,
@@ -78,7 +86,7 @@ export function makeApp({ commands = [], picks = [] }: AppOptions = {}) {
     context,
     shell: async (line, signal) => {
       shellCalls.push(line)
-      return (await shellFixture.shell.exec(line, signal)).code
+      return bridge.exec(line, output => shellFixture.lines.push(output), () => ++nextViewId, signal)
     },
   })
   const completion = (name: string, argv: string[] = []) => {
