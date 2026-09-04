@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { SPLIT_MAX, SPLIT_MIN } from '~/composables/useSplitPane'
+import { SPLIT_DEFAULT, SPLIT_MAX, SPLIT_MIN } from '#shared/split'
 
 const props = defineProps<{
   ratio: number
@@ -55,7 +55,7 @@ function onKeydown(e: KeyboardEvent): void {
     ref="root"
     class="split"
     :class="{ 'split--closed': !panelOpen, 'split--dragging': dragging }"
-    :style="{ '--split': ratio }"
+    :style="{ '--split-default': SPLIT_DEFAULT }"
   >
     <div class="split__pane split__pane--left">
       <slot name="left" />
@@ -84,15 +84,29 @@ function onKeydown(e: KeyboardEvent): void {
 </template>
 
 <style scoped>
+/*
+ * `--split` lives on <html>: the pre-paint script restores the saved ratio before the first frame and the
+ * composable updates it on drag, so server HTML and hydrated DOM never disagree on the column widths.
+ */
 .split {
   display: grid;
-  grid-template-columns: calc(var(--split) * 100%) var(--divider-width) minmax(0, 1fr);
+  grid-template-columns: calc(var(--split, var(--split-default)) * 100%) var(--divider-width) minmax(0, 1fr);
   height: 100dvh;
   overflow: hidden;
 }
 
 .split--closed {
   grid-template-columns: 1fr 0 0;
+}
+
+@media (min-width: 900px) {
+  :root[data-panel='closed'] .split {
+    grid-template-columns: 1fr 0 0;
+  }
+
+  :root[data-panel='closed'] .split__divider {
+    display: none;
+  }
 }
 
 .split__pane {

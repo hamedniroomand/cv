@@ -23,3 +23,38 @@ test.describe('split layout', () => {
     expect(after).toBeGreaterThan(before)
   })
 })
+
+test.describe('split layout first paint', () => {
+  test.skip(({ isMobile }) => isMobile, 'desktop only')
+
+  /** Reload with every app script blocked, so what we see is the server HTML plus the pre-paint script only. */
+  async function reloadWithoutHydration(page: import('@playwright/test').Page): Promise<void> {
+    await page.route(/\/_nuxt\/.*\.js/, route => route.abort())
+    await page.reload()
+  }
+
+  test('a saved ratio is applied before hydration', async ({ page }) => {
+    await page.goto('/')
+    const divider = page.getByRole('separator', { name: 'Resize terminal and resume' })
+    await divider.focus()
+    await divider.press('End')
+    await expect(divider).toHaveAttribute('aria-valuenow', '80')
+
+    await reloadWithoutHydration(page)
+    const terminal = page.locator('#terminal')
+    const split = page.locator('.split')
+    const [terminalBox, splitBox] = await Promise.all([terminal.boundingBox(), split.boundingBox()])
+    expect(terminalBox!.width / splitBox!.width).toBeCloseTo(0.8, 1)
+  })
+
+  test('a closed panel stays closed before hydration', async ({ page }) => {
+    await page.goto('/')
+    await page.getByLabel('Terminal input').press('Control+`')
+    await expect(page.locator('#resume')).toBeHidden()
+
+    await reloadWithoutHydration(page)
+    await expect(page.locator('#resume')).toBeHidden()
+    const [terminalBox, splitBox] = await Promise.all([page.locator('#terminal').boundingBox(), page.locator('.split').boundingBox()])
+    expect(terminalBox!.width).toBeCloseTo(splitBox!.width, 0)
+  })
+})

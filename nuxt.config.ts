@@ -1,4 +1,17 @@
 import process from 'node:process'
+import { SPLIT_MAX, SPLIT_MIN, SPLIT_PANEL_KEY, SPLIT_RATIO_KEY } from './shared/split.js'
+
+/**
+ * Runs in <head> before the first paint: restores the stored theme, split ratio and panel state onto
+ * <html> so the server-rendered layout already matches what the visitor saved. Mirrors useTheme/useSplitPane.
+ */
+const prePaintScript = [
+  '(function(){try{var d=document.documentElement,g=function(k){return localStorage.getItem(k)};',
+  'var t=g(\'cv:theme\');if(t){d.dataset.theme=t}',
+  `var s=Number(g(${JSON.stringify(SPLIT_RATIO_KEY)}));if(s>=${SPLIT_MIN}&&s<=${SPLIT_MAX}){d.style.setProperty('--split',String(s))}`,
+  `if(g(${JSON.stringify(SPLIT_PANEL_KEY)})==='closed'){d.dataset.panel='closed'}`,
+  '}catch(e){}})()',
+].join('')
 
 export default defineNuxtConfig({
   compatibilityDate: '2026-09-01',
@@ -39,7 +52,7 @@ export default defineNuxtConfig({
       ],
       script: [
         {
-          innerHTML: `(function(){try{var t=localStorage.getItem('cv:theme');if(t){document.documentElement.dataset.theme=t}}catch(e){}})()`,
+          innerHTML: prePaintScript,
           tagPosition: 'head',
         },
         {
