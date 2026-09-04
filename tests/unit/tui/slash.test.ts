@@ -34,4 +34,28 @@ describe('filterCommands', () => {
   it('ranks exact, prefix, then subsequence matches', () => {
     expect(filterCommands('exp', commands).map(c => c.name)).toEqual(['experience', 'export', 'example'])
   })
+
+  it('ranks exact alias matches before prefix matches', () => {
+    const tiered = [
+      cmd('pdfium'),
+      cmd('document', ['pdf']),
+    ]
+    expect(filterCommands('pdf', tiered).map(c => c.name)).toEqual(['document', 'pdfium'])
+  })
+
+  it('matches case-insensitively', () => {
+    expect(filterCommands('EXP', commands).map(c => c.name)).toEqual(['experience', 'export', 'example'])
+  })
+
+  it('excludes non-matching commands', () => {
+    expect(filterCommands('exp', commands).map(c => c.name)).not.toContain('help')
+  })
+
+  it('sorts within a tier by canonical name regardless of input order', () => {
+    const shuffled = [
+      cmd('export'),
+      cmd('experience'),
+    ]
+    expect(filterCommands('exp', shuffled).map(c => c.name)).toEqual(['experience', 'export'])
+  })
 })
