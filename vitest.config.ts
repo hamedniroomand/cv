@@ -12,6 +12,7 @@ export default defineConfig({
   test: {
     include: ['tests/unit/**/*.test.ts'],
     environment: 'node',
+    isolate: false,
     coverage: {
       include: ['app/terminal/**', 'shared/**', 'modules/**', 'server/utils/**'],
       // Nuxt module wiring — not meaningfully unit-testable without a Nuxt runtime.
