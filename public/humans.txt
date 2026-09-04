@@ -1,0 +1,13 @@
+/* TEAM */
+  Everything: Hamed Niroomand
+  Site: https://github.com/hamedniroomand
+  Location: Yerevan, Armenia
+
+/* THANKS */
+  The people who answer "what does this button do?" with "try it".
+
+/* SITE */
+  Standards: HTML5, CSS custom properties, a shell that pretends to be bash
+  Components: Nuxt 5, Vue 3, TypeScript, Bun, Zod, Playwright
+  Fonts: JetBrains Mono, whatever your system prefers for prose
+  Cookies: none. Trackers: none. Terminal: one.

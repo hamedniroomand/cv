@@ -1,2 +1,8 @@
-User-Agent: *
-Disallow:
+# Hi. If you're a crawler, /api/cv is the fastest path to the good stuff.
+# If you're a human, open the site and type `help`.
+User-agent: *
+Allow: /
+Disallow: /print
+Disallow: /api/contact
+
+Sitemap: /sitemap.xml

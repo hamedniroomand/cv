@@ -121,12 +121,12 @@ const roles = (exp: (typeof cv.experience)[number]) => [...exp.roles].sort((a, b
 .print {
   max-width: 190mm;
   margin: 0 auto;
-  padding: 10mm 0;
+  padding: 0;
   color: #111;
   background: #fff;
   font-family: var(--font-sans);
-  font-size: 10.5pt;
-  line-height: 1.4;
+  font-size: 10pt;
+  line-height: 1.38;
 }
 
 .print a {
@@ -167,7 +167,7 @@ h1 {
 }
 
 section {
-  margin-top: 4mm;
+  margin-top: 3mm;
   break-inside: auto;
 }
 
@@ -187,7 +187,7 @@ section > p {
 }
 
 .entry {
-  margin-top: 2.5mm;
+  margin-top: 2mm;
   break-inside: avoid;
 }
 

@@ -1,75 +1,139 @@
-# Nuxt Minimal Starter
+# hamed.sh — a resume you can `cat`
 
-Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+Personal site of Hamed Niroomand. It is a real-feeling terminal for engineers and a readable resume
+panel for everyone else, both rendered from one content source. Whatever runs in the terminal, the
+panel scrolls to the matching section. The same data is served as JSON under `/api` and printed to
+an ATS-friendly PDF at build time.
 
-## Setup
+Live: `<FILL: domain>` · Source: this repository · Screenshot: `<FILL>`
 
-Make sure to install dependencies:
+## Architecture
+
+```
+content/  ──Zod──▶  modules/cv-content.ts  ──▶  virtual `#cv`  ──┬─▶ app/terminal  (virtual filesystem)
+                     (local Nuxt module)         typed CvData     ├─▶ app/components/panel  (SSR resume)
+                                                                  ├─▶ server/api/*  (JSON, CORS)
+                                                                  └─▶ app/pages/print.vue ─▶ Playwright ─▶ PDF
+```
+
+- **`content/`** is the single source of truth: Markdown with frontmatter for narrative, JSON for
+  structured data. Nothing is copied twice.
+- **`modules/cv-content.ts`** reads `content/`, validates every file with the Zod schemas in
+  `shared/schemas/`, fetches project READMEs from GitHub (falling back to the committed copy when
+  offline), renders Markdown to HTML, and exposes the result as the virtual module `#cv`. In dev it
+  hot-reloads when content changes. Invalid content fails the build with the offending file path.
+- **`shared/cv/build-tree.ts`** turns the data into the virtual filesystem the terminal mounts at `~`.
+  Every node is stamped with the panel section it represents, which is how `cd experience/thales`
+  scrolls the panel to Thales.
+- **`app/terminal/`** is the shell: tokenizer → parser (pipes, `sudo` prefix) → executor → commands.
+  It is plain TypeScript with no Vue imports, so all of it runs under Vitest in Node.
+- **`app/components/terminal/`** renders the shell. It is client-only and lazy-loaded; the panel and
+  every page are server-rendered, so recruiters and crawlers see the full resume without JavaScript.
+- **`server/api/`** serves the same data as JSON with CORS enabled for GET.
+- **`scripts/build-pdf.ts`** renders `/print` with Playwright after `nuxt build`.
+
+## Run locally
+
+Requirements: [Bun](https://bun.sh) 1.4+.
 
 ```bash
-# npm
-npm install
-
-# pnpm
-pnpm install
-
-# yarn
-yarn install
-
-# bun
 bun install
-```
-
-## Development Server
-
-Start the development server on `http://localhost:3000`:
-
-```bash
-# npm
-npm run dev
-
-# pnpm
-pnpm dev
-
-# yarn
-yarn dev
-
-# bun
-bun run dev
-```
-
-## Production
-
-Build the application for production:
-
-```bash
-# npm
-npm run build
-
-# pnpm
-pnpm build
-
-# yarn
-yarn build
-
-# bun
-bun run build
-```
-
-Locally preview production build:
-
-```bash
-# npm
-npm run preview
-
-# pnpm
-pnpm preview
-
-# yarn
-yarn preview
-
-# bun
+bun run dev            # http://localhost:3000
+bun run test           # Vitest: shell core, filesystem, commands, schemas, API utils
+bun run build          # Nitro build (Bun preset) + PDF
 bun run preview
+bunx playwright install chromium   # once, for the PDF step and e2e
+bun run test:e2e
 ```
 
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+Copy `.env.example` to `.env` and set `NUXT_PUBLIC_SITE_URL`. Without Resend credentials the
+contact form logs messages to the server console instead of sending them.
+
+## Add a command
+
+Create `app/terminal/commands/<name>.ts` exporting a `Command`. That is the whole change; the
+registry globs the directory. The shell core never needs to know about individual commands.
+
+```ts
+import type { Command } from '../types'
+
+export default {
+  name: 'uptime',
+  description: 'How long this has been running',
+  usage: 'uptime',
+  run(_argv, ctx) {
+    ctx.stdout.line(`up ${ctx.cv.experience.length} companies, 0 outages caused by the frontend`)
+    ctx.panel.navigate({ section: 'experience' })
+    return 0
+  },
+} satisfies Command
+```
+
+`ctx` gives you the virtual filesystem, `stdin` (when piped into), `stdout`/`stderr` writers, the
+resume data, panel navigation, theme and language setters, history, the registry, UI hooks
+(clear, modals, open URL, download) and an `AbortSignal` for Ctrl+C. Optional `complete(argv, ctx)`
+powers Tab. Set `hidden: true` for easter eggs. Add a test in `tests/unit/terminal/commands/` using
+the `makeShell` fixture, which records every side effect.
+
+## Content
+
+| File                                                     | Becomes                                                                                   |
+| -------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| `content/profile.json`                                   | Header, `whoami`, `man hamed`, JSON-LD                                                    |
+| `content/about.md`                                       | `~/about.md`, About section                                                               |
+| `content/experience/<slug>/index.md` + `highlights/*.md` | `~/experience/<slug>/`, Experience entries, `/experience/<slug>` pages, `/api/experience` |
+| `content/projects/*.md`                                  | `~/projects/<slug>/README.md` (live from GitHub when reachable), Open source section      |
+| `content/skills.json`                                    | `~/skills.json`, `skills`, Skills section, `/api/skills`                                  |
+| `content/education.md`                                   | `~/education.md`, Education section                                                       |
+| `content/secrets.md`                                     | `~/.secrets` (needs `sudo`)                                                               |
+
+Copy rules: no invented metrics, no design-pattern name-dropping. Unknown facts are literally `<FILL>`.
+
+## API
+
+| Route                               | Returns                                        |
+| ----------------------------------- | ---------------------------------------------- |
+| `GET /api/cv`                       | Everything except `.secrets`                   |
+| `GET /api/experience`               | All experience entries                         |
+| `GET /api/experience/:slug`         | One entry, 404 otherwise                       |
+| `GET /api/skills?category=frontend` | Skill categories, optionally filtered          |
+| `GET /api/projects`                 | Projects                                       |
+| `GET /api/cv.pdf`                   | Redirects to the built PDF                     |
+| `POST /api/contact`                 | `{ name, email, message }`, 10 per hour per IP |
+
+```bash
+curl -s https://<domain>/api/cv | jq .profile
+```
+
+## Deploy
+
+The site is a single Nitro server built with the `bun` preset.
+
+```bash
+docker build -t cv --build-arg NUXT_PUBLIC_SITE_URL=https://example.com .
+docker run -p 3000:3000 -e NUXT_RESEND_API_KEY=... -e NUXT_CONTACT_TO=... cv
+```
+
+The build stage uses Playwright's image so the PDF is generated during `docker build`. Later phases
+add separate Bun containers for the WebSocket (`who`) and SSH services.
+
+## Still to fill in
+
+- `content/experience/faro-creaform/index.md`: responsibilities and stack
+- `content/experience/joorchin/index.md`: responsibilities and notable work
+- `content/experience/xankoo/index.md`: anything beyond the SEO dashboard and WordPress work
+- `content/education.md`: exact start and end months (currently Sep 2018 – Jun 2022)
+- Domain (`NUXT_PUBLIC_SITE_URL`) and deploy target
+- Open Graph image (`public/og.png`)
+- Resend API key and recipient for the contact form
+
+## Roadmap
+
+1. Core (this): content pipeline, shell, panel, PDF, API, deploy config ✔
+2. Polish: pipes with `jq`/`wc`, themes, `lang fa`, mobile, easter eggs, `neofetch`, a11y pass, Lighthouse CI
+3. Wow: `cue demo`, `curl` from inside the terminal, `who` over WebSocket, OpenAPI
+4. Legend: `ssh` TUI server
+
+## License
+
+MIT
