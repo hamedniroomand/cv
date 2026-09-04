@@ -1,4 +1,4 @@
-import type { Command } from '~/terminal/types'
+import type { Command, OutputLine } from '~/terminal/types'
 import { describe, expect, it } from 'vitest'
 import { makeShell } from '../../fixtures/context'
 
@@ -138,5 +138,25 @@ describe('shell.exec', () => {
     const { shell, text } = makeShell([stderrCmd, upper])
     await shell.exec('warn | upper')
     expect(text()).toBe('careful\nOK')
+  })
+  it('routes one execution to paired output overrides without changing constructor output', async () => {
+    const { shell, lines: normalLines } = makeShell([stderrCmd])
+    const appLines: OutputLine[] = []
+    let appId = 40
+    const signal = new AbortController().signal
+
+    await shell.exec('warn', signal, {
+      sink: line => appLines.push(line),
+      nextId: () => ++appId,
+    })
+
+    expect(appLines.map(line => line.spans.map(span => span.text).join(''))).toEqual(['careful', 'ok'])
+    expect(appLines.map(line => line.id)).toEqual([41, 42])
+    expect(appLines[0]!.spans[0]!.style).toBe('error')
+    expect(normalLines).toEqual([])
+
+    await shell.exec('warn', signal)
+    expect(normalLines.map(line => line.id)).toEqual([1, 2])
+    expect(appLines).toHaveLength(2)
   })
 })
