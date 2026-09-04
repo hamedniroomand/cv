@@ -28,3 +28,6 @@ public/hamed-niroomand-cv.pdf
 playwright-report
 test-results
 coverage
+
+# Local git worktrees
+.worktrees/
