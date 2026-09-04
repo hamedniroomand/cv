@@ -1,4 +1,4 @@
-import { createError, defineEventHandler, getQuery } from 'nitro/h3'
+import { defineEventHandler, getQuery, HTTPError } from 'nitro/h3'
 import { getPublicCv } from '../utils/cv'
 
 export default defineEventHandler((event) => {
@@ -8,6 +8,6 @@ export default defineEventHandler((event) => {
     return { categories }
   const match = categories.filter(c => c.id === wanted)
   if (match.length === 0)
-    throw createError({ status: 404, message: `unknown category: ${wanted} (try: ${categories.map(c => c.id).join(', ')})` })
+    throw new HTTPError({ status: 404, message: `unknown category: ${wanted} (try: ${categories.map(c => c.id).join(', ')})` })
   return { categories: match }
 })

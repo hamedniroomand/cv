@@ -1,3 +1,4 @@
+/// <reference types="bun" />
 export interface Frontmatter {
   data: Record<string, unknown>
   body: string
