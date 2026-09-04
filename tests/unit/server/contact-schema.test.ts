@@ -10,6 +10,10 @@ describe('contactSchema', () => {
     expect(ContactSchema.safeParse({ ...valid, message: 'hi' }).success).toBe(false)
     expect(ContactSchema.safeParse({ ...valid, email: 'nope' }).success).toBe(false)
   })
+  it('carries an optional turnstile token and rejects oversized ones', () => {
+    expect(ContactSchema.parse({ ...valid, turnstileToken: 'tok' }).turnstileToken).toBe('tok')
+    expect(ContactSchema.safeParse({ ...valid, turnstileToken: 'x'.repeat(2049) }).success).toBe(false)
+  })
   it('rejects a filled honeypot', () => {
     expect(ContactSchema.safeParse({ ...valid, website: 'http://spam' }).success).toBe(false)
     expect(ContactSchema.safeParse({ ...valid, website: '' }).success).toBe(true)

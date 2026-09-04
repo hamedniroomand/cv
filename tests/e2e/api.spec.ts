@@ -27,8 +27,13 @@ test.describe('api', () => {
   test('contact validates input', async ({ request }) => {
     const bad = await request.post('/api/contact', { data: { name: '', email: 'x', message: 'hi' } })
     expect(bad.status()).toBe(400)
-    const ok = await request.post('/api/contact', { data: { name: 'Ada', email: 'ada@example.com', message: 'Hello there, this is long enough.' } })
+    const ok = await request.post('/api/contact', { data: { name: 'Ada', email: 'ada@example.com', message: 'Hello there, this is long enough.', turnstileToken: 'test-token' } })
     expect(ok.ok()).toBeTruthy()
     expect((await ok.json()).ok).toBe(true)
+  })
+
+  test('contact requires a turnstile token when a secret is configured', async ({ request }) => {
+    const res = await request.post('/api/contact', { data: { name: 'Ada', email: 'ada@example.com', message: 'Hello there, this is long enough.' } })
+    expect(res.status()).toBe(403)
   })
 })

@@ -49,7 +49,9 @@ bun run test:e2e
 ```
 
 Copy `.env.example` to `.env` and set `NUXT_PUBLIC_SITE_URL`. Without `NUXT_DISCORD_WEBHOOK_URL` the
-contact form logs messages to the server console instead of posting them to Discord.
+contact form logs messages to the server console instead of posting them to Discord. Set
+`NUXT_PUBLIC_TURNSTILE_SITE_KEY` (build time) and `NUXT_TURNSTILE_SECRET_KEY` (runtime) to put a
+Cloudflare Turnstile check in front of it; the API answers 403 to submissions without a valid token.
 
 ## Interactive app
 
@@ -118,8 +120,8 @@ curl -s https://niroomand.dev/api/cv | jq .profile
 The site is a single Nitro server built with the `bun` preset.
 
 ```bash
-docker build -t cv --build-arg NUXT_PUBLIC_SITE_URL=https://example.com .
-docker run -p 3000:3000 -e NUXT_DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/... cv
+docker build -t cv --build-arg NUXT_PUBLIC_SITE_URL=https://example.com --build-arg NUXT_PUBLIC_TURNSTILE_SITE_KEY=... .
+docker run -p 3000:3000 -e NUXT_DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/... -e NUXT_TURNSTILE_SECRET_KEY=... cv
 ```
 
 Both stages are plain Bun images; the PDF is a static file in `public/`, so the build needs no

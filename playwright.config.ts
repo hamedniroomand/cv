@@ -15,7 +15,8 @@ export default defineConfig({
     trace: 'retain-on-failure',
   },
   webServer: {
-    command: `PORT=${PORT} bun .output/server/index.mjs`,
+    // Cloudflare's documented always-pass test keys, so the captcha path runs without a real site.
+    command: `PORT=${PORT} NUXT_PUBLIC_TURNSTILE_SITE_KEY=1x00000000000000000000AA NUXT_TURNSTILE_SECRET_KEY=1x0000000000000000000000000000000AA bun .output/server/index.mjs`,
     url: `${baseURL}/api/cv`,
     reuseExistingServer: !process.env.CI,
     timeout: 30_000,

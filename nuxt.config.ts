@@ -31,7 +31,10 @@ export default defineNuxtConfig({
   typescript: { strict: true, typeCheck: true },
   runtimeConfig: {
     discordWebhookUrl: '',
-    public: { siteUrl: 'http://localhost:3000' },
+    // Cloudflare Turnstile. Empty secret = verification skipped (local builds without keys).
+    // Override at runtime with NUXT_TURNSTILE_SECRET_KEY / NUXT_PUBLIC_TURNSTILE_SITE_KEY.
+    turnstile: { secretKey: '' },
+    public: { siteUrl: 'http://localhost:3000', turnstile: { siteKey: '' } },
   },
   experimental: {
     early404: true,

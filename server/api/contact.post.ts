@@ -4,6 +4,7 @@ import { z } from 'zod'
 import { ContactSchema } from '#shared/schemas/contact'
 import { sendContact } from '../utils/notify'
 import { createRateLimiter } from '../utils/rate-limit'
+import { verifyTurnstile } from '../utils/turnstile'
 
 const limiter = createRateLimiter({ limit: 10, windowMs: 60 * 60 * 1000 })
 
@@ -26,6 +27,15 @@ export default defineEventHandler(async (event) => {
   }
 
   const config = useRuntimeConfig()
+  if (config.turnstile.secretKey) {
+    const human = await verifyTurnstile({
+      secretKey: config.turnstile.secretKey,
+      token: parsed.data.turnstileToken,
+      ip: ip === 'unknown' ? undefined : ip,
+    })
+    if (!human)
+      throw new HTTPError({ status: 403, message: 'captcha check failed, please try again' })
+  }
   try {
     const delivery = await sendContact(parsed.data, { discordWebhookUrl: config.discordWebhookUrl })
     return { ok: true, delivery }

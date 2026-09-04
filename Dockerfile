@@ -7,7 +7,9 @@ COPY package.json bun.lock ./
 RUN bun install --frozen-lockfile
 COPY . .
 ARG NUXT_PUBLIC_SITE_URL=http://localhost:3000
+ARG NUXT_PUBLIC_TURNSTILE_SITE_KEY=
 ENV NUXT_PUBLIC_SITE_URL=$NUXT_PUBLIC_SITE_URL
+ENV NUXT_PUBLIC_TURNSTILE_SITE_KEY=$NUXT_PUBLIC_TURNSTILE_SITE_KEY
 RUN bun run build
 
 # Runtime stage: only the Nitro output (the PDF ships as a static file under public/).

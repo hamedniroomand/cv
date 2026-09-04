@@ -5,11 +5,15 @@ import { contactFieldErrors, issuesToFieldErrors } from '#shared/schemas/contact
 const emit = defineEmits<{ close: [] }>()
 
 const dialog = ref<HTMLDialogElement | null>(null)
-const form = reactive({ name: '', email: '', message: '', website: '' })
+const widget = ref<{ reset: () => void } | null>(null)
+const form = reactive({ name: '', email: '', message: '', website: '', turnstileToken: '' })
 const state = ref<'idle' | 'sending' | 'sent' | 'error'>('idle')
-/** Form-level message (delivery failure, honeypot). Field messages live in `errors`. */
+/** Form-level message (delivery failure, captcha, honeypot). Field messages live in `errors`. */
 const error = ref('')
 const errors = ref<ContactFieldErrors>({})
+/** Empty when Turnstile is not configured; the form then sends without a captcha. */
+const siteKey = useRuntimeConfig().public.turnstile.siteKey
+const verified = computed(() => !siteKey || form.turnstileToken !== '')
 
 onMounted(() => {
   dialog.value?.showModal()
@@ -34,11 +38,12 @@ async function submit(): Promise<void> {
   }
   catch (err) {
     state.value = 'error'
+    widget.value?.reset()
     const data = (err as { data?: { message?: string, issues?: unknown } }).data
     errors.value = issuesToFieldErrors(data?.issues)
-    const { website, ...fieldErrors } = errors.value
+    const { website, turnstileToken, ...fieldErrors } = errors.value
     const fieldLevel = Object.keys(fieldErrors).length > 0
-    error.value = fieldLevel ? '' : website ?? data?.message ?? 'Could not send. Try email instead.'
+    error.value = fieldLevel ? '' : website ?? turnstileToken ?? data?.message ?? 'Could not send. Try email instead.'
   }
 }
 </script>
@@ -67,11 +72,15 @@ async function submit(): Promise<void> {
         </label>
         <!-- Honeypot: bots fill it, people never see it. -->
         <input v-model="form.website" class="visually-hidden" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+        <div v-if="siteKey" class="field">
+          <span aria-hidden="true" />
+          <TurnstileWidget ref="widget" v-model="form.turnstileToken" :site-key="siteKey" />
+        </div>
         <p v-if="error" class="modal__error" role="alert">
           {{ error }}
         </p>
         <div class="modal__actions">
-          <button type="submit" class="btn" :disabled="state === 'sending'">
+          <button type="submit" class="btn" :disabled="state === 'sending' || !verified">
             {{ state === 'sending' ? 'Sending…' : 'Send message' }}
           </button>
           <button type="button" class="btn btn-ghost" @click="close">

@@ -6,6 +6,8 @@ export const ContactSchema = z.object({
   message: z.string().trim().min(10, 'message must be at least 10 characters').max(5000),
   /** Honeypot. Humans never see it; anything in it means a bot. */
   website: z.string().max(0, 'invalid submission').optional(),
+  /** Cloudflare Turnstile response token; required by the API whenever a secret key is configured. */
+  turnstileToken: z.string().max(2048).optional(),
 })
 export type ContactMessage = z.infer<typeof ContactSchema>
 
