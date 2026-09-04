@@ -10,6 +10,7 @@ export const fixtureCv: CvData = {
     languages: [{ name: 'Persian', level: 'native' }, { name: 'English', level: 'professional' }],
     links: { github: 'hamedniroomand', linkedin: 'https://linkedin.com/in/example', email: 'me@example.com' },
     summary: 'Frontend lead with seven years in production.',
+    description: 'Frontend lead. This resume has a terminal.',
   },
   about: { body: 'About paragraph one.\n\nAbout paragraph two.', html: '<p>About paragraph one.</p>\n<p>About paragraph two.</p>\n' },
   experience: [

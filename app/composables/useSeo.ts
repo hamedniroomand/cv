@@ -5,7 +5,7 @@ export function useResumeSeo(cv: CvData, opts: { title?: string, description?: s
   const siteUrl = useRuntimeConfig().public.siteUrl
   const { profile } = cv
   const title = opts.title ?? `${profile.name} — ${profile.title}`
-  const description = opts.description ?? profile.summary
+  const description = opts.description ?? profile.description
   const url = `${siteUrl}${opts.path ?? '/'}`
 
   useSeoMeta({

@@ -9,13 +9,20 @@
   },
   "remote": true,
   "languages": [
-    { "name": "Persian", "level": "native" },
-    { "name": "English", "level": "professional" }
+    {
+      "name": "Persian",
+      "level": "native"
+    },
+    {
+      "name": "English",
+      "level": "professional"
+    }
   ],
   "links": {
     "github": "hamedniroomand",
     "linkedin": "https://www.linkedin.com/in/hamedniroomand",
     "email": "hamed@niroomand.dev"
   },
-  "summary": "Frontend Team Lead running a Nuxt 4 / Vue 3 team in production, with 7+ years across the JavaScript ecosystem. Led 5 engineers at Jack Westin (2022–2026), a US EdTech platform serving thousands of daily active students: owned architecture and technical strategy, designed REST API contracts with the backend lead, broke PRDs into phased delivery, and ran frontend hiring. Built a shared design-system and core-logic library (Storybook, 95%+ coverage, 4 consumer apps) and a micro-frontend integration for marketing. In parallel, held a part-time architecture and advisory role at Thales MFI (German crypto asset management), delivering a real-time multi-chain, multi-exchange portfolio tracker in Nuxt 4, NestJS, and Bun. Deep in Vue/Nuxt; early adopter of new tooling (Bun, Hono, AI SDK, MCP) and quick to pick up new stacks."
+  "summary": "Frontend Team Lead running a Nuxt 4 / Vue 3 team in production, with 7+ years across the JavaScript ecosystem. Led 5 engineers at Jack Westin (2022–2026), a US EdTech platform serving thousands of daily active students: owned architecture and technical strategy, designed REST API contracts with the backend lead, broke PRDs into phased delivery, and ran frontend hiring. Built a shared design-system and core-logic library (Storybook, 95%+ coverage, 4 consumer apps) and a micro-frontend integration for marketing. In parallel, held a part-time architecture and advisory role at Thales MFI (German crypto asset management), delivering a real-time multi-chain, multi-exchange portfolio tracker in Nuxt 4, NestJS, and Bun. Deep in Vue/Nuxt; early adopter of new tooling (Bun, Hono, AI SDK, MCP) and quick to pick up new stacks.",
+  "description": "Frontend team lead and senior TypeScript engineer, 7+ years of Vue and Nuxt in production. This resume has a terminal. Type help."
 }

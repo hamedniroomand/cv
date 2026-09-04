@@ -1,7 +1,11 @@
-I'm Hamed, a frontend team lead based in Yerevan, Armenia, working remotely across US/EU hours.
+I'm Hamed, a frontend team lead based in Yerevan, Armenia, working remotely on US and EU hours. I've spent 7+ years in the JavaScript and TypeScript ecosystem, most of it in Vue and Nuxt, and I like being the person who turns a product requirement into something a team can ship in phases.
 
-I've spent the last seven years in the JavaScript and TypeScript ecosystem: first shipping customer-facing SEO dashboards and WordPress work, then owning the frontend of an e-learning product and leading the team that builds it. I care about API contracts that are agreed before code is written, shared libraries that are tested well enough to be trusted by several projects, and PRDs that get broken into tasks a team can actually pick up.
+At Jack Westin, a US EdTech platform, I led a team of five building Vue 3 / Nuxt 4 applications used by thousands of students every day. I owned the frontend architecture and technical strategy, designed the REST API contracts together with the backend lead, broke PRDs into phased milestones, and ran frontend hiring end to end. The piece of work I'm most attached to is the shared design-system and core-logic library: Storybook, Vitest, 95%+ coverage, published as versioned npm packages and consumed by four applications. It also let us hand real product components to marketing's WordPress site through micro-frontends instead of rebuilding them.
 
-Outside the day job I build full-stack systems with Bun, NestJS and Hono — including a multi-chain portfolio tracker and a private MCP server — and I maintain Cue, a CLI that turns GitHub issue labels into work for headless coding agents.
+In parallel, I held a part-time architecture and engineering role at Thales MFI, a German crypto asset manager. I built a real-time portfolio tracker in Nuxt 4 and Bun that follows assets, positions and orders across 16 blockchains and 12 exchanges, a resource-management system on NestJS, and a private MCP server in Hono that exposes internal data to AI coding agents so the CTO can prototype against production systems.
 
-Persian is my native language and I work in English professionally.
+Before that I built customer-facing SEO dashboards in Vue on Laravel, Node.js services and Vuetify dashboards for FARO Creaform, and turned Figma designs into Vue and WordPress front-ends at a marketing agency.
+
+I pick up new tooling early (Bun, Hono, AI SDK, MCP) and keep it if it earns its place. Outside work I maintain Cue, a CLI that drives headless coding agents through a GitHub-issue label pipeline. I studied mechanical engineering while already working as a developer, which explains both the degree and the habit of asking how things hold together.
+
+Persian is my native language and I work in English professionally. If you're reading this in the terminal: yes, `sudo cat .secrets` works.
