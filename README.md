@@ -5,7 +5,9 @@ panel for everyone else, both rendered from one content source. Whatever runs in
 panel scrolls to the matching section. The same data is served as JSON under `/api`, and a PDF
 version of the resume is available for download.
 
-Live: `<FILL: domain>` · Source: this repository · Screenshot: `<FILL>`
+Live: `https://niroomand.dev` · Source: this repository
+
+![Terminal resume — hamed.sh](docs/images/screenshot-1.png)
 
 ## Architecture
 
