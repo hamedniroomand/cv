@@ -1,12 +1,12 @@
 import type { CvData } from '#shared/schemas/cv'
 
 /** Page-level meta and JSON-LD for the resume. */
-export function useResumeSeo(cv: CvData, opts: { title?: string, description?: string, path?: string } = {}) {
+export function useResumeSeo(cv: CvData) {
   const siteUrl = useRuntimeConfig().public.siteUrl
   const { profile } = cv
-  const title = opts.title ?? `${profile.name} — ${profile.title}`
-  const description = opts.description ?? profile.description
-  const url = `${siteUrl}${opts.path ?? '/'}`
+  const title = `${profile.name} — ${profile.title}`
+  const description = profile.description
+  const url = `${siteUrl}/`
 
   useSeoMeta({
     title,

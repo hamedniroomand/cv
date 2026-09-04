@@ -94,7 +94,7 @@ the `makeShell` fixture, which records every side effect.
 | -------------------------------------------------------- | ------------------------------------------------------------------------------------ |
 | `content/profile.json`                                   | Header, `whoami`, `man hamed`, JSON-LD                                               |
 | `content/about.md`                                       | `~/about.md`, About section                                                          |
-| `content/experience/<slug>/index.md` + `highlights/*.md` | `~/experience/<slug>/`, Experience entries, `/experience/<slug>` pages               |
+| `content/experience/<slug>/index.md` + `highlights/*.md` | `~/experience/<slug>/`, Experience entries                                           |
 | `content/projects/*.md`                                  | `~/projects/<slug>/README.md` (live from GitHub when reachable), Open source section |
 | `content/skills.json`                                    | `~/skills.json`, `skills`, Skills section                                            |
 | `content/education.md`                                   | `~/education.md`, Education section                                                  |

@@ -1,13 +1,9 @@
 <script setup lang="ts">
-import type { PanelTarget } from '#shared/cv/panel-target'
 import type { ShellTab } from './MobileTabs.vue'
-
-const props = defineProps<{ initialTarget?: PanelTarget }>()
 
 const Terminal = defineAsyncComponent(() => import('~/components/terminal/Terminal.vue'))
 
 const { ratio, panelOpen, setRatio, toggle } = useSplitPane()
-const { navigate } = usePanelNav()
 const bus = useTerminalBus()
 const isDesktop = useMediaQuery('(min-width: 900px)', true)
 const tab = ref<ShellTab>('resume')
@@ -41,8 +37,6 @@ function onKeydown(e: KeyboardEvent): void {
 onMounted(() => {
   mounted.value = true
   window.addEventListener('keydown', onKeydown)
-  if (props.initialTarget)
-    requestAnimationFrame(() => navigate(props.initialTarget!))
 })
 onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
 </script>
