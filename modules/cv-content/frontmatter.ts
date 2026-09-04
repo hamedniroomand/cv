@@ -1,5 +1,3 @@
-import { parse } from 'yaml'
-
 export interface Frontmatter {
   data: Record<string, unknown>
   body: string
@@ -13,7 +11,7 @@ export function parseFrontmatter(src: string): Frontmatter {
   if (!m || m.index !== 0)
     return { data: {}, body: src.trim() }
   const yaml = m[1]!.trim()
-  const parsed: unknown = yaml ? parse(yaml) : {}
+  const parsed: unknown = yaml ? Bun.YAML.parse(yaml) : {}
   const data = parsed && typeof parsed === 'object' ? (parsed as Record<string, unknown>) : {}
   return { data, body: src.slice(m[0].length).trim() }
 }

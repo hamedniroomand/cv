@@ -6,17 +6,17 @@
     "bun": ">=1.4"
   },
   "scripts": {
-    "dev": "nuxt dev",
-    "build": "nuxt build",
+    "dev": "bun --bun nuxt dev",
+    "build": "bun --bun nuxt build",
     "postbuild": "bun run pdf",
     "pdf": "bun run scripts/build-pdf.ts",
-    "preview": "nuxt preview",
-    "postinstall": "nuxt prepare",
+    "preview": "bun --bun nuxt preview",
+    "postinstall": "bun --bun nuxt prepare",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "typecheck": "nuxt typecheck",
-    "test": "vitest run --passWithNoTests",
-    "test:watch": "vitest",
+    "typecheck": "bun --bun nuxt typecheck",
+    "test": "bun --bun vitest run --passWithNoTests",
+    "test:watch": "bun --bun vitest",
     "test:e2e": "playwright test",
     "prepare": "husky"
   },
@@ -25,7 +25,6 @@
     "nuxt": "npm:nuxt-nightly@5.0.0-29807919.2cbde35e",
     "vue": "^3.5.42",
     "vue-router": "^5.3.0",
-    "yaml": "^2.9.0",
     "zod": "^4.5.4"
   },
   "devDependencies": {
