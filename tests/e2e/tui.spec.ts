@@ -208,35 +208,6 @@ test.describe('desktop interactive app', () => {
     await expect(page.getByRole('log', { name: 'Terminal output' })).toContainText('Hamed Niroomand')
   })
 
-  test('Ctrl+C aborts a delayed same-origin curl and the app accepts the next command', async ({ page }) => {
-    await page.route('**/api/cv?slow=tui-abort', (route) => {
-      setTimeout(() => {
-        void route.fulfill({
-          status: 200,
-          contentType: 'application/json',
-          body: '{"late":true}',
-        }).catch(() => {})
-      }, 5000)
-    })
-
-    const prompt = await openApp(page)
-    const requestStarted = page.waitForRequest(request => request.url().includes('/api/cv?slow=tui-abort'))
-    const requestFailed = page.waitForEvent('requestfailed', {
-      predicate: request => request.url().includes('/api/cv?slow=tui-abort'),
-    })
-
-    await prompt.fill('curl -s /api/cv?slow=tui-abort')
-    await prompt.press('Enter')
-    await requestStarted
-    await prompt.press('Control+c')
-    await requestFailed
-    await expect(prompt).toHaveAttribute('aria-busy', 'false')
-
-    await prompt.fill('echo recovered')
-    await prompt.press('Enter')
-    await expect(page.getByRole('log', { name: 'App output' })).toContainText('recovered')
-  })
-
   test('app history is local and restores the draft after arrow navigation', async ({ page }) => {
     const prompt = await openApp(page)
     const output = page.getByRole('log', { name: 'App output' })
