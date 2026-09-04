@@ -34,7 +34,7 @@ export default defineNuxtModule({
         `}`,
         ``,
       ].join('\n'),
-    }, { nuxt: true, nitro: true, shared: true })
+    }, { nuxt: true, nitro: true })
 
     nuxt.options.alias['#cv'] = template.dst
     nuxt.hook('nitro:config', (config) => {
