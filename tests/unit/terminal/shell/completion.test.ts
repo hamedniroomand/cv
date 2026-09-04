@@ -10,6 +10,7 @@ const cmd = (name: string, complete?: Command['complete']): Command => ({ name, 
 const ctx = {
   fs: new Vfs(buildTree(fixtureCv), { home: HOME }),
   registry: createRegistry([cmd('cat'), cmd('cd'), cmd('clear'), cmd('theme', () => ['dark', 'light'])]),
+  cv: fixtureCv,
 }
 
 describe('completeLine', () => {

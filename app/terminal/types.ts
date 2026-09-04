@@ -58,6 +58,7 @@ export interface CommandRegistry {
 export interface CompletionContext {
   fs: VirtualFS
   registry: CommandRegistry
+  cv: CvData
 }
 
 export interface CommandContext {
