@@ -28,7 +28,7 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   modules: ['./modules/cv-content', '@vercel/speed-insights'],
   components: [{ path: '~/components', pathPrefix: false }],
-  typescript: { strict: true, typeCheck: false },
+  typescript: { strict: true, typeCheck: true },
   runtimeConfig: {
     discordWebhookUrl: '',
     public: { siteUrl: 'http://localhost:3000' },
