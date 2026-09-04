@@ -30,13 +30,18 @@ const tabs: { id: ShellTab, label: string }[] = [
 <style scoped>
 .tabs {
   display: none;
+  position: sticky;
+  top: 0;
+  z-index: 1;
   height: var(--tabs-height, 3rem);
+  min-height: 44px;
   border-bottom: 1px solid var(--border);
   background: var(--bg-elev);
 }
 
 .tabs__tab {
   flex: 1;
+  min-height: 44px;
   border: 0;
   border-bottom: 2px solid transparent;
   background: none;

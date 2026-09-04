@@ -50,6 +50,14 @@ button {
   color: inherit;
 }
 
+.output__line .s-pre {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-wrap: normal;
+  white-space: pre;
+}
+
 code,
 kbd,
 pre {
@@ -115,4 +123,10 @@ kbd {
 .btn-ghost:hover {
   color: var(--fg);
   background: var(--bg-hover);
+}
+
+@media (max-width: 479px) {
+  #resume > .panel__inner {
+    padding: var(--space-4);
+  }
 }

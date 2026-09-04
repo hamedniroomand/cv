@@ -23,9 +23,24 @@ const shell = useShell({
 const booted = ref(false)
 const root = ref<HTMLElement | null>(null)
 const inputRef = ref<{ focus: () => void } | null>(null)
+const terminalHeight = ref<string>()
 
 function focusInput(): void {
   inputRef.value?.focus()
+}
+
+function scrollToBottom(): void {
+  if (root.value)
+    root.value.scrollTop = root.value.scrollHeight
+}
+
+function syncVisualViewport(): void {
+  if (typeof window === 'undefined' || !window.visualViewport || !root.value)
+    return
+
+  const top = root.value.getBoundingClientRect().top
+  terminalHeight.value = `${Math.max(0, window.visualViewport.height - top)}px`
+  nextTick(() => requestAnimationFrame(scrollToBottom))
 }
 
 function closeModal(): void {
@@ -68,10 +83,7 @@ watch(() => bus.queue.value.length, (n) => {
 })
 
 watch(() => shell.lines.value.length, () => {
-  nextTick(() => {
-    if (root.value)
-      root.value.scrollTop = root.value.scrollHeight
-  })
+  nextTick(scrollToBottom)
 })
 
 function onRootClick(): void {
@@ -79,10 +91,23 @@ function onRootClick(): void {
     return
   focusInput()
 }
+
+onMounted(() => {
+  if (typeof window === 'undefined' || !window.visualViewport)
+    return
+  window.visualViewport.addEventListener('resize', syncVisualViewport)
+  syncVisualViewport()
+})
+
+onBeforeUnmount(() => {
+  if (typeof window === 'undefined' || !window.visualViewport)
+    return
+  window.visualViewport.removeEventListener('resize', syncVisualViewport)
+})
 </script>
 
 <template>
-  <div ref="root" class="terminal" @click="onRootClick">
+  <div ref="root" class="terminal" :style="{ height: terminalHeight }" @click="onRootClick">
     <BootSequence v-if="!booted" :skip="reduced" @done="onBoot" />
     <template v-else>
       <TerminalOutput :lines="shell.lines.value" />

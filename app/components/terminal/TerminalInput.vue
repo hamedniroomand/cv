@@ -90,6 +90,7 @@ defineExpose({ focus })
       v-model="value"
       class="input__field"
       type="text"
+      inputmode="text"
       aria-label="Terminal input"
       autocapitalize="off"
       autocomplete="off"
