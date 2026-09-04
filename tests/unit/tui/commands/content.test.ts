@@ -1,7 +1,29 @@
+import type { AppCommand } from '~/tui/types'
 import { describe, expect, it } from 'vitest'
 import { makeApp } from '../../fixtures/app'
 
 describe('content slash commands', () => {
+  it('records View clear, status, and exit effects from a command run through the app', async () => {
+    const effects: AppCommand = {
+      name: 'view-effects',
+      description: 'Exercise observable View effects',
+      run: (_argv, ctx) => {
+        ctx.view.print('discarded')
+        ctx.view.clear()
+        ctx.view.status('Ready')
+        ctx.view.exit()
+        return 0
+      },
+    }
+    const app = makeApp({ commands: [effects] })
+
+    expect(await app.run('/view-effects')).toBe(0)
+    expect(app.text()).toBe('')
+    expect(app.calls.cleared).toBe(1)
+    expect(app.calls.statuses).toEqual(['Ready'])
+    expect(app.calls.exits).toBe(1)
+  })
+
   it('/experience picks a company, prints its generated README and highlight bullets', async () => {
     const app = makeApp({ picks: ['acme'] })
 
@@ -40,10 +62,7 @@ describe('content slash commands', () => {
   it('/experience exposes company picker completions', () => {
     const app = makeApp()
 
-    expect(app.complete('experience')).toEqual(expect.arrayContaining([
-      expect.objectContaining({ value: 'acme', label: 'Acme' }),
-      expect.objectContaining({ value: 'globex', label: 'Globex' }),
-    ]))
+    expect(app.complete('experience').map(item => item.value)).toEqual(['acme', 'globex'])
   })
 
   it('/projects prints its README and links, then navigates to the selected project', async () => {

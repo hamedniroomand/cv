@@ -12,6 +12,7 @@ import { createAppRunner } from '~/tui/runner'
 import { makeShell } from './context'
 
 interface AppOptions {
+  commands?: AppCommand[]
   picks?: Array<string | null>
 }
 
@@ -22,10 +23,18 @@ interface PickCall {
 }
 
 /** Build the app command runner over the real fixture VFS, CV, and shell. */
-export function makeApp({ picks = [] }: AppOptions = {}) {
+export function makeApp({ commands = [], picks = [] }: AppOptions = {}) {
   const shellFixture = makeShell(shellCommands)
   const shellCalls: string[] = []
   const pickCalls: PickCall[] = []
+  const calls = {
+    ...shellFixture.calls,
+    shell: shellCalls,
+    pick: pickCalls,
+    cleared: 0,
+    statuses: [] as string[],
+    exits: 0,
+  }
   let nextViewId = 10_000
 
   const print = (value: Span[] | string, style?: LineStyle) => {
@@ -39,16 +48,21 @@ export function makeApp({ picks = [] }: AppOptions = {}) {
 
   const view: View = {
     print,
-    clear: () => shellFixture.lines.splice(0),
+    clear: () => {
+      calls.cleared++
+      shellFixture.lines.splice(0)
+    },
     pick: async <T>(title: string, items: PickerItem<T>[], opts?: { initial?: T, placeholder?: string }) => {
       pickCalls.push({ title, items: items as PickerItem[], opts })
       return (picks.shift() ?? null) as T | null
     },
-    status: () => {},
-    exit: () => {},
+    status: text => calls.statuses.push(text),
+    exit: () => {
+      calls.exits++
+    },
   }
 
-  const appCommands: AppCommand[] = [about, experience, projects, skills, education]
+  const appCommands: AppCommand[] = [about, experience, projects, skills, education, ...commands]
   const registry = createAppRegistry(appCommands)
   const deps = shellFixture.deps
   const context: Omit<AppContext, 'argv0' | 'shell' | 'signal' | 'slash' | 'sudo'> = {
@@ -96,10 +110,6 @@ export function makeApp({ picks = [] }: AppOptions = {}) {
     text: shellFixture.text,
     command: (name: string) => registry.get(name),
     complete: completion,
-    calls: {
-      ...shellFixture.calls,
-      shell: shellCalls,
-      pick: pickCalls,
-    },
+    calls,
   }
 }
