@@ -1,0 +1,75 @@
+{
+  "categories": [
+    {
+      "id": "languages",
+      "label": "Languages",
+      "items": [
+        { "name": "TypeScript" },
+        { "name": "JavaScript" },
+        { "name": "PHP" },
+        { "name": "Bash" }
+      ]
+    },
+    {
+      "id": "frontend",
+      "label": "Frontend",
+      "items": [
+        { "name": "Vue 3" },
+        { "name": "Nuxt 4" },
+        { "name": "Vite" },
+        { "name": "Storybook" },
+        { "name": "CSS", "note": "custom properties, layout, print" },
+        { "name": "Micro-frontends" }
+      ]
+    },
+    {
+      "id": "backend",
+      "label": "Backend",
+      "items": [
+        { "name": "Node.js" },
+        { "name": "Bun" },
+        { "name": "NestJS" },
+        { "name": "Hono" },
+        { "name": "Laravel" },
+        { "name": "WordPress", "note": "themes and plugins" }
+      ]
+    },
+    {
+      "id": "testing",
+      "label": "Testing",
+      "items": [
+        { "name": "Vitest" },
+        { "name": "Playwright" },
+        { "name": "Storybook" }
+      ]
+    },
+    {
+      "id": "tooling",
+      "label": "Tooling",
+      "items": [
+        { "name": "Git" },
+        { "name": "GitHub Actions" },
+        { "name": "Docker" }
+      ]
+    },
+    {
+      "id": "ai-tooling",
+      "label": "AI tooling",
+      "items": [
+        { "name": "Claude Code" },
+        { "name": "Codex" },
+        { "name": "MCP servers" }
+      ]
+    },
+    {
+      "id": "leadership",
+      "label": "Leadership",
+      "items": [
+        { "name": "Team lead", "note": "team of 5" },
+        { "name": "API contract design" },
+        { "name": "PRD breakdown" },
+        { "name": "Design systems" }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Hamed Niroomand",
+  "title": "Frontend Team Lead / Senior TypeScript Engineer",
+  "tagline": "I build and lead TypeScript frontends that ship.",
+  "location": {
+    "city": "Yerevan",
+    "country": "Armenia",
+    "tz": "UTC+4"
+  },
+  "remote": true,
+  "languages": [
+    { "name": "Persian", "level": "native" },
+    { "name": "English", "level": "professional" }
+  ],
+  "links": {
+    "github": "hamedniroomand",
+    "linkedin": "<FILL>",
+    "email": "<FILL>"
+  },
+  "summary": "Frontend team lead and senior TypeScript engineer with seven years in production across the JavaScript ecosystem. I lead a team of five at Jack Westin, own the frontend architecture of a Vue 3 / Nuxt 4 product, and design the API contracts it depends on. On the side I build full-stack tools with Bun, NestJS and Hono, and maintain Cue, an open-source CLI that drives headless coding agents through a GitHub-issue pipeline."
+}

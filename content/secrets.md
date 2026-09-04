@@ -1,0 +1,5 @@
+- Still googles how to exit vim. Then types :q like nothing happened.
+- Has more browser tabs open than lines in this file.
+- Believes every bug is a missing type until proven otherwise.
+- Once shipped a Friday deploy. It went fine. Will not do it again.
+- The uptime counter on this site is just years of experience with extra steps.
