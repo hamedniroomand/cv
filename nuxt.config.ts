@@ -22,7 +22,7 @@ export default defineNuxtConfig({
     '/print': { headers: { 'X-Robots-Tag': 'noindex' } },
   },
   nitro: { preset: process.env.NITRO_PRESET ?? 'bun' },
-  css: ['~/assets/css/tokens.css', '~/assets/css/themes.css', '~/assets/css/base.css'],
+  css: ['~/assets/css/tokens.css', '~/assets/css/themes.css', '~/assets/css/crt.css', '~/assets/css/base.css'],
   app: {
     head: {
       htmlAttrs: { lang: 'en' },

@@ -86,6 +86,7 @@ export function useShell(hooks: ShellHooks) {
   }
 
   async function run(line: string, opts: { echo?: boolean, record?: boolean } = {}): Promise<void> {
+    env.theme = theme.value
     if (opts.echo !== false)
       lines.value.push({ id: ++nextId, spans: [{ text: prompt(), style: 'prompt' }, { text: line }] })
     if (opts.record !== false)
