@@ -16,7 +16,7 @@ export interface ShellHooks {
   togglePanel: () => void
   setTheme: (name: ThemeName) => void
   setLang: (lang: Lang) => void
-  openApp?: () => Promise<void>
+  openApp: () => Promise<void>
   openModal: (kind: ModalKind, props?: Record<string, unknown>) => Promise<void>
   destroy: () => void
 }
@@ -48,7 +48,7 @@ export function useShell(hooks: ShellHooks) {
     clear: () => {
       lines.value = []
     },
-    openApp: hooks.openApp ?? (async () => {}),
+    openApp: hooks.openApp,
     openModal: hooks.openModal,
     openUrl: (url) => {
       window.open(url, '_blank', 'noopener')

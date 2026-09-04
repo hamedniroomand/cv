@@ -9,7 +9,7 @@ describe('hamed', () => {
     const result = await app.shell.exec(name)
 
     expect(result.code).toBe(0)
-    expect((app.calls as typeof app.calls & { apps: number }).apps).toBe(1)
+    expect(app.calls.apps).toBe(1)
     expect(app.text()).toBe('hamed: exited')
   })
 
@@ -19,7 +19,7 @@ describe('hamed', () => {
     const closed = new Promise<void>((resolve) => {
       closeApp = resolve
     })
-    ;(app.deps.ui as typeof app.deps.ui & { openApp: () => Promise<void> }).openApp = () => closed
+    app.deps.ui.openApp = () => closed
 
     const execution = app.shell.exec('hamed')
     await Promise.resolve()
@@ -28,5 +28,16 @@ describe('hamed', () => {
     closeApp()
     expect((await execution).code).toBe(0)
     expect(app.text()).toBe('hamed: exited')
+  })
+
+  it('surfaces unavailable app UI without reporting a successful exit', async () => {
+    const app = makeShell(commands)
+    app.deps.ui.openApp = async () => {
+      throw new Error('interactive app UI is not mounted')
+    }
+
+    expect((await app.shell.exec('hamed')).code).toBe(1)
+    expect(app.text()).toBe('hamed: interactive app UI is not mounted')
+    expect(app.text()).not.toContain('hamed: exited')
   })
 })

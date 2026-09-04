@@ -14,6 +14,9 @@ const shell = useShell({
   togglePanel: toggle,
   setTheme,
   setLang: () => {},
+  openApp: async () => {
+    throw new Error('interactive app UI is not mounted')
+  },
   openModal: kind => new Promise<void>((resolve) => {
     modal.value = { kind, resolve }
   }),
