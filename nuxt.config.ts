@@ -12,12 +12,6 @@ export default defineNuxtConfig({
     contactFrom: 'cv@localhost',
     public: { siteUrl: 'http://localhost:3000' },
   },
-  components: [
-    {
-      path: '~/components',
-      pathPrefix: false,
-    },
-  ],
   routeRules: {
     '/hamed-niroomand-cv.pdf': {
       headers: {

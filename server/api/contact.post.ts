@@ -25,7 +25,7 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  const config = useRuntimeConfig(event)
+  const config = useRuntimeConfig()
   const delivery = await sendContact(parsed.data, {
     resendApiKey: config.resendApiKey,
     to: config.contactTo,
