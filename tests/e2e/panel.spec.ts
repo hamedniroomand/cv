@@ -21,6 +21,6 @@ test.describe('panel', () => {
     await expect(page.getByLabel('Terminal input')).toBeVisible()
     await page.getByRole('button', { name: '~/about.md' }).click()
     await expect(page.getByRole('log')).toContainText('cat ~/about.md')
-    await expect(page.getByRole('log')).toContainText('frontend team lead based in Yerevan')
+    await expect(page.getByRole('log')).toContainText('senior web developer based in Yerevan')
   })
 })
