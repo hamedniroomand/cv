@@ -1,5 +1,6 @@
 import type { Project } from '#shared/schemas/project'
 import type { AppCommand, AppContext, PickerItem } from '../types'
+import { printMarkdown } from '../markdown'
 
 function choices(ctx: AppContext): PickerItem[] {
   return ctx.cv.projects.map(project => ({
@@ -37,7 +38,7 @@ export default {
     }
 
     const repository = `https://github.com/${project.repo}`
-    ctx.view.print(ctx.fs.readFile(`~/projects/${project.slug}/README.md`))
+    printMarkdown(ctx.view, ctx.fs.readFile(`~/projects/${project.slug}/README.md`))
     ctx.view.print([
       { text: 'Repository: ' },
       { text: repository, style: 'accent', href: repository },

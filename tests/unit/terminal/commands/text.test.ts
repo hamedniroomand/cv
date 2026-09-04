@@ -7,8 +7,17 @@ describe('cat', () => {
   it('prints a file and navigates the panel', async () => {
     const s = makeShell(commands)
     expect((await s.shell.exec('cat about.md')).code).toBe(0)
-    expect(s.text()).toBe(fixtureCv.about.body)
+    expect(s.text()).toBe(`${fixtureCv.about.body}\ntip: bat about.md renders this as formatted text`)
+    expect(s.lines.at(-1)!.spans).toEqual([{ text: 'tip: bat about.md renders this as formatted text', style: 'dim' }])
     expect(s.calls.navigate).toEqual([{ section: 'about' }])
+  })
+  it('keeps the bat tip out of pipes and off non-markdown files', async () => {
+    const s = makeShell(commands)
+    await s.shell.exec('cat about.md | tail -n 1')
+    expect(s.text()).toBe('About paragraph two.')
+    const s2 = makeShell(commands)
+    await s2.shell.exec('cat contact.sh')
+    expect(s2.text()).not.toContain('tip:')
   })
   it('denies .secrets without sudo', async () => {
     const s = makeShell(commands)

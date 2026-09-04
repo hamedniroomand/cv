@@ -72,6 +72,8 @@ export interface CommandContext {
   /** The name actually typed (alias-aware). */
   argv0: string
   sudo: boolean
+  /** True when stdout is the screen (last segment of the pipeline), false when piped. */
+  tty: boolean
   env: Readonly<ShellEnv>
   cv: CvData
   panel: {

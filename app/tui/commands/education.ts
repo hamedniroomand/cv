@@ -1,10 +1,11 @@
 import type { AppCommand } from '../types'
+import { printMarkdown } from '../markdown'
 
 export default {
   name: 'education',
   description: 'Read education details',
   run(_argv, ctx) {
-    ctx.view.print(ctx.fs.readFile('~/education.md'))
+    printMarkdown(ctx.view, ctx.fs.readFile('~/education.md'))
     ctx.panel.navigate({ section: 'education' })
     return 0
   },

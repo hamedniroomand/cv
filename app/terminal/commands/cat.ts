@@ -21,6 +21,8 @@ export default {
         ctx.stdout.write(content.endsWith('\n') ? content : `${content}\n`)
         if (i === 0)
           navigateFor(ctx, path)
+        if (ctx.tty && path.endsWith('.md'))
+          ctx.stdout.line(`tip: bat ${path} renders this as formatted text`, 'dim')
       }
       catch (err) {
         code = reportFsError(ctx, err)

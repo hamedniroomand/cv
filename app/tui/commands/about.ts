@@ -1,10 +1,11 @@
 import type { AppCommand } from '../types'
+import { printMarkdown } from '../markdown'
 
 export default {
   name: 'about',
   description: 'Read the profile summary',
   run(_argv, ctx) {
-    ctx.view.print(ctx.fs.readFile('~/about.md'))
+    printMarkdown(ctx.view, ctx.fs.readFile('~/about.md'))
     ctx.panel.navigate({ section: 'about' })
     return 0
   },

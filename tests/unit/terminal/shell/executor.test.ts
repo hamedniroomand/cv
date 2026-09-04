@@ -160,3 +160,22 @@ describe('shell.exec', () => {
     expect(appLines).toHaveLength(2)
   })
 })
+
+describe('tty flag', () => {
+  it('is true for the last segment and false when piped', async () => {
+    const seen: boolean[] = []
+    const probe: Command = {
+      name: 'probe',
+      description: '',
+      usage: 'probe',
+      run: (_a, ctx) => {
+        seen.push(ctx.tty)
+        ctx.stdout.line('x')
+        return 0
+      },
+    }
+    const s = makeShell([probe])
+    await s.shell.exec('probe | probe')
+    expect(seen).toEqual([false, true])
+  })
+})

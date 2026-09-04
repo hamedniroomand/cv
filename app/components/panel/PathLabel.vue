@@ -2,12 +2,12 @@
 const props = defineProps<{
   /** Path as shown in the terminal, e.g. `~/about.md`. */
   path: string
-  /** Command to run when clicked. Defaults to `cat <path>`. */
+  /** Command to run when clicked. Defaults to `bat <path>`. */
   command?: string
 }>()
 
 const bus = useTerminalBus()
-const command = computed(() => props.command ?? `cat ${props.path}`)
+const command = computed(() => props.command ?? `bat ${props.path}`)
 </script>
 
 <template>

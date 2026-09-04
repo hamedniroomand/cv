@@ -45,7 +45,7 @@ const id = (section: Parameters<typeof panelTargetId>[0]['section']) => panelTar
             <h3 class="project__name">
               <a :href="`https://github.com/${project.repo}`" rel="noopener" target="_blank">{{ project.name }}</a>
             </h3>
-            <PathLabel :path="`~/projects/${project.slug}`" :command="`cat ~/projects/${project.slug}/README.md`" />
+            <PathLabel :path="`~/projects/${project.slug}`" :command="`bat ~/projects/${project.slug}/README.md`" />
           </div>
           <p class="project__tagline">
             {{ project.tagline }}

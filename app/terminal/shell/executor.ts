@@ -65,7 +65,7 @@ export class Shell {
       const isLast = i === segments.length - 1
       const stdout = isLast ? new LineWriter(sink, nextId) : new CaptureWriter()
 
-      code = await this.runSegment(seg, piped, stdout, stderr, signal)
+      code = await this.runSegment(seg, piped, stdout, stderr, signal, isLast)
 
       stdout.flush()
       stderr.flush()
@@ -74,7 +74,7 @@ export class Shell {
     return { code }
   }
 
-  private async runSegment(seg: Segment, stdin: string | null, stdout: LineWriter | CaptureWriter, stderr: LineWriter, signal: AbortSignal): Promise<number> {
+  private async runSegment(seg: Segment, stdin: string | null, stdout: LineWriter | CaptureWriter, stderr: LineWriter, signal: AbortSignal, tty: boolean): Promise<number> {
     const argv0 = seg.argv[0]
     if (argv0 === undefined) {
       stderr.line('usage: sudo <command>')
@@ -92,6 +92,7 @@ export class Shell {
       stderr,
       argv0,
       sudo: seg.sudo,
+      tty,
       env: this.deps.env,
       cv: this.deps.cv,
       panel: this.deps.panel,

@@ -1,6 +1,7 @@
 import type { Experience } from '#shared/schemas/experience'
 import type { AppCommand, AppContext, PickerItem } from '../types'
 import { formatRange } from '#shared/cv/format'
+import { printMarkdown } from '../markdown'
 
 function choices(ctx: AppContext): PickerItem[] {
   return [...ctx.cv.experience]
@@ -49,9 +50,9 @@ export default {
     const highlights = experience.highlights.map(
       highlight => `- ${highlight.title} — ${highlight.body}`,
     )
-    ctx.view.print([
+    printMarkdown(ctx.view, [
       readme,
-      ...(highlights.length > 0 ? ['', 'Highlights', ...highlights] : []),
+      ...(highlights.length > 0 ? ['', '## Highlights', ...highlights] : []),
     ].join('\n'))
     ctx.panel.navigate({ section: 'experience', slug: experience.slug })
     return 0

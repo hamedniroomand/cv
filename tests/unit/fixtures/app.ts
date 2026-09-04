@@ -36,7 +36,9 @@ export function makeApp({ commands = [], picks = [] }: AppOptions = {}) {
 
   const print = (value: Span[] | string, style?: LineStyle) => {
     const writer = new LineWriter(line => shellFixture.lines.push(line), () => ++nextViewId)
-    if (typeof value === 'string')
+    if (value.length === 0)
+      writer.line()
+    else if (typeof value === 'string')
       writer.write(value, style)
     else
       writer.raw(value)
@@ -110,6 +112,7 @@ export function makeApp({ commands = [], picks = [] }: AppOptions = {}) {
   return {
     run: (line: string) => runner.run(line, new AbortController().signal),
     text: shellFixture.text,
+    lines: shellFixture.lines,
     command: (name: string) => registry.get(name),
     complete: completion,
     calls,

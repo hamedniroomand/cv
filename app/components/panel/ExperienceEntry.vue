@@ -18,7 +18,7 @@ const roles = computed(() => [...props.experience.roles].sort((a, b) => b.start.
           {{ experience.company }}
         </template>
       </h3>
-      <PathLabel :path="`~/experience/${experience.slug}`" :command="`cat ~/experience/${experience.slug}/README.md`" />
+      <PathLabel :path="`~/experience/${experience.slug}`" :command="`bat ~/experience/${experience.slug}/README.md`" />
     </div>
     <dl class="entry__roles">
       <template v-for="role in roles" :key="role.start">

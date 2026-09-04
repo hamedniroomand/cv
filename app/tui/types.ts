@@ -20,7 +20,7 @@ export interface View {
   exit: () => void
 }
 
-export interface AppContext extends Omit<CommandContext, 'stdin' | 'stdout' | 'stderr' | 'registry'> {
+export interface AppContext extends Omit<CommandContext, 'stdin' | 'stdout' | 'stderr' | 'registry' | 'tty'> {
   registry: AppRegistry
   view: View
   /** Run a plain shell line inside the app; output goes to the content area. Resolves exit code. */

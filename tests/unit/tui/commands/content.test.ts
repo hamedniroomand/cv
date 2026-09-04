@@ -28,9 +28,9 @@ describe('content slash commands', () => {
     const app = makeApp({ picks: ['acme'] })
 
     expect(await app.run('/experience')).toBe(0)
-    expect(app.text()).toContain('# Acme')
+    expect(app.lines[0]!.spans).toEqual([{ text: 'Acme', style: 'accent' }])
     expect(app.text()).toContain('Team Lead · Sep 2022 – Aug 2026')
-    expect(app.text()).toContain('- Shipped the thing — Shipped the thing to production.')
+    expect(app.text()).toContain('  • Shipped the thing — Shipped the thing to production.')
     expect(app.calls.navigate).toContainEqual({ section: 'experience', slug: 'acme' })
     expect(app.calls.pick[0]?.items).toContainEqual(expect.objectContaining({
       value: 'acme',
@@ -41,8 +41,8 @@ describe('content slash commands', () => {
   })
 
   it.each([
-    ['/experience acme', '# Acme'],
-    ['/experience GLOB', '# Globex'],
+    ['/experience acme', 'Acme\nTeam Lead'],
+    ['/experience GLOB', 'Globex\nWeb Developer'],
   ])('%s resolves a slug or unique case-insensitive company prefix', async (line, heading) => {
     const app = makeApp()
 
@@ -69,7 +69,7 @@ describe('content slash commands', () => {
     const app = makeApp({ picks: ['cue'] })
 
     expect(await app.run('/projects')).toBe(0)
-    expect(app.text()).toContain('# Cue')
+    expect(app.lines[0]!.spans).toEqual([{ text: 'Cue', style: 'accent' }])
     expect(app.text()).toContain('https://github.com/hamedniroomand/cue')
     expect(app.text()).toContain('https://hamedniroomand.github.io/cue')
     expect(app.calls.navigate).toContainEqual({ section: 'projects', slug: 'cue' })
@@ -81,7 +81,8 @@ describe('content slash commands', () => {
 
     expect(await selected.run('/projects CUE')).toBe(0)
     expect(selected.calls.pick).toHaveLength(0)
-    expect(selected.text()).toContain('# Cue')
+    expect(selected.text()).toContain('Cue')
+    expect(selected.text()).not.toContain('# Cue')
     expect(await unknown.run('/projects unknown')).toBe(1)
     expect(unknown.text()).toContain('cue')
   })
@@ -146,7 +147,7 @@ describe('content slash commands', () => {
     const app = makeApp()
 
     expect(await app.run('/education')).toBe(0)
-    expect(app.text()).toContain('# B.Sc. Mechanical Engineering')
+    expect(app.lines[0]!.spans).toEqual([{ text: 'B.Sc. Mechanical Engineering', style: 'accent' }])
     expect(app.text()).toContain('Sep 2018 – Jun 2022')
     expect(app.text()).toContain('Studied while working.')
     expect(app.calls.navigate).toEqual([{ section: 'education' }])
