@@ -120,17 +120,16 @@ class Parser {
   }
 
   private bracket(): JqNode {
-    const opening = this.peek()
     this.offset++
     if (this.match('rightBracket'))
       return { type: 'iterate' }
 
     const integer = this.peek()
     if (integer.type !== 'integer')
-      this.fail(opening)
+      this.fail(integer)
     this.offset++
     if (!this.match('rightBracket'))
-      this.fail(opening)
+      this.fail(this.peek())
     return { type: 'index', index: Number.parseInt(integer.text, 10) }
   }
 

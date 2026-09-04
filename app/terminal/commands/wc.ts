@@ -1,6 +1,6 @@
 import type { Command, CommandContext } from '../types'
 import { parseFlags } from '../shell/flags'
-import { reportFsError, splitLines } from './_util'
+import { reportFsError } from './_util'
 
 interface Counts {
   lines: number
@@ -10,7 +10,7 @@ interface Counts {
 
 function count(text: string): Counts {
   return {
-    lines: splitLines(text).length,
+    lines: text.match(/\n/g)?.length ?? 0,
     words: text.trim() === '' ? 0 : text.trim().split(/\s+/).length,
     bytes: new TextEncoder().encode(text).length,
   }

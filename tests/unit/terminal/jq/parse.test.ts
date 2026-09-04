@@ -32,9 +32,14 @@ describe('parseJq', () => {
   })
 
   it('rejects garbage and reports its offending token', () => {
-    expect(() => parseJq('.a[')).toThrowError(/\[/)
     expect(() => parseJq('map(.x)')).toThrow(JqSyntaxError)
     expect(() => parseJq('map(.x)')).toThrowError(/map/)
     expect(() => parseJq('')).toThrow(JqSyntaxError)
+  })
+
+  it('reports the token that makes bracket syntax malformed', () => {
+    expect(() => parseJq('.a[')).toThrowError(/end of input/)
+    expect(() => parseJq('.a[foo]')).toThrowError(/foo/)
+    expect(() => parseJq('.a[0 foo]')).toThrowError(/foo/)
   })
 })

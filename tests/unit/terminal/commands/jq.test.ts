@@ -15,6 +15,12 @@ describe('jq', () => {
     expect(s.text()).toBe('frontend\nbackend')
   })
 
+  it('prints compact JSON with -c', async () => {
+    const s = makeShell(commands)
+    expect((await s.shell.exec('jq -c ".categories[0]" skills.json')).code).toBe(0)
+    expect(s.text()).toBe('{"id":"frontend","label":"Frontend","items":[{"name":"Vue 3"},{"name":"Nuxt 4"}]}')
+  })
+
   it('reports invalid JSON as a parse error', async () => {
     const s = makeShell(commands)
     expect((await s.shell.exec('cat about.md | jq .')).code).toBe(2)
@@ -37,5 +43,11 @@ describe('jq', () => {
     const s = makeShell(commands)
     expect((await s.shell.exec('jq "map(.id)" skills.json')).code).toBe(3)
     expect(s.text()).toMatch(/^jq: error: /)
+  })
+
+  it('reports filter runtime errors with exit code 3', async () => {
+    const s = makeShell(commands)
+    expect((await s.shell.exec('echo 1 | jq .name')).code).toBe(3)
+    expect(s.text()).toBe('jq: error: Cannot index number with "name"')
   })
 })
