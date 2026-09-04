@@ -7,6 +7,11 @@ import { Shell } from '~/terminal/shell/executor'
 import { createRegistry } from '~/terminal/shell/registry'
 import { fixtureCv } from './cv'
 
+export interface FetchCall {
+  url: string
+  init?: RequestInit
+}
+
 export interface ShellCalls {
   navigate: PanelTarget[]
   toggled: number
@@ -17,13 +22,14 @@ export interface ShellCalls {
   destroyed: number
   themes: string[]
   langs: string[]
+  requests: FetchCall[]
 }
 
 /** Build a Shell wired to the fixture content with every side effect recorded. */
 export function makeShell(commands: Command[], overrides: Partial<ShellDeps> = {}) {
   const lines: OutputLine[] = []
   let id = 0
-  const calls: ShellCalls = { navigate: [], toggled: 0, opened: [], downloads: [], modals: [], cleared: 0, destroyed: 0, themes: [], langs: [] }
+  const calls: ShellCalls = { navigate: [], toggled: 0, opened: [], downloads: [], modals: [], cleared: 0, destroyed: 0, themes: [], langs: [], requests: [] }
   const history: string[] = []
   const deps: ShellDeps = {
     fs: new Vfs(buildTree(fixtureCv), { home: HOME }),
@@ -43,6 +49,12 @@ export function makeShell(commands: Command[], overrides: Partial<ShellDeps> = {
       destroy: () => calls.destroyed++,
     },
     history,
+    net: {
+      fetch: async (url, init) => {
+        calls.requests.push({ url: String(url), init })
+        return new Response(JSON.stringify(fixtureCv), { headers: { 'content-type': 'application/json' } })
+      },
+    },
     ...overrides,
   }
   const shell = new Shell(deps)

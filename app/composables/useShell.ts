@@ -72,6 +72,7 @@ export function useShell(hooks: ShellHooks) {
     theme: { set: hooks.setTheme },
     lang: { set: hooks.setLang },
     ui,
+    net: { fetch: globalThis.fetch.bind(globalThis) },
     history: history.list(),
   })
 
