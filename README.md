@@ -113,7 +113,7 @@ Copy rules: no invented metrics, no design-pattern name-dropping. Unknown facts 
 | `POST /api/contact`                 | `{ name, email, message }`, 10 per hour per IP |
 
 ```bash
-curl -s https://<domain>/api/cv | jq .profile
+curl -s https://niroomand.dev/api/cv | jq .profile
 ```
 
 ## Deploy
