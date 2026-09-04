@@ -157,6 +157,13 @@ async function submit(): Promise<void> {
   margin-top: var(--space-2);
 }
 
+@media (max-width: 899px) {
+  .field input,
+  .field textarea {
+    font-size: 1rem;
+  }
+}
+
 @media (max-width: 480px) {
   .field {
     grid-template-columns: 1fr;

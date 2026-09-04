@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { MobileKey } from './MobileKeys.vue'
 import type { OutputLine, Span } from '~/terminal/types'
 import type { AppBridge } from '~/tui/bridge'
 import type { AppCommand, AppContext, PickerItem, View } from '~/tui/types'
@@ -368,6 +369,65 @@ function onKeydown(event: KeyboardEvent): void {
   }
 }
 
+const isMobile = useMediaQuery('(max-width: 899px)')
+
+const mobileKeys = computed<MobileKey[]>(() => [
+  { id: 'slash', label: '/', aria: 'Show commands' },
+  { id: 'tab', label: 'Tab', aria: 'Complete', disabled: !showMenu.value },
+  { id: 'up', label: '↑', aria: showMenu.value ? 'Previous option' : 'Previous command' },
+  { id: 'down', label: '↓', aria: showMenu.value ? 'Next option' : 'Next command' },
+  { id: 'interrupt', label: '^C', aria: 'Interrupt' },
+  { id: 'esc', label: 'Esc', aria: 'Escape' },
+  { id: 'run', label: 'Run ↵', aria: 'Run command' },
+])
+
+function onMobileKey(id: string): void {
+  switch (id) {
+    case 'slash':
+      value.value = '/'
+      menuSuppressed.value = false
+      focusPrompt()
+      return
+    case 'tab':
+      if (showMenu.value)
+        completeMenu()
+      return
+    case 'up':
+      if (showMenu.value) {
+        moveMenu(-1)
+      }
+      else {
+        const previous = history.up(value.value)
+        if (previous !== null)
+          value.value = previous
+      }
+      return
+    case 'down':
+      if (showMenu.value) {
+        moveMenu(1)
+      }
+      else {
+        const next = history.down()
+        if (next !== null)
+          value.value = next
+      }
+      return
+    case 'interrupt':
+      controller?.abort()
+      value.value = ''
+      menuSuppressed.value = true
+      return
+    case 'esc':
+      onEscape()
+      return
+    case 'run':
+      if (showMenu.value && menuItems.value.length > 0)
+        activateMenu(selected.value)
+      else
+        void submitLine()
+  }
+}
+
 print('Welcome. Try /experience to browse companies, /skills for the stack,')
 print('or /pdf to grab the one-pager.')
 
@@ -381,7 +441,7 @@ onMounted(() => {
     <header class="tui__header">
       <div>
         <h2>hamed 1.0</h2>
-        <p>Hamed Niroomand — Frontend Team Lead / Senior TypeScript Engineer</p>
+        <p>Hamed Niroomand — Senior TypeScript Engineer</p>
         <p class="tui__status">
           {{ status }}
         </p>
@@ -455,6 +515,7 @@ onMounted(() => {
           @keydown="onKeydown"
         >
       </label>
+      <MobileKeys v-if="isMobile" label="App shortcuts" :keys="mobileKeys" @press="onMobileKey" />
     </footer>
   </section>
 </template>
@@ -581,6 +642,10 @@ onMounted(() => {
     flex-shrink: 0;
     min-width: 44px;
     min-height: 44px;
+  }
+
+  .tui__prompt {
+    font-size: 1rem;
   }
 
   .tui__input {

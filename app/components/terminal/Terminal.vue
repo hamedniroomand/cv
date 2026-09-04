@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { MobileKey } from './MobileKeys.vue'
 import type { ModalKind } from '~/terminal/types'
 
 const { navigate } = usePanelNav()
@@ -36,7 +37,43 @@ const shell = useShell({
 
 const booted = ref(false)
 const root = ref<HTMLElement | null>(null)
-const inputRef = ref<{ focus: () => void } | null>(null)
+interface InputHandle {
+  focus: () => void
+  submit: (line?: string) => void
+  complete: () => void
+  historyUp: () => void
+  historyDown: () => void
+  interrupt: () => void
+  clearLine: () => void
+  insert: (text: string) => void
+}
+const inputRef = ref<InputHandle | null>(null)
+const isMobile = useMediaQuery('(max-width: 899px)')
+
+const mobileKeys: MobileKey[] = [
+  { id: 'tab', label: 'Tab', aria: 'Complete' },
+  { id: 'up', label: '↑', aria: 'Previous command' },
+  { id: 'down', label: '↓', aria: 'Next command' },
+  { id: 'interrupt', label: '^C', aria: 'Interrupt' },
+  { id: 'clear', label: 'Clear', aria: 'Clear screen' },
+  { id: 'help', label: 'help', aria: 'Run help' },
+  { id: 'run', label: 'Run ↵', aria: 'Run command' },
+]
+
+function onMobileKey(id: string): void {
+  const handle = inputRef.value
+  if (!handle)
+    return
+  switch (id) {
+    case 'tab': return handle.complete()
+    case 'up': return handle.historyUp()
+    case 'down': return handle.historyDown()
+    case 'interrupt': return handle.interrupt()
+    case 'clear': return shell.clear()
+    case 'help': return handle.submit('help')
+    case 'run': return handle.submit()
+  }
+}
 const terminalHeight = ref<string>()
 
 function focusInput(): void {
@@ -149,17 +186,20 @@ onBeforeUnmount(() => {
       />
       <template v-else>
         <TerminalOutput :lines="shell.lines.value" />
-        <TerminalInput
-          ref="inputRef"
-          :prompt="shell.prompt()"
-          :busy="shell.busy.value"
-          :history="shell.history"
-          :complete="shell.complete"
-          @submit="submit"
-          @candidates="onCandidates"
-          @clear="shell.clear"
-          @interrupt="onInterrupt"
-        />
+        <div class="terminal__footer">
+          <TerminalInput
+            ref="inputRef"
+            :prompt="shell.prompt()"
+            :busy="shell.busy.value"
+            :history="shell.history"
+            :complete="shell.complete"
+            @submit="submit"
+            @candidates="onCandidates"
+            @clear="shell.clear"
+            @interrupt="onInterrupt"
+          />
+          <MobileKeys v-if="isMobile" label="Terminal shortcuts" :keys="mobileKeys" @press="onMobileKey" />
+        </div>
       </template>
     </template>
     <ContactModal v-if="modal?.kind === 'contact'" @close="closeModal" />
@@ -181,5 +221,11 @@ onBeforeUnmount(() => {
 .terminal--app {
   padding: 0;
   overflow: hidden;
+}
+
+.terminal__footer {
+  position: sticky;
+  bottom: 0;
+  background: var(--bg);
 }
 </style>

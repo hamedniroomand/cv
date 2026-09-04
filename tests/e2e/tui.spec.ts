@@ -262,7 +262,7 @@ async function openAppOnDevice(page: Page, isMobile: boolean): Promise<Locator> 
 }
 
 function headerEscape(page: Page): Locator {
-  return page.getByRole('region', { name: 'Interactive app' }).getByRole('button')
+  return page.getByRole('region', { name: 'Interactive app' }).getByRole('button', { name: /^Esc · / })
 }
 
 async function expectAccessibleOptionNames(list: Locator): Promise<void> {

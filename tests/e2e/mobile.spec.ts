@@ -63,3 +63,62 @@ test.describe('mobile', () => {
     })).toBe(true)
   })
 })
+
+test.describe('mobile shortcuts', () => {
+  test.skip(({ isMobile }) => !isMobile, 'mobile only')
+
+  test('inputs are 16px so iOS Safari does not zoom on focus', async ({ page }) => {
+    await page.goto('/')
+    await page.getByRole('tab', { name: 'Terminal' }).click()
+    const input = page.getByLabel('Terminal input')
+    await expect(input).toBeVisible()
+    const size = await input.evaluate(el => Number.parseFloat(getComputedStyle(el).fontSize))
+    expect(size).toBeGreaterThanOrEqual(16)
+  })
+
+  test('key row completes, runs, recalls history and interrupts', async ({ page }) => {
+    await page.goto('/')
+    await page.getByRole('tab', { name: 'Terminal' }).click()
+    const input = page.getByLabel('Terminal input')
+    const keys = page.getByRole('toolbar', { name: 'Terminal shortcuts' })
+    await expect(keys).toBeVisible()
+
+    await input.fill('cat ab')
+    await keys.getByRole('button', { name: 'Complete' }).click()
+    await expect(input).toHaveValue('cat about.md ')
+    await keys.getByRole('button', { name: 'Run command' }).click()
+    await expect(page.getByRole('log')).toContainText('based in Yerevan')
+    await expect(input).toHaveValue('')
+
+    await keys.getByRole('button', { name: 'Previous command' }).click()
+    await expect(input).toHaveValue('cat about.md')
+    await keys.getByRole('button', { name: 'Interrupt' }).click()
+    await expect(input).toHaveValue('')
+    await expect(page.getByRole('log')).toContainText('^C')
+
+    await keys.getByRole('button', { name: 'Run help' }).click()
+    await expect(page.getByRole('log')).toContainText('Tab completes')
+    await keys.getByRole('button', { name: 'Clear screen' }).click()
+    await expect(page.getByRole('log')).not.toContainText('Tab completes')
+  })
+
+  test('app key row opens the slash menu and exits', async ({ page }) => {
+    await page.goto('/')
+    await page.getByRole('tab', { name: 'Terminal' }).click()
+    const input = page.getByLabel('Terminal input')
+    await input.fill('hamed')
+    await page.getByRole('toolbar', { name: 'Terminal shortcuts' }).getByRole('button', { name: 'Run command' }).click()
+
+    const prompt = page.getByRole('combobox', { name: 'App command' })
+    await expect(prompt).toBeVisible()
+    const keys = page.getByRole('toolbar', { name: 'App shortcuts' })
+    await keys.getByRole('button', { name: 'Show commands' }).click()
+    await expect(prompt).toHaveValue('/')
+    await expect(page.getByRole('listbox')).toBeVisible()
+    await keys.getByRole('button', { name: 'Escape' }).click()
+    await expect(page.getByRole('listbox')).toHaveCount(0)
+    await prompt.fill('')
+    await keys.getByRole('button', { name: 'Escape' }).click()
+    await expect(page.getByLabel('Terminal input')).toBeVisible()
+  })
+})

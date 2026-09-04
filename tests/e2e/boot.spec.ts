@@ -3,7 +3,8 @@ import { expect, test } from '@playwright/test'
 test.describe('desktop terminal', () => {
   test.skip(({ isMobile }) => isMobile, 'desktop only')
 
-  test('boot then whoami shows key facts while the panel is server-rendered', async ({ page }) => {
+  test('boot then whoami shows key facts while the panel is server-rendered', async ({ page, request }) => {
+    const { profile } = await (await request.get('/api/cv')).json()
     const response = await page.goto('/')
     const html = await response!.text()
     expect(html).toContain('Jack Westin')
@@ -11,9 +12,10 @@ test.describe('desktop terminal', () => {
 
     const log = page.getByRole('log')
     await expect(log).toContainText('Hamed Niroomand', { timeout: 5000 })
-    await expect(log).toContainText('Frontend Team Lead')
+    await expect(log).toContainText(profile.title)
     await expect(log).toContainText('Type \'help\'')
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Hamed Niroomand')
+    await expect(page.getByRole('toolbar', { name: 'Terminal shortcuts' })).toHaveCount(0)
   })
 
   test('cd scrolls and highlights the matching panel entry', async ({ page }) => {

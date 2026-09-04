@@ -23,6 +23,47 @@ function focus(): void {
   input.value?.focus()
 }
 
+/** Submit the current line (or `line` when given) unless a command is still running. */
+function submit(line = value.value): void {
+  if (props.busy)
+    return
+  value.value = ''
+  emit('submit', line)
+}
+
+function complete(): void {
+  const result = props.complete(value.value)
+  if (result.candidates.length > 1 && result.line === value.value)
+    emit('candidates', result.candidates)
+  value.value = result.line
+}
+
+function historyUp(): void {
+  const prev = props.history.up(value.value)
+  if (prev !== null)
+    value.value = prev
+}
+
+function historyDown(): void {
+  const next = props.history.down()
+  if (next !== null)
+    value.value = next
+}
+
+function interrupt(): void {
+  value.value = ''
+  emit('interrupt')
+}
+
+function clearLine(): void {
+  value.value = ''
+}
+
+function insert(text: string): void {
+  value.value += text
+  focus()
+}
+
 function onKeydown(e: KeyboardEvent): void {
   if (e.ctrlKey && !e.altKey && !e.metaKey) {
     const key = e.key.toLowerCase()
@@ -33,53 +74,37 @@ function onKeydown(e: KeyboardEvent): void {
     }
     if (key === 'c') {
       e.preventDefault()
-      value.value = ''
-      emit('interrupt')
+      interrupt()
       return
     }
     if (key === 'u') {
       e.preventDefault()
-      value.value = ''
+      clearLine()
       return
     }
     return
   }
   switch (e.key) {
-    case 'Enter': {
+    case 'Enter':
       e.preventDefault()
-      if (props.busy)
-        return
-      const line = value.value
-      value.value = ''
-      emit('submit', line)
+      submit()
       break
-    }
-    case 'Tab': {
+    case 'Tab':
       e.preventDefault()
-      const result = props.complete(value.value)
-      if (result.candidates.length > 1 && result.line === value.value)
-        emit('candidates', result.candidates)
-      value.value = result.line
+      complete()
       break
-    }
-    case 'ArrowUp': {
+    case 'ArrowUp':
       e.preventDefault()
-      const prev = props.history.up(value.value)
-      if (prev !== null)
-        value.value = prev
+      historyUp()
       break
-    }
-    case 'ArrowDown': {
+    case 'ArrowDown':
       e.preventDefault()
-      const next = props.history.down()
-      if (next !== null)
-        value.value = next
+      historyDown()
       break
-    }
   }
 }
 
-defineExpose({ focus })
+defineExpose({ focus, submit, complete, historyUp, historyDown, interrupt, clearLine, insert })
 </script>
 
 <template>
@@ -126,5 +151,14 @@ defineExpose({ focus })
   font: inherit;
   caret-color: var(--accent);
   outline: none;
+}
+
+/* iOS Safari zooms into inputs smaller than 16px; keep the prompt row at 16px on small screens. */
+@media (max-width: 899px) {
+  .input {
+    align-items: center;
+    min-height: 44px;
+    font-size: 1rem;
+  }
 }
 </style>
