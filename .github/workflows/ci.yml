@@ -17,7 +17,31 @@ jobs:
       - run: bun install --frozen-lockfile
       - run: bun run lint
       - run: bun run typecheck
-      - run: bun run test
+      - run: bun run test:coverage
+      - name: Coverage summary
+        if: always()
+        run: |
+          python3 - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json, pathlib
+          f = pathlib.Path('coverage/coverage-summary.json')
+          if not f.exists():
+              print('No coverage summary produced.')
+              raise SystemExit
+          t = json.load(f.open())['total']
+          print('## Unit test coverage (threshold 90%)')
+          print()
+          print('| Metric | Covered | Total | % |')
+          print('|---|---|---|---|')
+          for k in ('lines', 'statements', 'functions', 'branches'):
+              m = t[k]
+              print(f"| {k} | {m['covered']} | {m['total']} | {m['pct']}% |")
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage
+          path: coverage
+          retention-days: 14
       - run: bunx playwright install --with-deps chromium
       - run: bun run build
         env:

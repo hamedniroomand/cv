@@ -16,6 +16,8 @@ export default defineConfig({
       include: ['app/terminal/**', 'shared/**', 'modules/**', 'server/utils/**'],
       // Nuxt module wiring — not meaningfully unit-testable without a Nuxt runtime.
       exclude: ['modules/cv-content/index.ts'],
+      reporter: ['text', 'lcov', 'json-summary'],
+      thresholds: { lines: 90, statements: 90, functions: 90, branches: 90 },
     },
   },
 })
