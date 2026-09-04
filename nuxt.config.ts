@@ -7,9 +7,7 @@ export default defineNuxtConfig({
   components: [{ path: '~/components', pathPrefix: false }],
   typescript: { strict: true, typeCheck: false },
   runtimeConfig: {
-    resendApiKey: '',
-    contactTo: '',
-    contactFrom: 'cv@localhost',
+    discordWebhookUrl: '',
     public: { siteUrl: 'http://localhost:3000' },
   },
   routeRules: {

@@ -2,7 +2,7 @@ import { defineEventHandler, getRequestIP, HTTPError } from 'nitro/h3'
 import { useRuntimeConfig } from 'nitro/runtime-config'
 import { z } from 'zod'
 import { ContactSchema } from '#shared/schemas/contact'
-import { sendContact } from '../utils/mailer'
+import { sendContact } from '../utils/notify'
 import { createRateLimiter } from '../utils/rate-limit'
 
 const limiter = createRateLimiter({ limit: 10, windowMs: 60 * 60 * 1000 })
@@ -27,15 +27,11 @@ export default defineEventHandler(async (event) => {
 
   const config = useRuntimeConfig()
   try {
-    const delivery = await sendContact(parsed.data, {
-      resendApiKey: config.resendApiKey,
-      to: config.contactTo,
-      from: config.contactFrom,
-    })
+    const delivery = await sendContact(parsed.data, { discordWebhookUrl: config.discordWebhookUrl })
     return { ok: true, delivery }
   }
   catch (err) {
     console.error('[contact] delivery failed:', err instanceof Error ? err.message : err)
-    throw new HTTPError({ status: 502, message: 'could not deliver the message right now, please email directly' })
+    throw new HTTPError({ status: 502, message: 'could not deliver the message right now, please email me directly' })
   }
 })

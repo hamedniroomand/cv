@@ -47,8 +47,8 @@ bunx playwright install chromium   # once, for e2e and `bun run icons`
 bun run test:e2e
 ```
 
-Copy `.env.example` to `.env` and set `NUXT_PUBLIC_SITE_URL`. Without Resend credentials the
-contact form logs messages to the server console instead of sending them.
+Copy `.env.example` to `.env` and set `NUXT_PUBLIC_SITE_URL`. Without `NUXT_DISCORD_WEBHOOK_URL` the
+contact form logs messages to the server console instead of posting them to Discord.
 
 ## Interactive app
 
@@ -123,7 +123,7 @@ The site is a single Nitro server built with the `bun` preset.
 
 ```bash
 docker build -t cv --build-arg NUXT_PUBLIC_SITE_URL=https://example.com .
-docker run -p 3000:3000 -e NUXT_RESEND_API_KEY=... -e NUXT_CONTACT_TO=... cv
+docker run -p 3000:3000 -e NUXT_DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/... cv
 ```
 
 Both stages are plain Bun images; the PDF is a static file in `public/`, so the build needs no
@@ -134,7 +134,7 @@ browser. Later phases add separate Bun containers for the WebSocket (`who`) and 
 - `content/education.md`: exact start and end months (currently Sep 2018 – Jun 2022; CV lists years only)
 - Domain (`NUXT_PUBLIC_SITE_URL`) and deploy target
 - Open Graph image (`public/og.png`) / README screenshot
-- Resend API key and recipient for the contact form
+- Discord webhook URL for contact-form notifications
 
 ## Roadmap
 
