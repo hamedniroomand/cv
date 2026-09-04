@@ -28,7 +28,8 @@ public/hamed-niroomand-cv.pdf  ──▶  served as-is at /hamed-niroomand-cv.pd
 - **`app/terminal/`** is the shell: tokenizer → parser (pipes, `sudo` prefix) → executor → commands.
   It is plain TypeScript with no Vue imports, so all of it runs under Vitest in Node.
 - **`app/components/terminal/`** renders the shell. It is client-only and lazy-loaded; the panel and
-  every page are server-rendered, so recruiters and crawlers see the full resume without JavaScript.
+  every page are prerendered to static HTML at build time, so recruiters and crawlers see the full
+  resume without JavaScript and the CDN serves it without invoking the server.
 - **`server/api/`** serves the same data as JSON with CORS enabled for GET.
 - **`public/hamed-niroomand-cv.pdf`** is the downloadable resume. It is a committed static file,
   replaced by hand when the resume changes; nothing generates it at build time.

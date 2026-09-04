@@ -1,6 +1,8 @@
 import process from 'node:process'
 import { SPLIT_MAX, SPLIT_MIN, SPLIT_PANEL_KEY, SPLIT_RATIO_KEY } from './shared/split.js'
 
+const clarityId = process.env.NUXT_PUBLIC_SCRIPTS_CLARITY_ID
+
 /**
  * Runs in <head> before the first paint: restores the stored theme, split ratio and panel state onto
  * <html> so the server-rendered layout already matches what the visitor saved. Mirrors useTheme/useSplitPane.
@@ -13,6 +15,14 @@ const prePaintScript = [
   '}catch(e){}})()',
 ].join('')
 
+/**
+ * Microsoft Clarity, loaded after `load` so it never competes with the page's own assets. Omitted
+ * entirely when no project ID is configured (local builds).
+ */
+const clarityScript = clarityId
+  ? `(function(){function l(){(function(c,l,a,r,i,t,y){c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);})(window,document,"clarity","script",${JSON.stringify(clarityId)})}if(document.readyState==="complete"){l()}else{window.addEventListener("load",l,{once:true})}})()`
+  : undefined
+
 export default defineNuxtConfig({
   compatibilityDate: '2026-09-01',
   devtools: { enabled: true },
@@ -23,7 +33,12 @@ export default defineNuxtConfig({
     discordWebhookUrl: '',
     public: { siteUrl: 'http://localhost:3000' },
   },
+  experimental: {
+    early404: true,
+  },
   routeRules: {
+    // Read-only JSON is fixed at build time: cache it at the edge after the first request.
+    '/api/cv': { isr: true },
     '/hamed-niroomand-cv.pdf': {
       headers: {
         'Content-Disposition': 'attachment; filename="hamed-niroomand-cv.pdf"',
@@ -35,6 +50,8 @@ export default defineNuxtConfig({
   // Bun server layout and the CDN can serve sourcemaps as `/`.
   nitro: {
     preset: process.env.NITRO_PRESET ?? (process.env.VERCEL ? 'vercel' : 'bun'),
+    // The resume is fixed at build time, so the page is prerendered to static HTML.
+    prerender: { routes: ['/'], crawlLinks: false },
   },
   css: ['~/assets/css/tokens.css', '~/assets/css/themes.css', '~/assets/css/crt.css', '~/assets/css/base.css'],
   app: {
@@ -55,10 +72,7 @@ export default defineNuxtConfig({
           innerHTML: prePaintScript,
           tagPosition: 'head',
         },
-        {
-          innerHTML: `(function(c,l,a,r,i,t,y){c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);})(window, document, "clarity", "script", "${process.env.NUXT_PUBLIC_SCRIPTS_CLARITY_ID}");`,
-          tagPosition: 'head',
-        },
+        ...(clarityScript ? [{ innerHTML: clarityScript, tagPosition: 'bodyClose' as const }] : []),
       ],
     },
   },

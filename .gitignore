@@ -1,5 +1,6 @@
 # Nuxt dev/build outputs
 .output
+.vercel
 .data
 .nuxt
 .nitro
@@ -27,6 +28,7 @@ logs
 playwright-report
 test-results
 coverage
+.vercel
 
 # Local git worktrees
 .worktrees/
