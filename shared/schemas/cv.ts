@@ -1,10 +1,10 @@
 import { z } from 'zod'
-import { RenderedBody } from './common'
-import { EducationSchema } from './education'
-import { ExperienceSchema } from './experience'
-import { ProfileSchema } from './profile'
-import { ProjectSchema } from './project'
-import { SkillsSchema } from './skills'
+import { RenderedBody } from './common.ts'
+import { EducationSchema } from './education.ts'
+import { ExperienceSchema } from './experience.ts'
+import { ProfileSchema } from './profile.ts'
+import { ProjectSchema } from './project.ts'
+import { SkillsSchema } from './skills.ts'
 
 export const CvDataSchema = z.object({
   profile: ProfileSchema,

@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { RenderedBody } from './common'
+import { RenderedBody } from './common.ts'
 
 export const ProjectFrontmatter = z.object({
   name: z.string().min(1),

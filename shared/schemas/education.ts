@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { RenderedBody, YearMonth } from './common'
+import { RenderedBody, YearMonth } from './common.ts'
 
 export const EducationFrontmatter = z.object({
   institution: z.string().min(1),

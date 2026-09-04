@@ -1,4 +1,4 @@
-import type { Experience } from '../schemas/experience'
+import type { Experience } from '../schemas/experience.ts'
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 

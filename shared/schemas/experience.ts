@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { DateOrPresent, RenderedBody, YearMonth } from './common'
+import { DateOrPresent, RenderedBody, YearMonth } from './common.ts'
 
 export const RoleSchema = z.object({
   title: z.string().min(1),

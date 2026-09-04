@@ -1,7 +1,9 @@
-// https://nuxt.com/docs/api/configuration/nuxt-config
+import process from 'node:process'
+
 export default defineNuxtConfig({
   compatibilityDate: '2026-09-01',
   devtools: { enabled: true },
+  modules: ['./modules/cv-content'],
   typescript: { strict: true, typeCheck: false },
   runtimeConfig: {
     resendApiKey: '',
@@ -9,7 +11,7 @@ export default defineNuxtConfig({
     contactFrom: 'cv@localhost',
     public: { siteUrl: 'http://localhost:3000' },
   },
-  nitro: { preset: import.meta.env.NITRO_PRESET ?? 'bun' },
+  nitro: { preset: process.env.NITRO_PRESET ?? 'bun' },
   app: {
     head: {
       htmlAttrs: { lang: 'en' },
