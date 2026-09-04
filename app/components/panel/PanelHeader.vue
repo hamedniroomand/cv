@@ -3,6 +3,7 @@ const cv = useCv()
 const { profile } = cv
 const siteUrl = useRuntimeConfig().public.siteUrl
 const linkedinLabel = computed(() => profile.links.linkedin.replace(/^https?:\/\/(www\.)?/, ''))
+const locationLine = computed(() => `${profile.location.city}, ${profile.location.country} (${profile.location.tz})${profile.remote ? ', remote' : ''}`)
 </script>
 
 <template>
@@ -91,4 +92,3 @@ const linkedinLabel = computed(() => profile.links.linkedin.replace(/^https?:\/\
   margin-top: var(--space-6);
 }
 </style>
-const locationLine = computed(() => `${profile.location.city}, ${profile.location.country} (${profile.location.tz})${profile.remote ? ', remote' : ''}`)
