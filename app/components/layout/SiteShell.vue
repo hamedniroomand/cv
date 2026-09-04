@@ -15,6 +15,16 @@ const mounted = ref(false)
 
 /** The terminal chunk is only requested on desktop, or once the mobile user opens its tab. */
 const showTerminal = computed(() => mounted.value && (isDesktop.value || tab.value === 'terminal'))
+/**
+ * Once loaded, the terminal stays mounted for the rest of the visit. Resizing across the
+ * breakpoint or switching tabs only hides it; unmounting would throw away the shell state
+ * (history, cwd, output) and replay the boot sequence.
+ */
+const terminalLoaded = ref(false)
+watch(showTerminal, (shown) => {
+  if (shown)
+    terminalLoaded.value = true
+}, { immediate: true })
 
 watch(() => bus.requested.value, () => {
   if (!isDesktop.value)
@@ -44,7 +54,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
       <template #left>
         <div id="terminal" class="shell__terminal" role="tabpanel" aria-labelledby="tab-terminal">
           <ClientOnly>
-            <Terminal v-if="showTerminal" />
+            <Terminal v-if="terminalLoaded" />
             <div v-else class="shell__terminal-placeholder" aria-hidden="true">
               <span class="shell__prompt">hamed@hamed.sh:~$</span>
             </div>

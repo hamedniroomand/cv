@@ -18,6 +18,26 @@ test.describe('mobile', () => {
     await expect(page.locator('#resume')).toBeVisible()
   })
 
+  test('switching tabs keeps terminal history', async ({ page }) => {
+    await page.goto('/')
+    await page.getByRole('tab', { name: 'Terminal' }).click()
+    const input = page.getByLabel('Terminal input')
+    await expect(page.getByRole('log')).toContainText('Type \'help\'')
+    await input.fill('echo keep-me')
+    await input.press('Enter')
+    await expect(page.getByRole('log')).toContainText('keep-me')
+
+    await page.getByRole('tab', { name: 'Resume' }).click()
+    await expect(page.locator('#resume')).toBeVisible()
+    await page.getByRole('tab', { name: 'Terminal' }).click()
+
+    const log = page.getByRole('log')
+    await expect(log).toBeVisible()
+    await expect(log).toContainText('keep-me')
+    await expect(log.getByText('Type \'help\'')).toHaveCount(1)
+    await expect(page.getByLabel('Terminal input')).toBeVisible()
+  })
+
   test('focused terminal input stays visible when the visual viewport shrinks', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 })
     await page.addInitScript(() => {

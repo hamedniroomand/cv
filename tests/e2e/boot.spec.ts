@@ -54,6 +54,26 @@ test.describe('desktop terminal', () => {
     expect(Math.abs(gap.footerToEdge)).toBeLessThan(1)
   })
 
+  test('resizing across the mobile breakpoint and back keeps terminal history', async ({ page }) => {
+    await page.goto('/')
+    const input = page.getByLabel('Terminal input')
+    await expect(page.getByRole('log')).toContainText('Type \'help\'')
+    await input.fill('echo keep-me')
+    await input.press('Enter')
+    await expect(page.getByRole('log')).toContainText('keep-me')
+
+    await page.setViewportSize({ width: 390, height: 844 })
+    await expect(page.getByRole('tab', { name: 'Resume' })).toBeVisible()
+    await page.setViewportSize({ width: 1280, height: 800 })
+
+    const log = page.getByRole('log')
+    await expect(log).toBeVisible()
+    await expect(log).toContainText('keep-me')
+    await expect(log.getByText('Type \'help\'')).toHaveCount(1)
+    await input.press('ArrowUp')
+    await expect(input).toHaveValue('echo keep-me')
+  })
+
   test('sudo is required for .secrets', async ({ page }) => {
     await page.goto('/')
     const input = page.getByLabel('Terminal input')

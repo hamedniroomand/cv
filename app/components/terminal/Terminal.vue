@@ -89,10 +89,18 @@ function syncVisualViewport(): void {
   if (typeof window === 'undefined' || !window.visualViewport || !root.value)
     return
 
-  const top = root.value.getBoundingClientRect().top
-  terminalHeight.value = `${Math.max(0, window.visualViewport.height - top)}px`
+  const rect = root.value.getBoundingClientRect()
+  // Hidden (mobile tab not selected): measurements are meaningless, keep the last value.
+  if (rect.height === 0)
+    return
+  const next = `${Math.max(0, window.visualViewport.height - rect.top)}px`
+  if (next === terminalHeight.value)
+    return
+  terminalHeight.value = next
   nextTick(() => requestAnimationFrame(scrollToBottom))
 }
+
+let resizeObserver: ResizeObserver | null = null
 
 function closeModal(): void {
   modal.value?.resolve()
@@ -159,10 +167,17 @@ onMounted(() => {
   if (typeof window === 'undefined' || !window.visualViewport)
     return
   window.visualViewport.addEventListener('resize', syncVisualViewport)
+  // Re-measure when the terminal is shown again after being hidden behind another tab.
+  if ('ResizeObserver' in window && root.value) {
+    resizeObserver = new ResizeObserver(syncVisualViewport)
+    resizeObserver.observe(root.value)
+  }
   syncVisualViewport()
 })
 
 onBeforeUnmount(() => {
+  resizeObserver?.disconnect()
+  resizeObserver = null
   if (typeof window === 'undefined' || !window.visualViewport)
     return
   window.visualViewport.removeEventListener('resize', syncVisualViewport)
