@@ -54,7 +54,7 @@ export function makeShell(commands: Command[], overrides: Partial<ShellDeps> = {
     net: {
       fetch: async (url, init) => {
         calls.requests.push({ url: String(url), init })
-        return new Response(JSON.stringify(fixtureCv), { status: 200, statusText: 'OK', headers: { 'content-type': 'application/json' } })
+        return new Response(JSON.stringify(fixtureCv), { headers: { 'content-type': 'application/json' } })
       },
     },
     ...overrides,

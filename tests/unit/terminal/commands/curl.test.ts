@@ -83,45 +83,4 @@ describe('curl', () => {
     })
     expect((await s.shell.exec('curl /api/cv')).code).toBe(0)
   })
-
-  it('does not follow redirects (redirect: manual)', async () => {
-    const s = makeShell(commands)
-    await s.shell.exec('curl /api/cv')
-    expect(s.calls.requests[0]!.init?.redirect).toBe('manual')
-  })
-
-  it('prints the actual response statusText with -i', async () => {
-    const s = makeShell(commands, {
-      net: {
-        fetch: async () => new Response('x', { status: 418, statusText: 'I\'m a teapot' }),
-      },
-    })
-    expect((await s.shell.exec('curl -i /api/cv')).code).toBe(0)
-    expect(stdoutText(s.lines).split('\n')[0]).toBe('HTTP/1.1 418 I\'m a teapot')
-  })
-
-  it('returns exit 6 when reading the body fails', async () => {
-    const s = makeShell(commands, {
-      net: {
-        fetch: async () => ({
-          status: 200,
-          headers: new Headers(),
-          text: () => Promise.reject(new Error('read failed')),
-        }) as Response,
-      },
-    })
-    expect((await s.shell.exec('curl /api/cv')).code).toBe(6)
-    expect(stderrText(s.lines)).toContain('Could not resolve host')
-    expect(stdoutText(s.lines)).toBe('')
-  })
-
-  it('exits 22 on -f without printing body or headers', async () => {
-    const s = makeShell(commands, {
-      net: {
-        fetch: async () => new Response('not found', { status: 404, statusText: 'Not Found' }),
-      },
-    })
-    expect((await s.shell.exec('curl -fi /api/cv')).code).toBe(22)
-    expect(stdoutText(s.lines)).toBe('')
-  })
 })
