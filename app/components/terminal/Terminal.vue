@@ -8,15 +8,26 @@ const reduced = useReducedMotion()
 const bus = useTerminalBus()
 
 const modal = ref<{ kind: ModalKind, resolve: () => void } | null>(null)
+const appOpen = ref(false)
+let appPromise: Promise<void> | null = null
+let resolveApp: (() => void) | null = null
+
+function openApp(): Promise<void> {
+  if (appPromise)
+    return appPromise
+  appOpen.value = true
+  appPromise = new Promise<void>((resolve) => {
+    resolveApp = resolve
+  })
+  return appPromise
+}
 
 const shell = useShell({
   navigate,
   togglePanel: toggle,
   setTheme,
   setLang: () => {},
-  openApp: async () => {
-    throw new Error('interactive app UI is not mounted')
-  },
+  openApp,
   openModal: kind => new Promise<void>((resolve) => {
     modal.value = { kind, resolve }
   }),
@@ -34,6 +45,16 @@ function focusInput(): void {
 function closeModal(): void {
   modal.value?.resolve()
   modal.value = null
+  nextTick(focusInput)
+}
+
+function closeApp(): void {
+  if (!appOpen.value)
+    return
+  appOpen.value = false
+  resolveApp?.()
+  resolveApp = null
+  appPromise = null
   nextTick(focusInput)
 }
 
@@ -78,6 +99,8 @@ watch(() => shell.lines.value.length, () => {
 })
 
 function onRootClick(): void {
+  if (appOpen.value)
+    return
   if (window.getSelection()?.toString())
     return
   focusInput()
@@ -85,21 +108,28 @@ function onRootClick(): void {
 </script>
 
 <template>
-  <div ref="root" class="terminal" @click="onRootClick">
+  <div ref="root" class="terminal" :class="{ 'terminal--app': appOpen }" @click="onRootClick">
     <BootSequence v-if="!booted" :skip="reduced" @done="onBoot" />
     <template v-else>
-      <TerminalOutput :lines="shell.lines.value" />
-      <TerminalInput
-        ref="inputRef"
-        :prompt="shell.prompt()"
-        :busy="shell.busy.value"
-        :history="shell.history"
-        :complete="shell.complete"
-        @submit="submit"
-        @candidates="onCandidates"
-        @clear="shell.clear"
-        @interrupt="onInterrupt"
+      <TuiApp
+        v-if="appOpen"
+        :bridge="shell.bridge"
+        @exit="closeApp"
       />
+      <template v-else>
+        <TerminalOutput :lines="shell.lines.value" />
+        <TerminalInput
+          ref="inputRef"
+          :prompt="shell.prompt()"
+          :busy="shell.busy.value"
+          :history="shell.history"
+          :complete="shell.complete"
+          @submit="submit"
+          @candidates="onCandidates"
+          @clear="shell.clear"
+          @interrupt="onInterrupt"
+        />
+      </template>
     </template>
     <ContactModal v-if="modal?.kind === 'contact'" @close="closeModal" />
   </div>
@@ -115,5 +145,10 @@ function onRootClick(): void {
   font-size: var(--text-sm);
   line-height: 1.5;
   cursor: text;
+}
+
+.terminal--app {
+  padding: 0;
+  overflow: hidden;
 }
 </style>
