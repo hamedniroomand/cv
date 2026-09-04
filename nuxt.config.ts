@@ -18,6 +18,15 @@ export default defineNuxtConfig({
       pathPrefix: false,
     },
   ],
+  routeRules: {
+    '/hamed-niroomand-cv.pdf': {
+      headers: {
+        'Content-Disposition': 'attachment; filename="hamed-niroomand-cv.pdf"',
+        'Cache-Control': 'public, max-age=3600',
+      },
+    },
+    '/print': { headers: { 'X-Robots-Tag': 'noindex' } },
+  },
   nitro: { preset: process.env.NITRO_PRESET ?? 'bun' },
   css: ['~/assets/css/tokens.css', '~/assets/css/themes.css', '~/assets/css/base.css'],
   app: {
