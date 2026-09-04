@@ -2,16 +2,48 @@
   "name": "cv",
   "type": "module",
   "private": true,
+  "engines": {
+    "bun": ">=1.4"
+  },
   "scripts": {
-    "build": "nuxt build",
     "dev": "nuxt dev",
-    "generate": "nuxt generate",
+    "build": "nuxt build",
+    "postbuild": "bun run pdf",
+    "pdf": "bun run scripts/build-pdf.ts",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare"
+    "postinstall": "nuxt prepare",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "typecheck": "nuxt typecheck",
+    "test": "vitest run --passWithNoTests",
+    "test:watch": "vitest",
+    "test:e2e": "playwright test",
+    "prepare": "husky"
   },
   "dependencies": {
-    "nuxt": "npm:nuxt-nightly@5x",
+    "marked": "^18.0.11",
+    "nuxt": "npm:nuxt-nightly@5.0.0-29807919.2cbde35e",
     "vue": "^3.5.42",
-    "vue-router": "^5.3.0"
+    "vue-router": "^5.3.0",
+    "yaml": "^2.9.0",
+    "zod": "^4.5.4"
+  },
+  "devDependencies": {
+    "@antfu/eslint-config": "^9.5.1",
+    "@commitlint/cli": "^21.2.2",
+    "@commitlint/config-conventional": "^21.2.2",
+    "@fontsource-variable/jetbrains-mono": "^5.3.0",
+    "@playwright/test": "^1.62.1",
+    "@vitest/coverage-v8": "^5.0.0",
+    "eslint": "^10.9.1",
+    "eslint-plugin-format": "^2.0.1",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.4.1",
+    "typescript": "^5",
+    "vitest": "^5.0.0",
+    "vue-tsc": "^3.3.11"
+  },
+  "lint-staged": {
+    "*.{ts,vue,js,json,md,css}": "eslint --fix"
   }
 }
