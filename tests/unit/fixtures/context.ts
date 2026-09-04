@@ -15,6 +15,7 @@ export interface FetchCall {
 export interface ShellCalls {
   navigate: PanelTarget[]
   toggled: number
+  apps: number
   opened: string[]
   downloads: string[]
   modals: string[]
@@ -29,7 +30,7 @@ export interface ShellCalls {
 export function makeShell(commands: Command[], overrides: Partial<ShellDeps> = {}) {
   const lines: OutputLine[] = []
   let id = 0
-  const calls: ShellCalls = { navigate: [], toggled: 0, opened: [], downloads: [], modals: [], cleared: 0, destroyed: 0, themes: [], langs: [], requests: [] }
+  const calls: ShellCalls = { navigate: [], toggled: 0, apps: 0, opened: [], downloads: [], modals: [], cleared: 0, destroyed: 0, themes: [], langs: [], requests: [] }
   const history: string[] = []
   const deps: ShellDeps = {
     fs: new Vfs(buildTree(fixtureCv), { home: HOME }),
@@ -43,6 +44,7 @@ export function makeShell(commands: Command[], overrides: Partial<ShellDeps> = {
     lang: { set: l => calls.langs.push(l) },
     ui: {
       clear: () => calls.cleared++,
+      openApp: async () => { calls.apps++ },
       openModal: async (kind) => { calls.modals.push(kind) },
       openUrl: url => calls.opened.push(url),
       download: url => calls.downloads.push(url),

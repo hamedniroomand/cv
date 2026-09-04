@@ -34,6 +34,8 @@ export type ModalKind = 'contact' | 'editor'
 /** Side effects on the terminal component. */
 export interface TerminalUi {
   clear: () => void
+  /** Resolves when app mode closes. */
+  openApp: () => Promise<void>
   /** Resolves when the modal closes. */
   openModal: (kind: ModalKind, props?: Record<string, unknown>) => Promise<void>
   openUrl: (url: string) => void

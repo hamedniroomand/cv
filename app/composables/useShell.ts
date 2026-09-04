@@ -7,12 +7,16 @@ import { completeLine } from '~/terminal/shell/completion'
 import { Shell } from '~/terminal/shell/executor'
 import { History } from '~/terminal/shell/history'
 import { createRegistry } from '~/terminal/shell/registry'
+import { createAppBridge } from '~/tui/bridge'
+import { commands as appCommands } from '~/tui/commands'
+import { createAppRegistry } from '~/tui/registry'
 
 export interface ShellHooks {
   navigate: (target: PanelTarget) => void
   togglePanel: () => void
   setTheme: (name: ThemeName) => void
   setLang: (lang: Lang) => void
+  openApp?: () => Promise<void>
   openModal: (kind: ModalKind, props?: Record<string, unknown>) => Promise<void>
   destroy: () => void
 }
@@ -37,12 +41,14 @@ export function useShell(hooks: ShellHooks) {
   const history = new History()
   const fs = new Vfs(buildTree(cv), { home: HOME })
   const registry = createRegistry(commands)
+  const appRegistry = createAppRegistry(appCommands)
   const env: ShellEnv = { user: 'hamed', host: hostFrom(siteUrl), lang: 'en', theme: theme.value, siteUrl }
 
   const ui: TerminalUi = {
     clear: () => {
       lines.value = []
     },
+    openApp: hooks.openApp ?? (async () => {}),
     openModal: hooks.openModal,
     openUrl: (url) => {
       window.open(url, '_blank', 'noopener')
@@ -59,12 +65,12 @@ export function useShell(hooks: ShellHooks) {
     destroy: hooks.destroy,
   }
 
-  const shell = new Shell({
+  const shellDeps = {
     fs,
     registry,
     cv,
     env,
-    sink: (line) => {
+    sink: (line: OutputLine) => {
       lines.value.push(line)
     },
     nextId: () => ++nextId,
@@ -74,7 +80,9 @@ export function useShell(hooks: ShellHooks) {
     ui,
     net: { fetch: globalThis.fetch.bind(globalThis) },
     history: history.list(),
-  })
+  }
+  const shell = new Shell(shellDeps)
+  const bridge = createAppBridge(shell, shellDeps, appRegistry)
 
   const cwdLabel = ref(fs.display(fs.cwd))
   const busy = ref(false)
@@ -112,5 +120,5 @@ export function useShell(hooks: ShellHooks) {
     return completeLine(line, { fs, registry, cv })
   }
 
-  return { lines, run, abort, clear: ui.clear, complete, history, cwdLabel, busy, prompt, print }
+  return { lines, run, abort, clear: ui.clear, complete, history, cwdLabel, busy, prompt, print, bridge }
 }
