@@ -104,4 +104,19 @@ watch(() => props.selected, scrollActiveOption)
 .slash-menu__empty {
   padding: var(--space-2) var(--space-3);
 }
+
+@media (max-width: 899px) {
+  .slash-menu__option {
+    min-height: 44px;
+    align-items: center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .slash-menu,
+  .slash-menu__option {
+    animation: none;
+    transition: none;
+  }
+}
 </style>

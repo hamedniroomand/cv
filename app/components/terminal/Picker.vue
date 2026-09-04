@@ -183,6 +183,7 @@ onMounted(() => {
 
 .picker__header {
   justify-content: space-between;
+  flex-wrap: wrap;
 }
 
 .picker__hint,
@@ -190,6 +191,10 @@ onMounted(() => {
 .picker__description,
 .picker__empty {
   color: var(--fg-dim);
+}
+
+.picker__hint {
+  min-width: 0;
 }
 
 .picker__query > span:first-child {
@@ -228,5 +233,20 @@ onMounted(() => {
 
 .picker__empty {
   padding: var(--space-3);
+}
+
+@media (max-width: 899px) {
+  .picker__option {
+    min-height: 44px;
+    align-items: center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .picker,
+  .picker__option {
+    animation: none;
+    transition: none;
+  }
 }
 </style>

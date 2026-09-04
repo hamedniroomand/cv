@@ -162,6 +162,28 @@ const showMenu = computed(() => {
   return Boolean(props.bridge.registry.get(parsed.value.name)?.complete)
 })
 
+function onEscape(): void {
+  if (picker.value) {
+    settlePicker(null)
+    return
+  }
+  if (showMenu.value) {
+    menuSuppressed.value = true
+    nextTick(focusPrompt)
+    return
+  }
+  if (!value.value)
+    exit()
+}
+
+const escapeLabel = computed(() => {
+  if (picker.value)
+    return 'Cancel picker'
+  if (showMenu.value)
+    return 'Close slash menu'
+  return 'Exit interactive app'
+})
+
 const menuItems = computed<MenuItem[]>(() => {
   const slash = parsed.value
   if (!showMenu.value || !slash)
@@ -316,7 +338,7 @@ function onKeydown(event: KeyboardEvent): void {
         break
       case 'Escape':
         event.preventDefault()
-        menuSuppressed.value = true
+        onEscape()
         return
     }
   }
@@ -327,10 +349,8 @@ function onKeydown(event: KeyboardEvent): void {
       void submitLine()
       return
     case 'Escape':
-      if (!value.value) {
-        event.preventDefault()
-        exit()
-      }
+      event.preventDefault()
+      onEscape()
       return
     case 'ArrowUp': {
       event.preventDefault()
@@ -366,7 +386,7 @@ onMounted(() => {
           {{ status }}
         </p>
       </div>
-      <button type="button" class="tui__exit" aria-label="Exit interactive app" @click="exit">
+      <button type="button" class="tui__exit" :aria-label="escapeLabel" @click="onEscape">
         Esc · exit
       </button>
     </header>
@@ -457,6 +477,10 @@ onMounted(() => {
   padding: var(--space-3) var(--space-4);
   border-bottom: 1px solid var(--border);
   background: var(--bg-elev);
+}
+
+.tui__header > div {
+  min-width: 0;
 }
 
 .tui__header h2,
@@ -550,5 +574,17 @@ onMounted(() => {
 
 .s-pre {
   white-space: pre;
+}
+
+@media (max-width: 899px) {
+  .tui__exit {
+    flex-shrink: 0;
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .tui__input {
+    min-height: 44px;
+  }
 }
 </style>

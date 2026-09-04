@@ -49,6 +49,17 @@ bun run test:e2e
 Copy `.env.example` to `.env` and set `NUXT_PUBLIC_SITE_URL`. Without Resend credentials the
 contact form logs messages to the server console instead of sending them.
 
+## Interactive app
+
+Type `hamed` in the terminal (aliases: `app`, `tui`) to replace the shell with a guided full-pane
+interface. Type `/` to filter slash commands; plain text still runs as a shell command.
+
+Slash commands: `/about`, `/api`, `/clear`, `/contact`, `/education`, `/exit`, `/experience`,
+`/help`, `/pdf` (alias `/export`), `/projects`, `/skills`, `/theme`. `/exit` is also `/quit` and
+`/q`. Leave with `/exit`, Esc on an empty prompt with the menu closed, or Ctrl+D.
+
+The app is English-only; there is no `/lang` command.
+
 ## Add a command
 
 Create `app/terminal/commands/<name>.ts` exporting a `Command`. That is the whole change; the

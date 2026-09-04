@@ -277,3 +277,126 @@ test.describe('desktop interactive app', () => {
     await expect(page.getByRole('log', { name: 'Terminal output' })).toContainText('hamed: exited')
   })
 })
+
+async function openAppOnDevice(page: Page, isMobile: boolean): Promise<Locator> {
+  await page.goto('/')
+  if (isMobile)
+    await page.getByRole('tab', { name: 'Terminal' }).click()
+  const shellInput = page.getByLabel('Terminal input')
+  await expect(shellInput).toBeVisible({ timeout: 5000 })
+  await shellInput.fill('hamed')
+  await shellInput.press('Enter')
+  await expect(page.getByRole('heading', { name: /hamed 1\.0/i })).toBeVisible()
+  return page.getByRole('combobox', { name: 'App command' })
+}
+
+function headerEscape(page: Page): Locator {
+  return page.getByRole('button', { name: /exit interactive app|close slash menu|cancel picker/i })
+}
+
+async function expectAccessibleOptionNames(list: Locator): Promise<void> {
+  const options = list.getByRole('option')
+  const count = await options.count()
+  expect(count).toBeGreaterThan(0)
+  for (let index = 0; index < count; index++)
+    await expect(options.nth(index)).toHaveAccessibleName(/.+/)
+}
+
+async function clippedFocusableAppControls(page: Page): Promise<string[]> {
+  return page.evaluate(() => {
+    const root = document.querySelector('[aria-label="Interactive app"]')
+    if (!(root instanceof HTMLElement))
+      return ['interactive app']
+
+    const names: string[] = []
+    const selectors = 'button, input, select, textarea, a[href], [tabindex]:not([tabindex="-1"])'
+    for (const node of root.querySelectorAll(selectors)) {
+      const el = node as HTMLElement
+      const style = getComputedStyle(el)
+      if (style.display === 'none' || style.visibility === 'hidden' || Number(style.opacity) === 0)
+        continue
+      const rect = el.getBoundingClientRect()
+      if (rect.width === 0 || rect.height === 0)
+        continue
+      const vw = window.innerWidth
+      const vh = window.innerHeight
+      if (rect.left < -0.5 || rect.top < -0.5 || rect.right > vw + 0.5 || rect.bottom > vh + 0.5)
+        names.push(el.getAttribute('aria-label') || el.id || el.tagName)
+    }
+    return names
+  })
+}
+
+test.describe('mobile interactive app', () => {
+  test.skip(({ isMobile }) => !isMobile, 'mobile only')
+
+  test('tapping slash and picker options opens experience', async ({ page }) => {
+    await page.goto('/')
+    await page.getByRole('tab', { name: 'Terminal' }).click()
+    const shellInput = page.getByLabel('Terminal input')
+    await expect(shellInput).toBeVisible({ timeout: 5000 })
+    await shellInput.fill('hamed')
+    await shellInput.press('Enter')
+    await expect(page.getByRole('heading', { name: /hamed 1\.0/i })).toBeVisible()
+
+    const prompt = page.getByRole('combobox', { name: 'App command' })
+    await prompt.fill('/')
+    await page.getByRole('option', { name: /^\/experience\b/ }).click()
+    await page.getByRole('option', { name: /Thales MFI GmbH/ }).click()
+    await expect(page.getByRole('log', { name: 'App output' })).toContainText('Thales MFI')
+    await expect(page.locator('#exp-thales')).toHaveClass(/is-highlighted/)
+  })
+})
+
+test.describe('interactive app accessibility', () => {
+  test('options, expanded prompt, status text, and tappable escape stay usable', async ({ page, isMobile }) => {
+    const prompt = await openAppOnDevice(page, isMobile)
+
+    await expect(page.getByText('Type / for commands · ↑↓ to choose · Esc to leave')).toBeVisible()
+
+    await prompt.fill('/')
+    await expect(prompt).toHaveAttribute('aria-expanded', 'true')
+    const menu = page.getByRole('listbox', { name: 'Slash commands' })
+    await expectAccessibleOptionNames(menu)
+
+    await headerEscape(page).click()
+    await expect(menu).toBeHidden()
+    await expect(page.getByRole('heading', { name: /hamed 1\.0/i })).toBeVisible()
+    await expect(prompt).toHaveValue('/')
+    await expect(prompt).toHaveAttribute('aria-expanded', 'false')
+
+    await prompt.fill('/experience')
+    await prompt.press('Enter')
+    const picker = page.getByRole('listbox', { name: 'Choose a company' })
+    await expect(picker).toBeVisible()
+    await expectAccessibleOptionNames(picker)
+
+    await headerEscape(page).click()
+    await expect(picker).toBeHidden()
+    await expect(page.getByRole('heading', { name: /hamed 1\.0/i })).toBeVisible()
+    await expect(prompt).toBeFocused()
+
+    await headerEscape(page).click()
+    await expect(page.getByLabel('Terminal input')).toBeFocused()
+  })
+
+  test('no focusable app control is clipped at 390×844', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 })
+    await page.goto('/')
+    await page.getByRole('tab', { name: 'Terminal' }).click()
+    const shellInput = page.getByLabel('Terminal input')
+    await expect(shellInput).toBeVisible({ timeout: 5000 })
+    await shellInput.fill('hamed')
+    await shellInput.press('Enter')
+    await expect(page.getByRole('heading', { name: /hamed 1\.0/i })).toBeVisible()
+
+    const prompt = page.getByRole('combobox', { name: 'App command' })
+    await prompt.fill('/')
+    expect(await clippedFocusableAppControls(page)).toEqual([])
+
+    await prompt.fill('/experience')
+    await prompt.press('Enter')
+    await expect(page.getByRole('listbox', { name: 'Choose a company' })).toBeVisible()
+    expect(await clippedFocusableAppControls(page)).toEqual([])
+  })
+})
