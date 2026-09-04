@@ -253,6 +253,8 @@ async function submitLine(line = value.value): Promise<void> {
     return
 
   history.push(submitted)
+  // Echo the command so every response reads under the line that produced it.
+  print([{ text: '› ', style: 'prompt' }, { text: submitted }])
   busy.value = true
   controller = new AbortController()
   try {

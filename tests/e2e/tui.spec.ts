@@ -25,7 +25,13 @@ test.describe('desktop interactive app', () => {
 
     await prompt.fill('ls')
     await prompt.press('Enter')
-    await expect(page.getByRole('log', { name: 'App output' })).toContainText('about.md')
+    const output = page.getByRole('log', { name: 'App output' })
+    await expect(output).toContainText('about.md')
+    // Each command is echoed before its response, picker-driven ones included.
+    const echoes = output.locator('.tui__line', { hasText: /^› / })
+    await expect(echoes).toHaveCount(2)
+    await expect(echoes.nth(0)).toContainText('/experience')
+    await expect(echoes.nth(1)).toHaveText('› ls')
 
     await prompt.press('Escape')
     await expect(page.getByLabel('Terminal input')).toBeFocused()
