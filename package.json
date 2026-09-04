@@ -21,6 +21,7 @@
     "icons": "bun run scripts/build-icons.ts"
   },
   "dependencies": {
+    "@vercel/analytics": "^2.0.1",
     "@vercel/speed-insights": "^2.0.0",
     "marked": "^18.0.11",
     "nuxt": "npm:nuxt-nightly@5.0.0-29807919.2cbde35e",

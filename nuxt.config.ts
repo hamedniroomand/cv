@@ -26,16 +26,15 @@ const clarityScript = clarityId
 export default defineNuxtConfig({
   compatibilityDate: '2026-09-01',
   devtools: { enabled: true },
-  modules: ['./modules/cv-content', '@vercel/speed-insights'],
+  modules: ['./modules/cv-content', '@vercel/speed-insights', '@vercel/analytics'],
   components: [{ path: '~/components', pathPrefix: false }],
   typescript: { strict: true, typeCheck: true },
   runtimeConfig: {
     discordWebhookUrl: '',
-    // Cloudflare Turnstile. Empty secret = verification skipped (local builds without keys).
-    // Override at runtime with NUXT_TURNSTILE_SECRET_KEY / NUXT_PUBLIC_TURNSTILE_SITE_KEY.
     turnstile: { secretKey: '' },
     public: { siteUrl: 'http://localhost:3000', turnstile: { siteKey: '' } },
   },
+  future: { compatibilityVersion: 5 },
   experimental: {
     early404: true,
   },
