@@ -82,7 +82,7 @@ export const fixtureCv: CvData = {
       path: '~/.config/Code/User/settings.json',
       lang: 'jsonc',
       order: 1,
-      gist: { id: 'dc74c846d1e701c65779fdaf7d58e1bf', file: 'vscode setting' },
+      gist: { id: 'dc74c846d1e701c65779fdaf7d58e1bf', file: 'VS Code settings' },
       content: '{\n  // editor\n  "editor.fontSize": 15\n}',
       html: '<div class="shj shj-lang-jsonc shj-multiline" data-lang="jsonc"><div class="shj-scroll"><div class="shj-numbers"><div>1</div><div>2</div><div>3</div><div>4</div></div><div class="shj-code"><span class="shj-bracket">{</span>\n  <span class="shj-cmnt">// editor\n</span>  <span class="shj-var">"editor.fontSize"</span>: <span class="shj-num">15</span>\n<span class="shj-bracket">}</span></div></div></div>',
       source: 'gist',

@@ -8,7 +8,7 @@ const valid = {
   path: '~/.config/Code/User/settings.json',
   lang: 'jsonc',
   order: 1,
-  gist: { id: 'dc74c846d1e701c65779fdaf7d58e1bf', file: 'vscode setting' },
+  gist: { id: 'dc74c846d1e701c65779fdaf7d58e1bf', file: 'VS Code settings' },
 };
 
 describe('DotfileFrontmatter', () => {

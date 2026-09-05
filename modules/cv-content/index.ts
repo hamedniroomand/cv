@@ -49,8 +49,13 @@ function registerPrerenderRoutes(nuxt: Nuxt, data: CvData): void {
 function logSources(logger: ReturnType<typeof useLogger>, data: CvData): void {
   for (const project of data.projects)
     logger.info(`project ${project.slug}: README from ${project.readmeSource}`);
-  for (const dotfile of data.dotfiles)
+  for (const dotfile of data.dotfiles) {
     logger.info(`dotfile ${dotfile.slug}: content from ${dotfile.source}`);
+    if (dotfile.gist && dotfile.source === 'inline')
+      logger.warn(
+        `dotfile ${dotfile.slug}: gist ${dotfile.gist.id} was not fetched, using the committed body`,
+      );
+  }
 }
 
 function registerCvAlias(nuxt: Nuxt, dst: string): void {

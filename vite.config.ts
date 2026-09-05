@@ -17,6 +17,7 @@ const generated = [
 
 export default defineConfig({
   fmt: {
+    ignorePatterns: ['content/**'],
     semi: true,
     singleQuote: true,
     tabWidth: 2,

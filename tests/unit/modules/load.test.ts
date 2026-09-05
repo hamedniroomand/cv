@@ -94,7 +94,7 @@ describe('loadContent dotfiles', () => {
     );
     const vscode = cv.dotfiles.find(d => d.slug === 'vscode-settings')!;
     expect(vscode.source).toBe('gist');
-    expect(vscode.content).toBe('// dc74c846d1e701c65779fdaf7d58e1bf/vscode setting\n{}');
+    expect(vscode.content).toBe('// dc74c846d1e701c65779fdaf7d58e1bf/VS Code settings\n{}');
   });
 
   it('sorts dotfiles by order and supports inline entries without a gist', async () => {

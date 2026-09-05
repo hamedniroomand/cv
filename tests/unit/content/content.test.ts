@@ -29,6 +29,17 @@ describe('content rules', () => {
       expect(text).not.toContain(word);
   });
 
+  it('keeps the indentation of the committed dotfile bodies', async () => {
+    const cv = await loadContent(dir, deps);
+    for (const dotfile of cv.dotfiles) {
+      const lines = dotfile.content.split('\n');
+      expect(
+        lines.some(line => /^\s+\S/.test(line)),
+        dotfile.slug,
+      ).toBe(true);
+    }
+  });
+
   it('orders experience newest first by the order field', async () => {
     const cv = await loadContent(dir, deps);
     const orders = cv.experience.map(e => e.order);
