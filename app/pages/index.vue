@@ -4,5 +4,5 @@
 </script>
 
 <template>
-  <SiteShell />
+  <ResumePanel />
 </template>

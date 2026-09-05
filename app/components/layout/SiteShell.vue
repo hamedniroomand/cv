@@ -3,6 +3,8 @@
 
   import type { ShellTab } from './MobileTabs.vue';
 
+  withDefaults(defineProps<{ panelLabel?: string }>(), { panelLabel: 'Resume' });
+
   const Terminal = defineAsyncComponent(() => import('~/components/terminal/Terminal.vue'));
 
   const { ratio, panelOpen, setRatio, toggle } = useSplitPane();
@@ -48,7 +50,10 @@
 
 <template>
   <div class="shell">
-    <MobileTabs v-model="tab" />
+    <MobileTabs
+      v-model="tab"
+      :panel-label="panelLabel"
+    />
     <SplitPane
       :ratio="ratio"
       :panel-open="panelOpen"
@@ -75,7 +80,12 @@
         </div>
       </template>
       <template #right>
-        <ResumePanel />
+        <div
+          id="panel-pane"
+          class="shell__panel"
+        >
+          <slot />
+        </div>
       </template>
     </SplitPane>
   </div>
@@ -91,6 +101,10 @@
   .shell__terminal {
     height: 100%;
     background: var(--bg);
+  }
+
+  .shell__panel {
+    height: 100%;
   }
 
   .shell__terminal-placeholder {

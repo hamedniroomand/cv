@@ -1,12 +1,13 @@
 <script setup lang="ts">
   export type ShellTab = 'resume' | 'terminal';
 
+  const props = defineProps<{ panelLabel: string }>();
   const tab = defineModel<ShellTab>({ required: true });
 
-  const tabs: { id: ShellTab; label: string }[] = [
-    { id: 'resume', label: 'Resume' },
+  const tabs = computed<{ id: ShellTab; label: string }[]>(() => [
+    { id: 'resume', label: props.panelLabel },
     { id: 'terminal', label: 'Terminal' },
-  ];
+  ]);
 </script>
 
 <template>
@@ -24,7 +25,7 @@
       class="tabs__tab"
       :class="{ 'is-active': tab === item.id }"
       :aria-selected="tab === item.id"
-      :aria-controls="item.id"
+      :aria-controls="item.id === 'resume' ? 'panel-pane' : 'terminal'"
       @click="tab = item.id"
     >
       {{ item.label }}

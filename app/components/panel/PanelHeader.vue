@@ -13,10 +13,7 @@
 </script>
 
 <template>
-  <header
-    id="section-top"
-    class="header"
-  >
+  <header class="header">
     <p
       class="header__prompt"
       aria-hidden="true"
