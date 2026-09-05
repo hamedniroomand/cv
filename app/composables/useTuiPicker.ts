@@ -36,5 +36,5 @@ export function useTuiPicker(onSettled: () => void) {
     });
   };
 
-  return { picker: readonly(picker), pick, settle };
+  return { picker: shallowReadonly(picker), pick, settle };
 }
