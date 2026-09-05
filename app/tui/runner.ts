@@ -1,5 +1,6 @@
 import { parseSlashInput } from './slash';
 import type { AppContext, AppRegistry } from './types';
+import { APP_COMMAND } from './types';
 
 export type AppRunnerContext = Omit<
   AppContext,
@@ -32,7 +33,7 @@ export function createAppRunner({ registry, context, shell }: AppRunnerDeps) {
     const command = registry.get(parsed.name);
     if (!command) {
       context.view.print(
-        `${context.env.user}: unknown command /${parsed.name} — type / to see the list`,
+        `${APP_COMMAND}: unknown command /${parsed.name} — type / to see the list`,
         'error',
       );
       return EXIT_NOT_FOUND;
@@ -51,7 +52,7 @@ export function createAppRunner({ registry, context, shell }: AppRunnerDeps) {
       return await command.run(parsed.argv, ctx);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      context.view.print(`${context.env.user}: /${parsed.name}: ${message}`, 'error');
+      context.view.print(`${APP_COMMAND}: /${parsed.name}: ${message}`, 'error');
       return 1;
     }
   };

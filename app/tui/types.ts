@@ -44,4 +44,5 @@ export interface AppRegistry {
   get: (name: string) => AppCommand | undefined;
 }
 
+export const APP_COMMAND = 'menu';
 export const EXIT_CANCELLED = 130;

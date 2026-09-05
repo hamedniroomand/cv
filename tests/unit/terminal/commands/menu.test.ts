@@ -3,15 +3,15 @@ import { describe, expect, it } from 'vite-plus/test';
 import { commands } from '~/terminal/commands';
 import { makeShell } from '~~/tests/unit/fixtures/context';
 
-describe('hamed', () => {
-  it.each(['hamed', 'app', 'tui'])('%s opens app mode and reports exit', async name => {
+describe('menu', () => {
+  it.each(['menu', 'app', 'tui'])('%s opens app mode and reports exit', async name => {
     const app = makeShell(commands);
 
     const result = await app.exec(name);
 
     expect(result.code).toBe(0);
     expect(app.calls.apps).toBe(1);
-    expect(app.text()).toBe('hamed: exited');
+    expect(app.text()).toBe('menu: exited');
   });
 
   it('reports exit only after app mode closes', async () => {
@@ -22,13 +22,13 @@ describe('hamed', () => {
     });
     app.deps.ui.openApp = () => closed;
 
-    const execution = app.exec('hamed');
+    const execution = app.exec('menu');
     await Promise.resolve();
     expect(app.text()).toBe('');
 
     closeApp();
     expect((await execution).code).toBe(0);
-    expect(app.text()).toBe('hamed: exited');
+    expect(app.text()).toBe('menu: exited');
   });
 
   it('surfaces unavailable app UI without reporting a successful exit', async () => {
@@ -37,8 +37,8 @@ describe('hamed', () => {
       throw new Error('interactive app UI is not mounted');
     };
 
-    expect((await app.exec('hamed')).code).toBe(1);
-    expect(app.text()).toBe('hamed: interactive app UI is not mounted');
-    expect(app.text()).not.toContain('hamed: exited');
+    expect((await app.exec('menu')).code).toBe(1);
+    expect(app.text()).toBe('menu: interactive app UI is not mounted');
+    expect(app.text()).not.toContain('menu: exited');
   });
 });

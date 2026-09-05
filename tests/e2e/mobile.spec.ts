@@ -134,7 +134,7 @@ test.describe('mobile shortcuts', () => {
     await page.goto('/');
     await page.getByRole('tab', { name: 'Terminal' }).click();
     const input = page.getByLabel('Terminal input');
-    await input.fill('hamed');
+    await input.fill('menu');
     await page
       .getByRole('toolbar', { name: 'Terminal shortcuts' })
       .getByRole('button', { name: 'Run command' })

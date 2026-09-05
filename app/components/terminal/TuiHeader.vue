@@ -1,4 +1,6 @@
 <script setup lang="ts">
+  import { APP_COMMAND } from '~/tui/types';
+
   defineProps<{
     status: string;
     escapeLabel: string;
@@ -11,7 +13,7 @@
 <template>
   <header class="header">
     <div class="header__text">
-      <h2>hamed 1.0</h2>
+      <h2>{{ APP_COMMAND }} 1.0</h2>
       <p>{{ profile.name }} — {{ profile.title }}</p>
       <p class="header__status">
         {{ status }}

@@ -82,14 +82,14 @@ describe('createAppRunner', () => {
     const { runner, errors } = makeRunner([command]);
 
     expect(await runner.run('/exp', new AbortController().signal)).toBe(127);
-    expect(errors).toContain('hamed: unknown command /exp — type / to see the list');
+    expect(errors).toContain('menu: unknown command /exp — type / to see the list');
   });
 
   it('reports unknown slash commands without leaving the app', async () => {
     const { runner, errors, exits } = makeRunner([]);
 
     expect(await runner.run('/wat', new AbortController().signal)).toBe(127);
-    expect(errors).toContain('hamed: unknown command /wat — type / to see the list');
+    expect(errors).toContain('menu: unknown command /wat — type / to see the list');
     expect(exits()).toBe(0);
   });
 
@@ -104,7 +104,7 @@ describe('createAppRunner', () => {
     const { runner, errors } = makeRunner([command]);
 
     expect(await runner.run('/boom', new AbortController().signal)).toBe(1);
-    expect(errors).toContain('hamed: /boom: exploded');
+    expect(errors).toContain('menu: /boom: exploded');
   });
 
   it('routes nested shell and slash calls with the same signal and fresh contexts', async () => {

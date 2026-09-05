@@ -19,8 +19,8 @@ export async function runCommand(page: Page, command: string): Promise<void> {
 
 export async function openApp(page: Page): Promise<Locator> {
   await page.goto('/');
-  await runCommand(page, 'hamed');
-  await expect(page.getByRole('heading', { name: /hamed 1\.0/i })).toBeVisible();
+  await runCommand(page, 'menu');
+  await expect(page.getByRole('heading', { name: /menu 1\.0/i })).toBeVisible();
   return page.getByRole('combobox', { name: 'App command' });
 }
 

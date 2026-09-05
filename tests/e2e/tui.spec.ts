@@ -33,7 +33,7 @@ test.describe('desktop interactive app', () => {
     await expect(page.getByRole('log', { name: 'Terminal output' })).toContainText(
       'Hamed Niroomand',
     );
-    await expect(page.getByRole('log', { name: 'Terminal output' })).toContainText('hamed: exited');
+    await expect(page.getByRole('log', { name: 'Terminal output' })).toContainText('menu: exited');
   });
 
   test('slash opens every command and options support pointer selection', async ({ page }) => {
@@ -107,7 +107,7 @@ test.describe('desktop interactive app', () => {
     await prompt.fill('/unknown');
     await expect(page.getByRole('listbox', { name: 'Slash commands' })).toContainText('No matches');
     await prompt.press('Enter');
-    await expect(output).toContainText('hamed: unknown command /unknown — type / to see the list');
+    await expect(output).toContainText('menu: unknown command /unknown — type / to see the list');
 
     await prompt.fill('/experience invalid');
     await expect(page.getByRole('listbox', { name: 'Slash commands' })).toContainText('No matches');
@@ -262,7 +262,7 @@ test.describe('desktop interactive app', () => {
     await page.getByRole('heading', { name: 'About' }).click();
     await page.keyboard.press('Escape');
     await expect(page.getByLabel('Terminal input')).toBeVisible();
-    await expect(page.getByRole('log', { name: 'Terminal output' })).toContainText('hamed: exited');
+    await expect(page.getByRole('log', { name: 'Terminal output' })).toContainText('menu: exited');
   });
 
   test('empty Escape and Ctrl+D exit the app', async ({ page }) => {
@@ -273,7 +273,7 @@ test.describe('desktop interactive app', () => {
     prompt = await openApp(page);
     await prompt.press('Control+d');
     await expect(page.getByLabel('Terminal input')).toBeFocused();
-    await expect(page.getByRole('log', { name: 'Terminal output' })).toContainText('hamed: exited');
+    await expect(page.getByRole('log', { name: 'Terminal output' })).toContainText('menu: exited');
   });
 });
 
@@ -377,7 +377,7 @@ test.describe('interactive app accessibility', () => {
 
     await esc.click();
     await expect(menu).toBeHidden();
-    await expect(page.getByRole('heading', { name: /hamed 1\.0/i })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /menu 1\.0/i })).toBeVisible();
     await expect(prompt).toHaveValue('/');
     await expect(prompt).toHaveAttribute('aria-expanded', 'false');
     await expect(esc).toHaveText('Esc · exit');
@@ -393,7 +393,7 @@ test.describe('interactive app accessibility', () => {
 
     await headerEscape(page).click();
     await expect(picker).toBeHidden();
-    await expect(page.getByRole('heading', { name: /hamed 1\.0/i })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /menu 1\.0/i })).toBeVisible();
     await expect(prompt).toBeFocused();
     await expect(esc).toHaveText('Esc · exit');
     await expect(esc).toHaveAccessibleName('Esc · exit');

@@ -1,5 +1,6 @@
 import { githubUrl, mailtoUrl, stripScheme } from '#shared/cv/links';
 import type { Command } from '~/terminal/types';
+import { APP_COMMAND } from '~/tui/types';
 
 import { writeLink } from './_util';
 
@@ -20,7 +21,7 @@ export default {
     writeLink(ctx.stdout, 'Email:    ', links.email, mailtoUrl(links.email));
     ctx.stdout.line();
     ctx.stdout.line(
-      "Type 'help', run 'hamed' for the guided mode — or just read the panel →",
+      `Type 'help', run '${APP_COMMAND}' for the guided mode — or just read the panel →`,
       'dim',
     );
     ctx.panel.navigate({ section: 'top' });

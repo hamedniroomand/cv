@@ -13,7 +13,7 @@ Live site: <https://niroomand.dev>
 - Type `help` to see the commands. The shell supports pipes, `sudo`, Tab completion and command
   history. Try `cat about.md | grep Nuxt` or `sudo cat .secrets`.
 - Type `bat <file>` to read a Markdown file with formatting. Type `cat <file>` to read the raw text.
-- Type `hamed` to start a guided full-screen app with slash commands such as `/experience` and
+- Type `menu` to start a guided full-screen app with slash commands such as `/experience` and
   `/skills`.
 - Type `theme` to change between five color themes. The site remembers your choice.
 - Type `contact` to send me a message from the site.

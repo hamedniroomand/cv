@@ -13,9 +13,7 @@ describe('whoami', () => {
     expect(out).toContain('Hamed Niroomand');
     expect(out).toContain('Frontend Team Lead / Senior TypeScript Engineer');
     expect(out).toContain('Yerevan, Armenia (UTC+4) · Remote');
-    expect(out).toContain(
-      "Type 'help', run 'hamed' for the guided mode — or just read the panel →",
-    );
+    expect(out).toContain("Type 'help', run 'menu' for the guided mode — or just read the panel →");
     const hrefs = term.lines
       .flatMap(l => l.spans)
       .map(sp => sp.href)
