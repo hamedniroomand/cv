@@ -51,10 +51,11 @@ schema as the API and shows one error message under each invalid field.
 the panel is a keyboard-operable separator. Every modal and menu has a role, a name and focus
 management. Browser tests check the keyboard paths.
 
-**Quality gates in CI.** Every push runs lint, type check, unit tests with coverage, a production
-build and the browser tests. Coverage thresholds are 90 percent for lines, branches, functions and
+**Quality gates in CI.** Every push runs `vp check` (Oxfmt, Oxlint and type-aware lint), type check, unit
+tests with coverage, a production build and the browser tests. Coverage thresholds are 90 percent for lines, branches, functions and
 statements. There are more than 300 unit tests and about 50 Playwright tests. Commits follow the
-Conventional Commits format and a commitlint hook rejects other formats.
+Conventional Commits format and a commitlint hook rejects other formats. A pre-commit hook runs
+`vp check --fix` on staged files.
 
 ## Stack
 
@@ -65,6 +66,7 @@ Conventional Commits format and a commitlint hook rejects other formats.
 | Language   | TypeScript, strict mode                   |
 | Validation | Zod                                       |
 | Tests      | Vitest (unit), Playwright (browser)       |
+| Tooling    | Vite+ (`vp`): Oxlint, Oxfmt, hooks        |
 | CI         | GitHub Actions                            |
 
 I chose the Nuxt 5 nightly on purpose. It let me work with the new Nitro 3 and h3 v2 APIs early and

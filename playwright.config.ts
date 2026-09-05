@@ -1,11 +1,12 @@
-import process from 'node:process'
-import { defineConfig, devices } from '@playwright/test'
+import process from 'node:process';
 
-const PORT = 3457
-const DISCORD_MOCK_PORT = 3458
-const baseURL = `http://localhost:${PORT}`
-const discordMockURL = `http://localhost:${DISCORD_MOCK_PORT}`
-const reuseExistingServer = !process.env.CI
+import { defineConfig, devices } from '@playwright/test';
+
+const PORT = 3457;
+const DISCORD_MOCK_PORT = 3458;
+const baseURL = `http://localhost:${PORT}`;
+const discordMockURL = `http://localhost:${DISCORD_MOCK_PORT}`;
+const reuseExistingServer = !process.env.CI;
 
 export default defineConfig({
   testDir: 'tests/e2e',
@@ -49,4 +50,4 @@ export default defineConfig({
       use: { ...devices['Pixel 7'] },
     },
   ],
-})
+});

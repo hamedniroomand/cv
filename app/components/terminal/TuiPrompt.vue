@@ -1,20 +1,20 @@
 <script setup lang="ts">
-defineOptions({ inheritAttrs: false })
+  defineOptions({ inheritAttrs: false });
 
-defineProps<{
-  busy: boolean
-  menuOpen: boolean
-  activeDescendant?: string
-}>()
+  defineProps<{
+    busy: boolean;
+    menuOpen: boolean;
+    activeDescendant?: string;
+  }>();
 
-const value = defineModel<string>({ required: true })
-const input = ref<HTMLInputElement | null>(null)
+  const value = defineModel<string>({ required: true });
+  const input = ref<HTMLInputElement | null>(null);
 
-function focus(): void {
-  input.value?.focus()
-}
+  function focus(): void {
+    input.value?.focus();
+  }
 
-defineExpose({ focus })
+  defineExpose({ focus });
 </script>
 
 <template>
@@ -39,39 +39,39 @@ defineExpose({ focus })
       autocorrect="off"
       spellcheck="false"
       enterkeyhint="send"
-    >
+    />
   </label>
 </template>
 
 <style scoped>
-.prompt {
-  display: flex;
-  align-items: baseline;
-}
-
-.prompt > span {
-  color: var(--prompt);
-}
-
-.prompt__input {
-  flex: 1;
-  min-width: 0;
-  padding: 0;
-  border: 0;
-  outline: none;
-  background: transparent;
-  color: var(--fg);
-  font: inherit;
-  caret-color: var(--accent);
-}
-
-@media (max-width: 899px) {
   .prompt {
-    font-size: 1rem;
+    display: flex;
+    align-items: baseline;
+  }
+
+  .prompt > span {
+    color: var(--prompt);
   }
 
   .prompt__input {
-    min-height: 44px;
+    flex: 1;
+    min-width: 0;
+    padding: 0;
+    border: 0;
+    outline: none;
+    background: transparent;
+    color: var(--fg);
+    font: inherit;
+    caret-color: var(--accent);
   }
-}
+
+  @media (max-width: 899px) {
+    .prompt {
+      font-size: 1rem;
+    }
+
+    .prompt__input {
+      min-height: 44px;
+    }
+  }
 </style>

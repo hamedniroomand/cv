@@ -1,44 +1,40 @@
-import type { Ref } from 'vue'
+import type { Ref } from 'vue';
 
 export function useTurnstile(el: Ref<HTMLElement | null>, siteKey: string, token: Ref<string>) {
-  let widgetId: string | undefined
+  let widgetId: string | undefined;
 
   onMounted(async () => {
-    let api: TurnstileApi
+    let api: TurnstileApi;
     try {
-      api = await loadTurnstile()
+      api = await loadTurnstile();
+    } catch {
+      return;
     }
-    catch {
-      return
-    }
-    if (!el.value)
-      return
+    if (!el.value) return;
     widgetId = api.render(el.value, {
-      'sitekey': siteKey,
-      'theme': turnstileTheme(),
-      'size': 'flexible',
-      'callback': (value: string) => {
-        token.value = value
+      sitekey: siteKey,
+      theme: turnstileTheme(),
+      size: 'flexible',
+      callback: (value: string) => {
+        token.value = value;
       },
       'expired-callback': () => {
-        token.value = ''
+        token.value = '';
       },
       'error-callback': () => {
-        token.value = ''
+        token.value = '';
       },
-    })
-  })
+    });
+  });
 
   onBeforeUnmount(() => {
-    if (widgetId)
-      window.turnstile?.remove(widgetId)
-  })
+    if (widgetId) window.turnstile?.remove(widgetId);
+  });
 
   function reset(): void {
-    token.value = ''
-    if (widgetId)
-      window.turnstile?.reset(widgetId)
+    token.value = '';
+    if (widgetId) window.turnstile?.reset(widgetId);
   }
 
-  return { reset }
+  return { reset };
 }

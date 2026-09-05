@@ -1,9 +1,9 @@
-import type { AppCommand, PickerItem } from '~/tui/types'
-import { THEMES } from '#shared/theme'
-import { chooseValue } from '~/tui/choose'
-import { EXIT_CANCELLED } from '~/tui/types'
+import { THEMES } from '#shared/theme';
+import { chooseValue } from '~/tui/choose';
+import type { AppCommand, PickerItem } from '~/tui/types';
+import { EXIT_CANCELLED } from '~/tui/types';
 
-const choices: PickerItem[] = THEMES.map(theme => ({ value: theme, label: theme }))
+const choices: PickerItem[] = THEMES.map(theme => ({ value: theme, label: theme }));
 
 export default {
   name: 'theme',
@@ -14,9 +14,8 @@ export default {
     const selected = await chooseValue(argv, ctx, 'Choose a theme', choices, {
       initial: ctx.env.theme,
       placeholder: 'Filter themes',
-    })
-    if (selected === null)
-      return EXIT_CANCELLED
-    return ctx.shell(`theme ${selected}`)
+    });
+    if (selected === null) return EXIT_CANCELLED;
+    return ctx.shell(`theme ${selected}`);
   },
-} satisfies AppCommand
+} satisfies AppCommand;

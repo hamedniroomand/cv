@@ -1,6 +1,7 @@
-import type { AppCommand } from '~/tui/types'
-import { describe, expect, it } from 'vitest'
-import { filterCommands, parseSlashInput, slashOptionId } from '~/tui/slash'
+import { describe, expect, it } from 'vite-plus/test';
+
+import { filterCommands, parseSlashInput, slashOptionId } from '~/tui/slash';
+import type { AppCommand } from '~/tui/types';
 
 function cmd(name: string, aliases?: string[]): AppCommand {
   return {
@@ -8,15 +9,10 @@ function cmd(name: string, aliases?: string[]): AppCommand {
     aliases,
     description: '',
     run: () => 0,
-  }
+  };
 }
 
-const commands = [
-  cmd('experience'),
-  cmd('export'),
-  cmd('example'),
-  cmd('help'),
-]
+const commands = [cmd('experience'), cmd('export'), cmd('example'), cmd('help')];
 
 describe('parseSlashInput', () => {
   it.each([
@@ -26,43 +22,45 @@ describe('parseSlashInput', () => {
     ['/experience th', { name: 'experience', argv: ['th'], partial: false }],
     ['ls /tmp', null],
   ])('parses %j', (line, expected) => {
-    expect(parseSlashInput(line)).toEqual(expected)
-  })
-})
+    expect(parseSlashInput(line)).toEqual(expected);
+  });
+});
 
 describe('filterCommands', () => {
   it('ranks exact, prefix, then subsequence matches', () => {
-    expect(filterCommands('exp', commands).map(c => c.name)).toEqual(['experience', 'export', 'example'])
-  })
+    expect(filterCommands('exp', commands).map(c => c.name)).toEqual([
+      'experience',
+      'export',
+      'example',
+    ]);
+  });
 
   it('ranks exact alias matches before prefix matches', () => {
-    const tiered = [
-      cmd('pdfium'),
-      cmd('document', ['pdf']),
-    ]
-    expect(filterCommands('pdf', tiered).map(c => c.name)).toEqual(['document', 'pdfium'])
-  })
+    const tiered = [cmd('pdfium'), cmd('document', ['pdf'])];
+    expect(filterCommands('pdf', tiered).map(c => c.name)).toEqual(['document', 'pdfium']);
+  });
 
   it('matches case-insensitively', () => {
-    expect(filterCommands('EXP', commands).map(c => c.name)).toEqual(['experience', 'export', 'example'])
-  })
+    expect(filterCommands('EXP', commands).map(c => c.name)).toEqual([
+      'experience',
+      'export',
+      'example',
+    ]);
+  });
 
   it('excludes non-matching commands', () => {
-    expect(filterCommands('exp', commands).map(c => c.name)).not.toContain('help')
-  })
+    expect(filterCommands('exp', commands).map(c => c.name)).not.toContain('help');
+  });
 
   it('sorts within a tier by canonical name regardless of input order', () => {
-    const shuffled = [
-      cmd('export'),
-      cmd('experience'),
-    ]
-    expect(filterCommands('exp', shuffled).map(c => c.name)).toEqual(['experience', 'export'])
-  })
-})
+    const shuffled = [cmd('export'), cmd('experience')];
+    expect(filterCommands('exp', shuffled).map(c => c.name)).toEqual(['experience', 'export']);
+  });
+});
 
 describe('slashOptionId', () => {
   it('builds a safe DOM id from the key', () => {
-    expect(slashOptionId('help')).toBe('tui-slash-option-help')
-    expect(slashOptionId('argument-Vue 3/Nuxt')).toBe('tui-slash-option-argument-vue-3-nuxt')
-  })
-})
+    expect(slashOptionId('help')).toBe('tui-slash-option-help');
+    expect(slashOptionId('argument-Vue 3/Nuxt')).toBe('tui-slash-option-argument-vue-3-nuxt');
+  });
+});

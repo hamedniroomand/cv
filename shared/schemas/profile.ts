@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import { z } from 'zod';
 
 export const ProfileSchema = z.object({
   name: z.string().min(1),
@@ -19,5 +19,5 @@ export const ProfileSchema = z.object({
   }),
   summary: z.string().min(1),
   description: z.string().min(1).max(160),
-})
-export type Profile = z.infer<typeof ProfileSchema>
+});
+export type Profile = z.infer<typeof ProfileSchema>;

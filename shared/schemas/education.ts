@@ -1,5 +1,6 @@
-import { z } from 'zod'
-import { RenderedBody, YearMonth } from './common.ts'
+import { z } from 'zod';
+
+import { RenderedBody, YearMonth } from './common.ts';
 
 export const EducationFrontmatter = z.object({
   institution: z.string().min(1),
@@ -8,7 +9,7 @@ export const EducationFrontmatter = z.object({
   location: z.string().min(1),
   start: YearMonth,
   end: YearMonth,
-})
+});
 
-export const EducationSchema = EducationFrontmatter.extend(RenderedBody.shape)
-export type Education = z.infer<typeof EducationSchema>
+export const EducationSchema = EducationFrontmatter.extend(RenderedBody.shape);
+export type Education = z.infer<typeof EducationSchema>;

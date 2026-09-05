@@ -35,3 +35,4 @@ coverage
 
 # Planning docs stay local
 docs/superpowers/
+.vite-hooks/_

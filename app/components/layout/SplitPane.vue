@@ -1,54 +1,51 @@
 <script setup lang="ts">
-import { clampSplitRatio, SPLIT_DEFAULT, SPLIT_MAX, SPLIT_MIN } from '#shared/split'
+  import { clampSplitRatio, SPLIT_DEFAULT, SPLIT_MAX, SPLIT_MIN } from '#shared/split';
 
-const props = defineProps<{
-  ratio: number
-  panelOpen: boolean
-}>()
-const emit = defineEmits<{ 'update:ratio': [value: number] }>()
+  const props = defineProps<{
+    ratio: number;
+    panelOpen: boolean;
+  }>();
+  const emit = defineEmits<{ 'update:ratio': [value: number] }>();
 
-const KEY_STEP = 0.02
+  const KEY_STEP = 0.02;
 
-const root = ref<HTMLElement | null>(null)
-const dragging = ref(false)
-const percent = computed(() => Math.round(props.ratio * 100))
+  const root = ref<HTMLElement | null>(null);
+  const dragging = ref(false);
+  const percent = computed(() => Math.round(props.ratio * 100));
 
-function update(value: number): void {
-  emit('update:ratio', clampSplitRatio(value))
-}
-
-function onPointerDown(event: PointerEvent): void {
-  if (!root.value)
-    return
-  dragging.value = true
-  ;(event.currentTarget as HTMLElement).setPointerCapture(event.pointerId)
-}
-
-function onPointerMove(event: PointerEvent): void {
-  if (!dragging.value || !root.value)
-    return
-  const rect = root.value.getBoundingClientRect()
-  update((event.clientX - rect.left) / rect.width)
-}
-
-function onPointerUp(event: PointerEvent): void {
-  dragging.value = false
-  ;(event.currentTarget as HTMLElement).releasePointerCapture(event.pointerId)
-}
-
-function onKeydown(event: KeyboardEvent): void {
-  const targets: Record<string, number> = {
-    ArrowLeft: props.ratio - KEY_STEP,
-    ArrowRight: props.ratio + KEY_STEP,
-    Home: SPLIT_MIN,
-    End: SPLIT_MAX,
+  function update(value: number): void {
+    emit('update:ratio', clampSplitRatio(value));
   }
-  const next = targets[event.key]
-  if (next === undefined)
-    return
-  event.preventDefault()
-  update(next)
-}
+
+  function onPointerDown(event: PointerEvent): void {
+    if (!root.value) return;
+    dragging.value = true;
+    (event.currentTarget as HTMLElement).setPointerCapture(event.pointerId);
+  }
+
+  function onPointerMove(event: PointerEvent): void {
+    if (!dragging.value || !root.value) return;
+    const rect = root.value.getBoundingClientRect();
+    update((event.clientX - rect.left) / rect.width);
+  }
+
+  function onPointerUp(event: PointerEvent): void {
+    dragging.value = false;
+    (event.currentTarget as HTMLElement).releasePointerCapture(event.pointerId);
+  }
+
+  function onKeydown(event: KeyboardEvent): void {
+    const targets: Record<string, number> = {
+      ArrowLeft: props.ratio - KEY_STEP,
+      ArrowRight: props.ratio + KEY_STEP,
+      Home: SPLIT_MIN,
+      End: SPLIT_MAX,
+    };
+    const next = targets[event.key];
+    if (next === undefined) return;
+    event.preventDefault();
+    update(next);
+  }
 </script>
 
 <template>
@@ -78,85 +75,90 @@ function onKeydown(event: KeyboardEvent): void {
       @pointercancel="onPointerUp"
       @keydown="onKeydown"
     />
-    <div v-show="panelOpen" class="split__pane split__pane--right">
+    <div
+      v-show="panelOpen"
+      class="split__pane split__pane--right"
+    >
       <slot name="right" />
     </div>
   </div>
 </template>
 
 <style scoped>
-.split {
-  display: grid;
-  grid-template-columns: calc(var(--split, var(--split-default)) * 100%) var(--divider-width) minmax(0, 1fr);
-  height: 100dvh;
-  overflow: hidden;
-}
+  .split {
+    display: grid;
+    grid-template-columns:
+      calc(var(--split, var(--split-default)) * 100%) var(--divider-width)
+      minmax(0, 1fr);
+    height: 100dvh;
+    overflow: hidden;
+  }
 
-.split--closed {
-  grid-template-columns: 1fr 0 0;
-}
-
-@media (min-width: 900px) {
-  :root[data-panel='closed'] .split {
+  .split--closed {
     grid-template-columns: 1fr 0 0;
   }
 
-  :root[data-panel='closed'] .split__divider {
-    display: none;
-  }
-}
+  @media (min-width: 900px) {
+    :root[data-panel='closed'] .split {
+      grid-template-columns: 1fr 0 0;
+    }
 
-.split__pane {
-  min-width: 0;
-  min-height: 0;
-  overflow: hidden;
-}
-
-.split__divider {
-  position: relative;
-  background: var(--border);
-  cursor: col-resize;
-  touch-action: none;
-  transition: background-color var(--dur) var(--ease);
-}
-
-.split__divider::after {
-  content: '';
-  position: absolute;
-  inset: 0 -4px;
-}
-
-.split__divider:hover,
-.split--dragging .split__divider,
-.split__divider:focus-visible {
-  background: var(--accent);
-  outline: none;
-}
-
-.split--dragging {
-  user-select: none;
-  cursor: col-resize;
-}
-
-@media (max-width: 899px) {
-  .split,
-  .split--closed {
-    grid-template-columns: 1fr;
-    grid-template-rows: minmax(0, 1fr);
-    height: calc(100dvh - var(--tabs-height, 3rem));
-  }
-
-  .split__divider {
-    display: none;
+    :root[data-panel='closed'] .split__divider {
+      display: none;
+    }
   }
 
   .split__pane {
-    grid-area: 1 / 1;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
   }
 
-  .split[data-tab='resume'] .split__pane--left,
-  .split[data-tab='terminal'] .split__pane--right {
-    display: none;
+  .split__divider {
+    position: relative;
+    background: var(--border);
+    cursor: col-resize;
+    touch-action: none;
+    transition: background-color var(--dur) var(--ease);
   }
-}
+
+  .split__divider::after {
+    content: '';
+    position: absolute;
+    inset: 0 -4px;
+  }
+
+  .split__divider:hover,
+  .split--dragging .split__divider,
+  .split__divider:focus-visible {
+    background: var(--accent);
+    outline: none;
+  }
+
+  .split--dragging {
+    user-select: none;
+    cursor: col-resize;
+  }
+
+  @media (max-width: 899px) {
+    .split,
+    .split--closed {
+      grid-template-columns: 1fr;
+      grid-template-rows: minmax(0, 1fr);
+      height: calc(100dvh - var(--tabs-height, 3rem));
+    }
+
+    .split__divider {
+      display: none;
+    }
+
+    .split__pane {
+      grid-area: 1 / 1;
+    }
+
+    .split[data-tab='resume'] .split__pane--left,
+    .split[data-tab='terminal'] .split__pane--right {
+      display: none;
+    }
+  }
 </style>

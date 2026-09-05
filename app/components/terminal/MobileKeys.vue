@@ -1,24 +1,28 @@
 <script setup lang="ts">
-export interface MobileKey {
-  id: string
-  label: string
-  aria: string
-  disabled?: boolean
-}
+  export interface MobileKey {
+    id: string;
+    label: string;
+    aria: string;
+    disabled?: boolean;
+  }
 
-defineProps<{
-  keys: MobileKey[]
-  label: string
-}>()
-const emit = defineEmits<{ press: [id: string] }>()
+  defineProps<{
+    keys: MobileKey[];
+    label: string;
+  }>();
+  const emit = defineEmits<{ press: [id: string] }>();
 
-function keepInputFocus(event: PointerEvent): void {
-  event.preventDefault()
-}
+  function keepInputFocus(event: PointerEvent): void {
+    event.preventDefault();
+  }
 </script>
 
 <template>
-  <div class="keys" role="toolbar" :aria-label="label">
+  <div
+    class="keys"
+    role="toolbar"
+    :aria-label="label"
+  >
     <button
       v-for="key in keys"
       :key="key.id"
@@ -35,41 +39,41 @@ function keepInputFocus(event: PointerEvent): void {
 </template>
 
 <style scoped>
-.keys {
-  display: none;
-}
-
-@media (max-width: 899px) {
   .keys {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-2);
-    padding: var(--space-2) 0 0;
+    display: none;
   }
 
-  .keys__key {
-    flex: none;
-    min-width: 40px;
-    min-height: 40px;
-    padding: 0 var(--space-2);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    background: var(--bg-elev);
-    color: var(--fg);
-    font-family: var(--font-mono);
-    font-size: var(--text-sm);
-    touch-action: manipulation;
-    -webkit-tap-highlight-color: transparent;
-    cursor: pointer;
-  }
+  @media (max-width: 899px) {
+    .keys {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-2);
+      padding: var(--space-2) 0 0;
+    }
 
-  .keys__key:active {
-    background: var(--bg-hover);
-    border-color: var(--accent);
-  }
+    .keys__key {
+      flex: none;
+      min-width: 40px;
+      min-height: 40px;
+      padding: 0 var(--space-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--bg-elev);
+      color: var(--fg);
+      font-family: var(--font-mono);
+      font-size: var(--text-sm);
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+      cursor: pointer;
+    }
 
-  .keys__key:disabled {
-    opacity: 0.5;
+    .keys__key:active {
+      background: var(--bg-hover);
+      border-color: var(--accent);
+    }
+
+    .keys__key:disabled {
+      opacity: 0.5;
+    }
   }
-}
 </style>

@@ -1,4 +1,4 @@
-import type { Command } from '~/terminal/types'
+import type { Command } from '~/terminal/types';
 
 export default {
   name: 'hamed',
@@ -6,8 +6,8 @@ export default {
   description: 'Open the interactive app',
   usage: 'hamed',
   async run(_argv, ctx) {
-    await ctx.ui.openApp()
-    ctx.stdout.line('hamed: exited')
-    return 0
+    await ctx.ui.openApp();
+    ctx.stdout.line('hamed: exited');
+    return 0;
   },
-} satisfies Command
+} satisfies Command;

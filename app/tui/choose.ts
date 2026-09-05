@@ -1,4 +1,4 @@
-import type { AppContext, PickerItem, PickOptions } from './types'
+import type { AppContext, PickerItem, PickOptions } from './types';
 
 export function chooseValue(
   argv: string[],
@@ -7,6 +7,6 @@ export function chooseValue(
   items: PickerItem[],
   opts?: PickOptions<string>,
 ): Promise<string | null> {
-  const requested = argv[0]
-  return requested === undefined ? ctx.view.pick(title, items, opts) : Promise.resolve(requested)
+  const requested = argv[0];
+  return requested === undefined ? ctx.view.pick(title, items, opts) : Promise.resolve(requested);
 }

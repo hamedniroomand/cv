@@ -1,72 +1,90 @@
 <script setup lang="ts">
-import type { OutputLine } from '~/terminal/types'
+  import type { OutputLine } from '~/terminal/types';
 
-defineProps<{
-  lines: OutputLine[]
-  label: string
-}>()
+  defineProps<{
+    lines: OutputLine[];
+    label: string;
+  }>();
 </script>
 
 <template>
-  <div class="output" role="log" aria-live="polite" aria-relevant="additions" :aria-label="label">
-    <div v-for="line in lines" :key="line.id" class="output__line">
-      <template v-for="(span, index) in line.spans" :key="index">
+  <div
+    class="output"
+    role="log"
+    aria-live="polite"
+    aria-relevant="additions"
+    :aria-label="label"
+  >
+    <div
+      v-for="line in lines"
+      :key="line.id"
+      class="output__line"
+    >
+      <template
+        v-for="(span, index) in line.spans"
+        :key="index"
+      >
         <a
           v-if="span.href"
           :href="span.href"
           :class="`s-${span.style ?? 'accent'}`"
           target="_blank"
           rel="noopener"
-        >{{ span.text }}</a>
-        <span v-else :class="span.style ? `s-${span.style}` : undefined">{{ span.text }}</span>
+          >{{ span.text }}</a
+        >
+        <span
+          v-else
+          :class="span.style ? `s-${span.style}` : undefined"
+          >{{ span.text }}</span
+        >
       </template>
     </div>
   </div>
 </template>
 
 <style scoped>
-.output {
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
-}
+  .output {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
 
-.output__line {
-  min-height: 1.5em;
-}
+  .output__line {
+    min-height: 1.5em;
+  }
 
-.output__line:has(> .s-pre) {
-  max-width: 100%;
-  overflow-x: auto;
-  overflow-wrap: normal;
-  white-space: pre;
-}
+  .output__line:has(> .s-pre) {
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-wrap: normal;
+    white-space: pre;
+  }
 
-.s-dim {
-  color: var(--fg-dim);
-}
+  .s-dim {
+    color: var(--fg-dim);
+  }
 
-.s-accent {
-  color: var(--accent);
-}
+  .s-accent {
+    color: var(--accent);
+  }
 
-.s-error {
-  color: var(--error);
-}
+  .s-error {
+    color: var(--error);
+  }
 
-.s-success {
-  color: var(--success);
-}
+  .s-success {
+    color: var(--success);
+  }
 
-.s-prompt {
-  color: var(--prompt);
-}
+  .s-prompt {
+    color: var(--prompt);
+  }
 
-.s-pre {
-  color: var(--accent);
-  white-space: pre;
-}
+  .s-pre {
+    color: var(--accent);
+    white-space: pre;
+  }
 
-a {
-  color: var(--accent-2);
-}
+  a {
+    color: var(--accent-2);
+  }
 </style>

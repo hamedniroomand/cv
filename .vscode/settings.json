@@ -1,29 +1,25 @@
 {
+  "editor.defaultFormatter": "oxc.oxc-vscode",
+  "oxc.path.oxfmt": "./node_modules/vite-plus/bin/oxfmt",
+  "oxc.path.oxlint": "./node_modules/vite-plus/bin/oxlint",
+  "oxc.fmt.configPath": "vite.config.ts",
   "editor.formatOnSave": true,
-  "editor.defaultFormatter": "dbaeumer.vscode-eslint",
   "editor.formatOnSaveMode": "file",
-  "oxc.typeAware": true,
   "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": "always",
-    "source.fixAll": "explicit",
+    "source.fixAll.oxc": "explicit",
     "source.removeUnusedImports": "explicit"
   },
-  "[vue]": {
-    "editor.defaultFormatter": "dbaeumer.vscode-eslint",
-    "editor.formatOnSave": true
-  },
-  "[typescript]": {
-    "editor.defaultFormatter": "dbaeumer.vscode-eslint",
-    "editor.formatOnSave": true
-  },
+  "[javascript]": { "editor.defaultFormatter": "oxc.oxc-vscode" },
+  "[typescript]": { "editor.defaultFormatter": "oxc.oxc-vscode" },
+  "[vue]": { "editor.defaultFormatter": "oxc.oxc-vscode" },
+  "[json]": { "editor.defaultFormatter": "oxc.oxc-vscode" },
+  "[jsonc]": { "editor.defaultFormatter": "oxc.oxc-vscode" },
+  "oxc.typeAware": true,
+  "oxc.disableNestedConfig": true,
+  "oxc.fmt.disableNestedConfig": true,
+  "npm.scriptRunner": "vp",
   "files.trimTrailingWhitespace": true,
   "js/ts.tsdk.path": "node_modules/typescript/lib",
   "js/ts.tsserver.maxMemory": 8192,
-  "js/ts.preferences.importModuleSpecifier": "non-relative",
-  "eslint.useFlatConfig": true,
-  "eslint.validate": [
-    "javascript",
-    "typescript",
-    "vue"
-  ]
+  "js/ts.preferences.importModuleSpecifier": "non-relative"
 }

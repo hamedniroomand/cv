@@ -1,4 +1,4 @@
-import type { CvData } from '#shared/schemas/cv'
+import type { CvData } from '#shared/schemas/cv';
 
 export const fixtureCv: CvData = {
   profile: {
@@ -7,12 +7,22 @@ export const fixtureCv: CvData = {
     tagline: 'Ships TypeScript.',
     location: { city: 'Yerevan', country: 'Armenia', tz: 'UTC+4' },
     remote: true,
-    languages: [{ name: 'Persian', level: 'native' }, { name: 'English', level: 'professional' }],
-    links: { github: 'hamedniroomand', linkedin: 'https://linkedin.com/in/example', email: 'me@example.com' },
+    languages: [
+      { name: 'Persian', level: 'native' },
+      { name: 'English', level: 'professional' },
+    ],
+    links: {
+      github: 'hamedniroomand',
+      linkedin: 'https://linkedin.com/in/example',
+      email: 'me@example.com',
+    },
     summary: 'Frontend lead with seven years in production.',
     description: 'Frontend lead. This resume has a terminal.',
   },
-  about: { body: 'About paragraph one.\n\nAbout paragraph two.', html: '<p>About paragraph one.</p>\n<p>About paragraph two.</p>\n' },
+  about: {
+    body: 'About paragraph one.\n\nAbout paragraph two.',
+    html: '<p>About paragraph one.</p>\n<p>About paragraph two.</p>\n',
+  },
   experience: [
     {
       slug: 'acme',
@@ -29,7 +39,13 @@ export const fixtureCv: CvData = {
       body: 'Acme builds widgets.',
       html: '<p>Acme builds widgets.</p>\n',
       highlights: [
-        { slug: 'shipped', title: 'Shipped the thing', order: 1, body: 'Shipped the thing to production.', html: '<p>Shipped the thing to production.</p>\n' },
+        {
+          slug: 'shipped',
+          title: 'Shipped the thing',
+          order: 1,
+          body: 'Shipped the thing to production.',
+          html: '<p>Shipped the thing to production.</p>\n',
+        },
       ],
     },
     {
@@ -61,7 +77,11 @@ export const fixtureCv: CvData = {
   skills: {
     categories: [
       { id: 'frontend', label: 'Frontend', items: [{ name: 'Vue 3' }, { name: 'Nuxt 4' }] },
-      { id: 'backend', label: 'Backend', items: [{ name: 'Bun' }, { name: 'NestJS', note: 'APIs' }] },
+      {
+        id: 'backend',
+        label: 'Backend',
+        items: [{ name: 'Bun' }, { name: 'NestJS', note: 'APIs' }],
+      },
     ],
   },
   education: {
@@ -76,4 +96,4 @@ export const fixtureCv: CvData = {
   },
   secrets: { body: '- Secret one.\n- Secret two.' },
   generatedAt: '2026-09-04T00:00:00.000Z',
-}
+};

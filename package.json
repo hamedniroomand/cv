@@ -1,29 +1,29 @@
 {
   "name": "cv",
-  "type": "module",
   "private": true,
-  "packageManager": "bun@1.4.2",
+  "type": "module",
   "imports": {
     "#shared/*": "./shared/*.ts"
-  },
-  "engines": {
-    "bun": ">=1.4"
   },
   "scripts": {
     "dev": "bun --bun nuxt dev",
     "build": "bun --bun nuxt build",
     "preview": "bun --bun nuxt preview",
     "postinstall": "bun --bun nuxt prepare",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
+    "lint": "vp lint",
+    "lint:fix": "vp lint --fix",
+    "format": "vp fmt",
     "typecheck": "bun --bun nuxt typecheck",
     "test": "bun --bun vitest run --passWithNoTests",
     "test:coverage": "bun --bun vitest run --coverage",
     "test:watch": "bun --bun vitest",
     "build:e2e": "NUXT_PUBLIC_SITE_URL=http://localhost:3457 NUXT_PUBLIC_TURNSTILE_SITE_KEY=1x00000000000000000000AA bun --bun nuxt build",
     "test:e2e": "bun run build:e2e && playwright test",
-    "prepare": "husky",
-    "icons": "bun run scripts/build-icons.ts"
+    "prepare": "command -v vp >/dev/null 2>&1 && vp config || exit 0",
+    "icons": "bun run scripts/build-icons.ts",
+    "check": "vp check",
+    "check:fix": "vp check --fix",
+    "format:check": "vp fmt --check"
   },
   "dependencies": {
     "@vercel/analytics": "^2.0.1",
@@ -35,23 +35,25 @@
     "zod": "^4.5.4"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^9.5.1",
     "@commitlint/cli": "^21.2.2",
     "@commitlint/config-conventional": "^21.2.2",
     "@fontsource-variable/jetbrains-mono": "^5.3.0",
     "@playwright/test": "^1.63.0",
     "@types/bun": "^1.4.1",
-    "@vitest/coverage-v8": "^5.0.0",
-    "eslint": "^10.10.0",
-    "eslint-plugin-format": "^2.0.1",
+    "@vitest/coverage-v8": "4.1.11",
     "h3": "2.0.1-rc.31",
-    "husky": "^9.1.7",
-    "lint-staged": "^17.5.0",
     "typescript": "^6",
-    "vitest": "^5.0.0",
+    "vite": "npm:@voidzero-dev/vite-plus-core@0.3.0",
+    "vite-plus": "0.3.0",
+    "vitest": "4.1.11",
     "vue-tsc": "^3.3.11"
   },
-  "lint-staged": {
-    "*.{ts,vue,js,json,md,css}": "eslint --fix"
-  }
+  "overrides": {
+    "vite": "npm:@voidzero-dev/vite-plus-core@0.3.0",
+    "vitest": "4.1.11"
+  },
+  "engines": {
+    "bun": ">=1.4"
+  },
+  "packageManager": "bun@1.4.2"
 }

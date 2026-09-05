@@ -1,43 +1,55 @@
-import { mkdtemp, writeFile } from 'node:fs/promises'
-import { tmpdir } from 'node:os'
-import { join, resolve } from 'node:path'
-import { describe, expect, it } from 'vitest'
-import { loadContent } from '~~/modules/cv-content/load'
+import { mkdtemp, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join, resolve } from 'node:path';
 
-const dir = resolve('content')
+import { describe, expect, it } from 'vite-plus/test';
+
+import { loadContent } from '~~/modules/cv-content/load';
+
+const dir = resolve('content');
 
 describe('loadContent', () => {
   it('loads and validates the real content directory', async () => {
-    const cv = await loadContent(dir, async () => null)
-    expect(cv.profile.name).toBe('Hamed Niroomand')
-    expect(cv.experience.map(e => e.slug)).toEqual(['jack-westin', 'thales', 'faro-creaform', 'joorchin', 'xankoo'])
-    expect(cv.experience[0]!.highlights.map(h => h.slug)).toEqual(['team-lead', 'design-system', 'micro-frontends'])
-    expect(cv.projects[0]!.readmeSource).toBe('fallback')
-    expect(cv.skills.categories.length).toBeGreaterThan(3)
-    expect(cv.secrets.body).toContain('vim')
-  })
+    const cv = await loadContent(dir, async () => null);
+    expect(cv.profile.name).toBe('Hamed Niroomand');
+    expect(cv.experience.map(e => e.slug)).toEqual([
+      'jack-westin',
+      'thales',
+      'faro-creaform',
+      'joorchin',
+      'xankoo',
+    ]);
+    expect(cv.experience[0]!.highlights.map(h => h.slug)).toEqual([
+      'team-lead',
+      'design-system',
+      'micro-frontends',
+    ]);
+    expect(cv.projects[0]!.readmeSource).toBe('fallback');
+    expect(cv.skills.categories.length).toBeGreaterThan(3);
+    expect(cv.secrets.body).toContain('vim');
+  });
 
   it('uses the fetched README when available', async () => {
-    const cv = await loadContent(dir, async () => '# Cue\n\nfrom github')
-    expect(cv.projects[0]!.readmeSource).toBe('github')
-    expect(cv.projects[0]!.body).toContain('from github')
-    expect(cv.projects[0]!.html).toContain('<h1>')
-  })
+    const cv = await loadContent(dir, async () => '# Cue\n\nfrom github');
+    expect(cv.projects[0]!.readmeSource).toBe('github');
+    expect(cv.projects[0]!.body).toContain('from github');
+    expect(cv.projects[0]!.html).toContain('<h1>');
+  });
 
   it('renders markdown to html', async () => {
-    const cv = await loadContent(dir, async () => null)
-    expect(cv.about.html).toContain('<p>')
-    expect(cv.experience[0]!.highlights[0]!.html).toContain('<p>')
-  })
+    const cv = await loadContent(dir, async () => null);
+    expect(cv.about.html).toContain('<p>');
+    expect(cv.experience[0]!.highlights[0]!.html).toContain('<p>');
+  });
 
   it('stamps generatedAt from the clock', async () => {
-    const cv = await loadContent(dir, async () => null, new Date('2026-09-04T00:00:00Z'))
-    expect(cv.generatedAt).toBe('2026-09-04T00:00:00.000Z')
-  })
+    const cv = await loadContent(dir, async () => null, new Date('2026-09-04T00:00:00Z'));
+    expect(cv.generatedAt).toBe('2026-09-04T00:00:00.000Z');
+  });
 
   it('throws ContentError on invalid content', async () => {
-    const tmp = await mkdtemp(join(tmpdir(), 'cv-bad-'))
-    await writeFile(join(tmp, 'profile.json'), '{}')
-    await expect(loadContent(tmp, async () => null)).rejects.toThrow(/content validation failed/)
-  })
-})
+    const tmp = await mkdtemp(join(tmpdir(), 'cv-bad-'));
+    await writeFile(join(tmp, 'profile.json'), '{}');
+    await expect(loadContent(tmp, async () => null)).rejects.toThrow(/content validation failed/);
+  });
+});
