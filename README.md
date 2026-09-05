@@ -19,6 +19,9 @@ Live site: <https://niroomand.dev>
 - Type `contact` to send me a message from the site.
 - Click **Download PDF** in the panel to get the resume as a file.
 - Run `curl -s https://niroomand.dev/api/cv | jq .profile` to get the resume as JSON.
+- Open <https://niroomand.dev/dotfiles> to read the config files that I use, such as my VS Code
+  settings. Each file has a Copy button. In the terminal, each file is at its real path: try
+  `cat ~/.config/Code/User/settings.json` or `dotfiles`.
 
 The site works on mobile. It has a Resume tab and a Terminal tab, and a key row for Tab, Ctrl+C and
 history.
@@ -31,6 +34,12 @@ These are the decisions in this repository that I think are worth your attention
 the files at build time and validates them with Zod schemas. Invalid content stops the build and
 reports the file path. The terminal, the panel, the JSON API and the SEO tags all read the same typed
 data.
+
+**Dotfiles from gists.** Each config file is one entry in `content/dotfiles/*.md` with a mount path
+and an optional gist id. The build fetches the gist. When the fetch fails, the build uses the
+committed body, so a build never depends on GitHub. [rangi](https://github.com/pi0/rangi) highlights
+each file at build time into HTML with classes. One stylesheet maps those classes onto the theme
+tokens, so the five themes recolor the code without a client-side highlighter.
 
 **A framework-free shell.** The terminal core is plain TypeScript: a tokenizer, a parser for pipes and
 `sudo`, an executor and a command registry. It does not import Vue. Because of this, all of it runs
