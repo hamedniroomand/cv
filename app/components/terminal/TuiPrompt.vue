@@ -51,6 +51,8 @@
 
   .prompt > span {
     color: var(--prompt);
+    white-space: pre;
+    flex: none;
   }
 
   .prompt__input {
