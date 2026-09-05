@@ -44,3 +44,18 @@ export async function waitForElement(id: string, frames: number): Promise<HTMLEl
   }
   return null;
 }
+
+const INTERACTIVE_SELECTOR =
+  'input, textarea, select, button, a[href], summary, [contenteditable="true"], [role="separator"]';
+
+export function targetsInteractiveElement(event: Event): boolean {
+  return event.target instanceof Element && event.target.closest(INTERACTIVE_SELECTOR) !== null;
+}
+
+export function isPrintableKey(event: KeyboardEvent): boolean {
+  return event.key.length === 1 && isPlainKey(event) && !event.isComposing;
+}
+
+export function isVisible(el: HTMLElement | null): boolean {
+  return el !== null && el.getClientRects().length > 0;
+}

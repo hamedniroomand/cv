@@ -18,6 +18,12 @@
     nextTick(() => prompt.value?.focus());
   }
 
+  function insert(text: string): void {
+    if (picker.value) return;
+    value.value += text;
+    focusPrompt();
+  }
+
   const output = useTuiOutput();
   const { picker, pick, settle: settlePicker } = useTuiPicker(focusPrompt);
 
@@ -201,6 +207,8 @@
   view.print('or /pdf to grab the one-pager.');
 
   onMounted(focusPrompt);
+
+  defineExpose({ insert });
 </script>
 
 <template>

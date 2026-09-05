@@ -34,6 +34,12 @@
   const booted = ref(false);
   const root = ref<HTMLElement | null>(null);
   const inputRef = ref<TerminalInputHandle | null>(null);
+  const tuiApp = ref<{ insert: (text: string) => void } | null>(null);
+
+  useTypeToTerminal({
+    enabled: () => booted.value && modal.kind.value === null && isVisible(root.value),
+    insert: text => (app.open.value ? tuiApp.value : inputRef.value)?.insert(text),
+  });
 
   function focusInput(): void {
     inputRef.value?.focus();
@@ -133,6 +139,7 @@
     </div>
     <TuiApp
       v-else-if="app.open.value"
+      ref="tuiApp"
       :bridge="shell.bridge"
       @exit="closeApp"
     />

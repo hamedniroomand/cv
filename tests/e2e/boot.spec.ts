@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 
-import { openTerminal, runCommand } from './helpers';
+import { openApp, openTerminal, runCommand } from './helpers';
 
 test.describe('desktop terminal', () => {
   test.skip(({ isMobile }) => isMobile, 'desktop only');
@@ -102,6 +102,53 @@ test.describe('desktop terminal', () => {
     await input.fill('cat ab');
     await input.press('Tab');
     await expect(input).toHaveValue('cat about.md ');
+  });
+});
+
+test.describe('typing without focus', () => {
+  test.skip(({ isMobile }) => isMobile, 'desktop only');
+
+  test('printable keys reach the terminal input from anywhere on the page', async ({ page }) => {
+    await page.goto('/');
+    const input = await openTerminal(page);
+    await page.getByRole('heading', { name: 'About' }).click();
+    await expect(input).not.toBeFocused();
+    await page.keyboard.type('help');
+    await expect(input).toHaveValue('help');
+    await expect(input).toBeFocused();
+  });
+
+  test('keys on a focused control and shortcuts stay where they are', async ({ page }) => {
+    await page.goto('/');
+    const input = await openTerminal(page);
+    const divider = page.getByRole('separator', { name: 'Resize terminal and resume' });
+    await divider.focus();
+    await page.keyboard.type('x');
+    await expect(input).toHaveValue('');
+    await expect(divider).toBeFocused();
+    await page.getByRole('heading', { name: 'About' }).click();
+    await page.keyboard.press('Control+x');
+    await expect(input).toHaveValue('');
+  });
+
+  test('typing while the contact modal is open does not reach the terminal', async ({ page }) => {
+    await page.goto('/');
+    const input = await openTerminal(page);
+    await input.fill('contact');
+    await input.press('Enter');
+    const dialog = page.getByRole('dialog');
+    await expect(dialog).toBeVisible();
+    await dialog.getByRole('heading').first().click();
+    await page.keyboard.type('abc');
+    await expect(input).toHaveValue('');
+  });
+
+  test('typing while the app is open reaches the app prompt', async ({ page }) => {
+    const prompt = await openApp(page);
+    await page.getByRole('heading', { name: 'About' }).click();
+    await page.keyboard.type('/he');
+    await expect(prompt).toHaveValue('/he');
+    await expect(prompt).toBeFocused();
   });
 });
 
