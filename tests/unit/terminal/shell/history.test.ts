@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vite-plus/test';
 
+import type { HistoryStore } from '~/terminal/shell/history';
 import { History } from '~/terminal/shell/history';
 
 describe('history', () => {
@@ -38,5 +39,21 @@ describe('history', () => {
     h.push('2');
     h.push('3');
     expect(h.list()).toEqual(['2', '3']);
+  });
+
+  it('loads from the store and saves after each new line', () => {
+    const saved: string[][] = [];
+    const store: HistoryStore = { load: () => ['a', 'b'], save: lines => saved.push([...lines]) };
+    const h = new History(500, store);
+    expect(h.list()).toEqual(['a', 'b']);
+    expect(h.up('')).toBe('b');
+    h.push('c');
+    h.push('c');
+    expect(saved).toEqual([['a', 'b', 'c']]);
+  });
+
+  it('trims the loaded history to the cap', () => {
+    const store: HistoryStore = { load: () => ['1', '2', '3'], save: () => {} };
+    expect(new History(2, store).list()).toEqual(['2', '3']);
   });
 });

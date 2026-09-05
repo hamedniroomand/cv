@@ -1,5 +1,7 @@
 import { expect, test } from '@playwright/test';
 
+import { openTerminal, runCommand } from './helpers';
+
 test.describe('desktop terminal', () => {
   test.skip(({ isMobile }) => isMobile, 'desktop only');
 
@@ -100,5 +102,25 @@ test.describe('desktop terminal', () => {
     await input.fill('cat ab');
     await input.press('Tab');
     await expect(input).toHaveValue('cat about.md ');
+  });
+});
+
+test.describe('command history', () => {
+  test.skip(({ isMobile }) => isMobile, 'desktop only');
+
+  test('the last commands survive a reload and are recalled with the arrow keys', async ({
+    page,
+  }) => {
+    await page.goto('/');
+    await runCommand(page, 'echo first');
+    await runCommand(page, 'echo second');
+    await page.reload();
+    const input = await openTerminal(page);
+    await input.press('ArrowUp');
+    await expect(input).toHaveValue('echo second');
+    await input.press('ArrowUp');
+    await expect(input).toHaveValue('echo first');
+    await input.press('ArrowDown');
+    await expect(input).toHaveValue('echo second');
   });
 });
