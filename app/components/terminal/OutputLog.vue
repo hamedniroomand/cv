@@ -54,9 +54,11 @@
 
   .output__line:has(> .s-pre) {
     max-width: 100%;
+    min-height: 1.2em;
     overflow-x: auto;
     overflow-wrap: normal;
     white-space: pre;
+    line-height: 1.2;
   }
 
   .s-dim {
