@@ -8,6 +8,7 @@ describe('buildTree', () => {
   const fs = new Vfs(buildTree(fixtureCv), { home: HOME });
   it('lays out the home directory', () => {
     expect(fs.readdir('~', { all: true }).map(n => n.name)).toEqual([
+      '.config',
       '.secrets',
       'about.md',
       'contact.sh',
@@ -65,5 +66,54 @@ describe('buildTree', () => {
 
   it('uses generatedAt as mtime', () => {
     expect(fs.stat('~/about.md').mtime).toBe(fixtureCv.generatedAt);
+  });
+
+  it('mounts dotfiles at their declared path with hidden intermediate directories', () => {
+    expect(fs.readdir('~').map(n => n.name)).not.toContain('.config');
+    expect(fs.readdir('~', { all: true }).map(n => n.name)).toContain('.config');
+    expect(fs.readdir('~/.config/Code/User').map(n => n.name)).toEqual(['settings.json']);
+    expect(fs.readFile('~/.config/Code/User/settings.json')).toBe(fixtureCv.dotfiles[0]!.content);
+    expect(fs.stat('~/.config/Code/User/settings.json').mode).toBe(0o644);
+    expect(fs.stat('~/.config').mtime).toBe(fixtureCv.generatedAt);
+  });
+
+  it('stamps dotfile panel targets: slug on the file, section on the directories', () => {
+    expect(fs.stat('~/.config/Code/User/settings.json').panel).toEqual({
+      section: 'dotfiles',
+      slug: 'vscode-settings',
+    });
+    expect(fs.stat('~/.config').panel).toEqual({ section: 'dotfiles' });
+    expect(fs.stat('~/.config/Code/User').panel).toEqual({ section: 'dotfiles' });
+  });
+
+  it('shares intermediate directories between dotfiles', () => {
+    const two = new Vfs(
+      buildTree({
+        ...fixtureCv,
+        dotfiles: [
+          fixtureCv.dotfiles[0]!,
+          {
+            ...fixtureCv.dotfiles[0]!,
+            slug: 'keybindings',
+            path: '~/.config/Code/User/keybindings.json',
+            content: '[]',
+          },
+        ],
+      }),
+      { home: HOME },
+    );
+    expect(two.readdir('~/.config/Code/User').map(n => n.name)).toEqual([
+      'keybindings.json',
+      'settings.json',
+    ]);
+  });
+
+  it('throws when a dotfile path collides with an existing file', () => {
+    expect(() =>
+      buildTree({
+        ...fixtureCv,
+        dotfiles: [{ ...fixtureCv.dotfiles[0]!, path: '~/about.md/x' }],
+      }),
+    ).toThrow(/about\.md/);
   });
 });
