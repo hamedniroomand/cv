@@ -42,6 +42,9 @@ describe('loadContent', () => {
       'team-lead',
       'design-system',
       'micro-frontends',
+      'learning-products',
+      'ai-tutor',
+      'engineering-standards',
     ]);
     expect(cv.projects[0]!.readmeSource).toBe('fallback');
     expect(cv.skills.categories.length).toBeGreaterThan(3);

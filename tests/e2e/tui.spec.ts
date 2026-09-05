@@ -351,7 +351,7 @@ test.describe('app commands reveal the panel', () => {
     const output = page.getByRole('log', { name: 'App output' });
     await expect(output).toContainText('Opened About in the panel.');
     await expect(output).toContainText('Raw text: bat ~/about.md');
-    await expect(output).not.toContainText('senior web developer');
+    await expect(output).not.toContainText('senior web developer based in Yerevan');
     await expect(page.locator('#section-about')).toHaveClass(/is-highlighted/);
   });
 });

@@ -4,81 +4,229 @@
       "id": "languages",
       "label": "Languages",
       "items": [
-        { "name": "TypeScript" },
-        { "name": "JavaScript" },
-        { "name": "PHP" },
-        { "name": "Bash" }
+        {
+          "name": "TypeScript"
+        },
+        {
+          "name": "JavaScript",
+          "note": "ESNext"
+        },
+        {
+          "name": "PHP"
+        },
+        {
+          "name": "Bash"
+        }
       ]
     },
     {
       "id": "frontend",
       "label": "Frontend",
       "items": [
-        { "name": "Vue 3" },
-        { "name": "Nuxt 4" },
-        { "name": "Pinia" },
-        { "name": "Nuxt UI" },
-        { "name": "Tailwind CSS" },
-        { "name": "Vite" },
-        { "name": "Storybook" },
-        { "name": "CSS", "note": "custom properties, layout, print" },
-        { "name": "Micro-frontends" }
+        {
+          "name": "Vue 3"
+        },
+        {
+          "name": "Nuxt 4"
+        },
+        {
+          "name": "Pinia"
+        },
+        {
+          "name": "Nuxt UI"
+        },
+        {
+          "name": "Tailwind CSS"
+        },
+        {
+          "name": "UnoCSS"
+        },
+        {
+          "name": "Vuetify"
+        },
+        {
+          "name": "Storybook"
+        },
+        {
+          "name": "Zod"
+        },
+        {
+          "name": "Vite"
+        },
+        {
+          "name": "CSS",
+          "note": "custom properties, layout, print"
+        },
+        {
+          "name": "React"
+        },
+        {
+          "name": "Svelte"
+        }
+      ]
+    },
+    {
+      "id": "architecture",
+      "label": "Architecture",
+      "items": [
+        {
+          "name": "Design systems"
+        },
+        {
+          "name": "Micro-frontends"
+        },
+        {
+          "name": "SSR & hydration"
+        },
+        {
+          "name": "Performance optimization"
+        },
+        {
+          "name": "REST API design"
+        },
+        {
+          "name": "Testing strategy"
+        },
+        {
+          "name": "CI/CD"
+        }
       ]
     },
     {
       "id": "backend",
       "label": "Backend",
       "items": [
-        { "name": "Node.js" },
-        { "name": "Bun" },
-        { "name": "NestJS" },
-        { "name": "Hono" },
-        { "name": "Express" },
-        { "name": "Laravel" },
-        { "name": "WordPress", "note": "themes and plugins" }
+        {
+          "name": "Node.js"
+        },
+        {
+          "name": "Bun"
+        },
+        {
+          "name": "NestJS"
+        },
+        {
+          "name": "Hono"
+        },
+        {
+          "name": "Express"
+        },
+        {
+          "name": "Laravel",
+          "note": "API integration"
+        },
+        {
+          "name": "WordPress",
+          "note": "themes and plugins"
+        },
+        {
+          "name": "Blockchain & exchange APIs",
+          "note": "16 chains, 12 exchanges"
+        }
       ]
     },
     {
       "id": "testing",
-      "label": "Testing",
+      "label": "Testing & QA",
       "items": [
-        { "name": "Vitest" },
-        { "name": "Playwright" },
-        { "name": "Cypress" },
-        { "name": "Storybook" }
+        {
+          "name": "Vitest"
+        },
+        {
+          "name": "Playwright"
+        },
+        {
+          "name": "Cypress"
+        },
+        {
+          "name": "Postman"
+        },
+        {
+          "name": "Manual QA"
+        },
+        {
+          "name": "UX auditing"
+        }
       ]
     },
     {
       "id": "tooling",
       "label": "Tooling",
       "items": [
-        { "name": "Git" },
-        { "name": "GitHub Actions" },
-        { "name": "GitLab CI" },
-        { "name": "GitHub Packages" },
-        { "name": "Docker" },
-        { "name": "Vercel" }
+        {
+          "name": "Git"
+        },
+        {
+          "name": "GitHub Actions"
+        },
+        {
+          "name": "GitLab CI"
+        },
+        {
+          "name": "GitHub Packages"
+        },
+        {
+          "name": "Docker"
+        },
+        {
+          "name": "Vercel"
+        },
+        {
+          "name": "Figma to code"
+        }
       ]
     },
     {
       "id": "ai-tooling",
       "label": "AI tooling",
       "items": [
-        { "name": "Claude Code" },
-        { "name": "Codex" },
-        { "name": "AI SDK" },
-        { "name": "MCP servers" }
+        {
+          "name": "Claude Code"
+        },
+        {
+          "name": "Codex"
+        },
+        {
+          "name": "AI SDK"
+        },
+        {
+          "name": "MCP servers"
+        }
       ]
     },
     {
       "id": "leadership",
       "label": "Leadership",
       "items": [
-        { "name": "Team lead", "note": "team of 5" },
-        { "name": "Hiring & interviewing", "note": "40+ screened, 3 hires" },
-        { "name": "API contract design" },
-        { "name": "PRD breakdown" },
-        { "name": "Design systems" }
+        {
+          "name": "Team lead",
+          "note": "team of 5"
+        },
+        {
+          "name": "Hiring & interviewing",
+          "note": "40+ screened, 3 hires"
+        },
+        {
+          "name": "Technical roadmapping"
+        },
+        {
+          "name": "PRD breakdown"
+        },
+        {
+          "name": "API contract design"
+        },
+        {
+          "name": "Sprint planning"
+        },
+        {
+          "name": "Code review"
+        },
+        {
+          "name": "Mentoring & knowledge sharing"
+        },
+        {
+          "name": "Technical documentation"
+        }
       ]
     }
   ]

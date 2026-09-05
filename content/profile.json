@@ -1,6 +1,6 @@
 {
   "name": "Hamed Niroomand",
-  "title": "Senior JavaScript / TypeScript Engineer",
+  "title": "Senior Web Developer · JavaScript / TypeScript",
   "tagline": "I build TypeScript frontends and treat every product like it is my own.",
   "location": {
     "city": "Yerevan",
@@ -23,6 +23,6 @@
     "linkedin": "https://www.linkedin.com/in/hamedniroomand",
     "email": "hamed@niroomand.dev"
   },
-  "summary": "Senior web developer with 7+ years in the JavaScript ecosystem, most of it shipping Vue and Nuxt in production. I treat every product I work on as my own: I want to understand the business behind the ticket, own the outcome end to end, and give it the same focus I would put into building my own company. At Jack Westin (2022–2026), a US EdTech platform serving thousands of daily active students, that meant owning frontend architecture and technical strategy, designing REST API contracts with the backend lead, breaking PRDs into phased delivery, running frontend hiring, and leading a team of five while still shipping code every week. Built a shared design-system and core-logic library (Storybook, 95%+ coverage, 4 consumer apps) and a micro-frontend integration for marketing. In parallel, held a part-time architecture and advisory role at Thales MFI (German crypto asset management), delivering a real-time multi-chain, multi-exchange portfolio tracker in Nuxt 4, NestJS, and Bun. Deep in Vue/Nuxt; early adopter of new tooling (Bun, Hono, AI SDK, MCP) and quick to pick up new stacks.",
+  "summary": "Senior web developer with 7+ years in the JavaScript ecosystem, most of it shipping Vue and Nuxt in production, on the frontend and the services behind it. I treat every product I work on as my own: I want to understand the business behind the ticket, own the outcome end to end, and give it the same focus I would put into building my own company. At Jack Westin (2022–2026), a US EdTech platform serving thousands of daily active students, that meant leading a team of five while still shipping code every week: owning frontend architecture and technical strategy, designing REST API contracts with the backend lead, breaking PRDs into phased delivery, running frontend hiring, and architecting the core learning products, from interactive testing suites to an AI chat tutor. Built a shared design-system and core-logic library (Storybook, 95%+ coverage, 4 consumer apps) and a micro-frontend integration for marketing. In parallel, held a part-time architecture and advisory role at Thales MFI (German crypto asset management), delivering a real-time multi-chain, multi-exchange portfolio tracker in Nuxt 4, NestJS, and Bun. Deep in Vue/Nuxt; early adopter of new tooling (Bun, Hono, AI SDK, MCP) and quick to pick up new stacks.",
   "description": "Senior web developer, 7+ years of Vue and Nuxt in production, all-in on every product I ship. This resume has a terminal. Type help."
 }
