@@ -93,7 +93,7 @@ test.describe('desktop terminal', () => {
     await expect(page.getByRole('log')).toContainText('cat: ~/.secrets: Permission denied');
     await input.fill('sudo cat ~/.secrets | head -n 1');
     await input.press('Enter');
-    await expect(page.getByRole('log')).toContainText('vim');
+    await expect(page.getByRole('log')).toContainText('I have the receipts');
   });
 
   test('tab completes paths', async ({ page }) => {

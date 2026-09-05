@@ -1,5 +1,4 @@
-- Still googles how to exit vim. Then types :q like nothing happened.
-- Has more browser tabs open than lines in this file.
-- Believes every bug is a missing type until proven otherwise.
-- Once shipped a Friday deploy. It went fine. Will not do it again.
-- The uptime counter on this site is just years of experience with extra steps.
+- A design system with 95% coverage is cheaper than the same components written four times. I have the receipts.
+- The best API contract is the one agreed on before either side writes a line. The second best does not exist.
+- Owning a product means reading the PRD twice: once to understand it, once to find what it forgot to say.
+- This site was built with AI coding agents. Read the source anyway. It is not what you expect: small units, strict types, hundreds of tests, and a human who reviewed every decision. That is what senior use of AI looks like.

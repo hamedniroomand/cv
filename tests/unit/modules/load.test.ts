@@ -48,7 +48,7 @@ describe('loadContent', () => {
     ]);
     expect(cv.projects[0]!.readmeSource).toBe('fallback');
     expect(cv.skills.categories.length).toBeGreaterThan(3);
-    expect(cv.secrets.body).toContain('vim');
+    expect(cv.secrets.body).toContain('API contract');
   });
 
   it('uses the fetched README when available', async () => {
