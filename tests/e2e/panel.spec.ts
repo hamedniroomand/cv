@@ -10,6 +10,20 @@ test.describe('panel', () => {
     expect(html).toContain('id="exp-thales"');
   });
 
+  test('the home page publishes Open Graph and Twitter card tags with an image', async ({
+    request,
+  }) => {
+    const html = await (await request.get('/')).text();
+    expect(html).toContain('<meta property="og:title" content="Hamed Niroomand — ');
+    expect(html).toContain('<meta property="og:description" content="');
+    expect(html).toContain('<meta property="og:image" content="http://localhost:3457/og.png">');
+    expect(html).toContain('<meta property="og:image:width" content="1200">');
+    expect(html).toContain('<meta name="twitter:card" content="summary_large_image">');
+    const image = await request.get('/og.png');
+    expect(image.status()).toBe(200);
+    expect(image.headers()['content-type']).toContain('image/png');
+  });
+
   test('experience pages no longer exist and the 404 prompt names the real host', async ({
     request,
   }) => {

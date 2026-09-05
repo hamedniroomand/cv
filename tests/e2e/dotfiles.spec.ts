@@ -24,6 +24,9 @@ test.describe('dotfile page', () => {
       'https://gist.github.com/hamedniroomand/dc74c846d1e701c65779fdaf7d58e1bf',
     );
     expect(html).toContain(`<link rel="canonical" href="http://localhost:3457${URL}">`);
+    expect(html).toContain(
+      '<meta property="og:image" content="http://localhost:3457/og-dotfiles.png">',
+    );
   });
 
   test('unknown slugs 404 with the terminal-style error', async ({ request }) => {

@@ -3,6 +3,20 @@ import { DOTFILES_INDEX, dotfilePath } from '#shared/cv/panel-target';
 import type { CvData } from '#shared/schemas/cv';
 import type { Dotfile } from '#shared/schemas/dotfile';
 
+const OG_IMAGE = { width: 1200, height: 630 };
+
+type OgCard = 'resume' | 'dotfiles';
+
+function ogImageMeta(siteUrl: string, card: OgCard, alt: string) {
+  return {
+    ogImage: `${siteUrl}/og${card === 'dotfiles' ? '-dotfiles' : ''}.png`,
+    ogImageWidth: OG_IMAGE.width,
+    ogImageHeight: OG_IMAGE.height,
+    ogImageAlt: alt,
+    twitterCard: 'summary_large_image' as const,
+  };
+}
+
 export function useResumeSeo(cv: CvData) {
   const siteUrl = useRuntimeConfig().public.siteUrl;
   const { profile } = cv;
@@ -18,6 +32,9 @@ export function useResumeSeo(cv: CvData) {
     ogType: 'profile',
     ogUrl: url,
     ogSiteName: profile.name,
+    twitterTitle: title,
+    twitterDescription: description,
+    ...ogImageMeta(siteUrl, 'resume', `${profile.name}, ${profile.title}`),
   });
 
   useHead({
@@ -28,6 +45,7 @@ export function useResumeSeo(cv: CvData) {
 
 function pageSeo(title: string, description: string, path: string): void {
   const siteUrl = useRuntimeConfig().public.siteUrl;
+  const { profile } = useCv();
   const url = `${siteUrl}${path}`;
   useSeoMeta({
     title,
@@ -36,6 +54,10 @@ function pageSeo(title: string, description: string, path: string): void {
     ogDescription: description,
     ogType: 'website',
     ogUrl: url,
+    ogSiteName: profile.name,
+    twitterTitle: title,
+    twitterDescription: description,
+    ...ogImageMeta(siteUrl, 'dotfiles', `Dotfiles by ${profile.name}`),
   });
   useHead({ link: [{ rel: 'canonical', href: url }] });
 }
