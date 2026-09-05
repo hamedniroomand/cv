@@ -27,6 +27,9 @@ test.describe('dotfile page', () => {
     expect(html).toContain(
       '<meta property="og:image" content="http://localhost:3457/og-dotfiles.png">',
     );
+    expect(html).toContain(
+      '<meta name="twitter:image" content="http://localhost:3457/og-dotfiles.png">',
+    );
   });
 
   test('unknown slugs 404 with the terminal-style error', async ({ request }) => {

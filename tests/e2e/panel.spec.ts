@@ -17,8 +17,13 @@ test.describe('panel', () => {
     expect(html).toContain('<meta property="og:title" content="Hamed Niroomand — ');
     expect(html).toContain('<meta property="og:description" content="');
     expect(html).toContain('<meta property="og:image" content="http://localhost:3457/og.png">');
+    expect(html).toContain(
+      '<meta property="og:image:secure_url" content="http://localhost:3457/og.png">',
+    );
+    expect(html).toContain('<meta property="og:image:type" content="image/png">');
     expect(html).toContain('<meta property="og:image:width" content="1200">');
     expect(html).toContain('<meta name="twitter:card" content="summary_large_image">');
+    expect(html).toContain('<meta name="twitter:image" content="http://localhost:3457/og.png">');
     const image = await request.get('/og.png');
     expect(image.status()).toBe(200);
     expect(image.headers()['content-type']).toContain('image/png');

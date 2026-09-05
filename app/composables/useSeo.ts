@@ -8,16 +8,19 @@ const OG_IMAGE = { width: 1200, height: 630 };
 type OgCard = 'resume' | 'dotfiles';
 
 function ogImageMeta(siteUrl: string, card: OgCard, alt: string) {
+  const image = `${siteUrl}/og${card === 'dotfiles' ? '-dotfiles' : ''}.png`;
   return {
-    ogImage: `${siteUrl}/og${card === 'dotfiles' ? '-dotfiles' : ''}.png`,
+    ogImage: image,
+    ogImageSecureUrl: image,
+    ogImageType: 'image/png' as const,
     ogImageWidth: OG_IMAGE.width,
     ogImageHeight: OG_IMAGE.height,
     ogImageAlt: alt,
+    // Telegram's link preview prefers Twitter Card image tags over og:image alone.
+    twitterCard: 'summary_large_image' as const,
+    twitterImage: image,
+    twitterImageAlt: alt,
   };
-}
-
-function useTwitterCard(): void {
-  useHead({ meta: [{ name: 'twitter:card', content: 'summary_large_image' }] });
 }
 
 export function useResumeSeo(cv: CvData) {
@@ -35,9 +38,10 @@ export function useResumeSeo(cv: CvData) {
     ogType: 'profile',
     ogUrl: url,
     ogSiteName: profile.name,
+    twitterTitle: title,
+    twitterDescription: description,
     ...ogImageMeta(siteUrl, 'resume', `${profile.name}, ${profile.title}`),
   });
-  useTwitterCard();
 
   useHead({
     link: [{ rel: 'canonical', href: url }],
@@ -57,9 +61,10 @@ function pageSeo(title: string, description: string, path: string): void {
     ogType: 'website',
     ogUrl: url,
     ogSiteName: profile.name,
+    twitterTitle: title,
+    twitterDescription: description,
     ...ogImageMeta(siteUrl, 'dotfiles', `Dotfiles by ${profile.name}`),
   });
-  useTwitterCard();
   useHead({ link: [{ rel: 'canonical', href: url }] });
 }
 
