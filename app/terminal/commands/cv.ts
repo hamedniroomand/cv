@@ -1,8 +1,7 @@
 import { formatRange, totalYears } from '#shared/cv/format';
+import { PDF_FILE, PDF_PATH } from '#shared/pdf';
 import { parseFlags } from '~/terminal/shell/flags';
 import type { Command, CommandContext } from '~/terminal/types';
-
-import { PDF_FILENAME, PDF_PATH } from './open';
 
 function printSummary(ctx: CommandContext): void {
   const { profile, experience, skills } = ctx.cv;
@@ -30,8 +29,8 @@ export default {
   run(argv, ctx) {
     const { flags } = parseFlags(argv, { boolean: ['pdf', 'json'] });
     if (flags.has('pdf')) {
-      ctx.ui.download(PDF_PATH, PDF_FILENAME);
-      ctx.stdout.line(`Downloading ${PDF_FILENAME}…`);
+      ctx.ui.download(PDF_PATH, PDF_FILE);
+      ctx.stdout.line(`Downloading ${PDF_FILE}…`);
       return 0;
     }
     if (flags.has('json')) {

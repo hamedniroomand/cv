@@ -1,9 +1,8 @@
 import process from 'node:process';
 
+import { PDF_FILE } from './shared/pdf.js';
 import { SPLIT_MAX, SPLIT_MIN, SPLIT_PANEL_KEY, SPLIT_RATIO_KEY } from './shared/split.js';
 import { THEME_STORAGE_KEY } from './shared/theme.js';
-
-const PDF_FILE = 'hamed-niroomand-cv.pdf';
 
 function prePaintScript(): string {
   return [

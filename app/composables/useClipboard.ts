@@ -1,6 +1,5 @@
-const RESET_MS = 1500;
-
 export function useClipboard() {
+  const { statusMs } = useAppConfig().feedback;
   const copied = ref(false);
   let timer: ReturnType<typeof setTimeout> | undefined;
 
@@ -15,7 +14,7 @@ export function useClipboard() {
     clearTimeout(timer);
     timer = setTimeout(() => {
       copied.value = false;
-    }, RESET_MS);
+    }, statusMs);
     return true;
   }
 

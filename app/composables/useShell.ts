@@ -58,7 +58,11 @@ export function useShell(hooks: ShellHooks) {
   let nextId = 0;
   let controller: AbortController | null = null;
 
-  const history = new History(undefined, createHistoryStore(useAppConfig().terminal.historySize));
+  const { terminal } = useAppConfig();
+  const history = new History(
+    terminal.sessionHistorySize,
+    createHistoryStore(terminal.historySize),
+  );
   const fs = new Vfs(buildTree(cv), { home: HOME });
   const initialCwd = useTerminalCwd().value;
   if (initialCwd && fs.exists(initialCwd) && fs.stat(initialCwd).type === 'dir')

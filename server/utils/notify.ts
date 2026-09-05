@@ -1,4 +1,5 @@
 import type { ContactMessage } from '#shared/schemas/contact';
+import { DEFAULT_SITE_HOST } from '#shared/site-host';
 
 export interface NotifyConfig {
   discordWebhookUrl: string;
@@ -7,7 +8,6 @@ export interface NotifyConfig {
 export type Delivery = 'sent' | 'logged';
 
 const MAX_DESCRIPTION = 4000;
-const SITE_NAME = 'niroomand.dev';
 const EMBED_COLOUR = 0xe3b341;
 
 function truncate(text: string, max: number): string {
@@ -16,7 +16,7 @@ function truncate(text: string, max: number): string {
 
 function discordPayload(msg: ContactMessage): Record<string, unknown> {
   return {
-    username: SITE_NAME,
+    username: DEFAULT_SITE_HOST,
     allowed_mentions: { parse: [] },
     embeds: [
       {
@@ -24,7 +24,7 @@ function discordPayload(msg: ContactMessage): Record<string, unknown> {
         description: truncate(msg.message, MAX_DESCRIPTION),
         color: EMBED_COLOUR,
         fields: [{ name: 'Reply to', value: msg.email, inline: true }],
-        footer: { text: `contact form · ${SITE_NAME}` },
+        footer: { text: `contact form · ${DEFAULT_SITE_HOST}` },
         timestamp: new Date().toISOString(),
       },
     ],

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+  import { MOBILE_QUERY } from '#shared/layout';
   import type { AppBridge } from '~/tui/bridge';
   import type { View } from '~/tui/types';
 
@@ -12,7 +13,7 @@
   const prompt = ref<{ focus: () => void } | null>(null);
   const root = ref<HTMLElement | null>(null);
   const outputEl = ref<HTMLElement | null>(null);
-  const isMobile = useMediaQuery('(max-width: 899px)');
+  const isMobile = useMediaQuery(MOBILE_QUERY);
   let exited = false;
 
   function focusPrompt(): void {

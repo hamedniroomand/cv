@@ -8,8 +8,7 @@
     'Loading resume data … ok',
     'Starting shell …',
   ];
-  const STEP_MS = 220;
-  const FINISH_DELAY_MS = 150;
+  const { stepMs, finishDelayMs } = useAppConfig().terminal.boot;
 
   const shown = ref<string[]>([]);
   let timers: ReturnType<typeof setTimeout>[] = [];
@@ -33,8 +32,8 @@
       return;
     }
     window.addEventListener('keydown', finish);
-    timers = STEPS.map((step, index) => setTimeout(() => shown.value.push(step), index * STEP_MS));
-    timers.push(setTimeout(finish, STEPS.length * STEP_MS + FINISH_DELAY_MS));
+    timers = STEPS.map((step, index) => setTimeout(() => shown.value.push(step), index * stepMs));
+    timers.push(setTimeout(finish, STEPS.length * stepMs + finishDelayMs));
   });
 
   onBeforeUnmount(cleanup);

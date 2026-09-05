@@ -1,13 +1,13 @@
 import type { PanelTarget } from '#shared/cv/panel-target';
 import { panelRoute, panelTargetId } from '#shared/cv/panel-target';
 
-const HIGHLIGHT_MS = 1200;
 const MAX_FRAMES = 30;
 
 export function usePanelNav() {
   const active = useState<string | null>('panel-active', () => null);
   const reduced = useReducedMotion();
   const router = useRouter();
+  const { highlightMs } = useAppConfig().panel;
   let timer: ReturnType<typeof setTimeout> | undefined;
 
   function highlight(id: string): void {
@@ -15,7 +15,7 @@ export function usePanelNav() {
     clearTimeout(timer);
     timer = setTimeout(() => {
       if (active.value === id) active.value = null;
-    }, HIGHLIGHT_MS);
+    }, highlightMs);
   }
 
   async function navigate(target: PanelTarget): Promise<void> {

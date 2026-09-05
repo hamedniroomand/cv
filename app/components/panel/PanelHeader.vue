@@ -1,10 +1,9 @@
 <script setup lang="ts">
+  import { PDF_FILE } from '#shared/pdf';
   import { siteHost } from '#shared/site-host';
 
-  const REPO_URL = 'https://github.com/hamedniroomand/cv';
-  const PDF_FILE = 'hamed-niroomand-cv.pdf';
-
   const { profile } = useCv();
+  const { site } = useAppConfig();
   const host = siteHost(useRuntimeConfig().public.siteUrl);
   const location = computed(() => {
     const { city, country, tz } = profile.location;
@@ -40,7 +39,7 @@
       </a>
       <a
         class="btn btn-ghost"
-        :href="REPO_URL"
+        :href="site.repo"
         target="_blank"
         rel="noopener"
         aria-label="Source on GitHub"

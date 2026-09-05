@@ -1,4 +1,6 @@
 <script setup lang="ts">
+  import { MOBILE_QUERY } from '#shared/layout';
+
   import type { MobileKey } from './MobileKeys.vue';
   import type { TerminalInputHandle } from './TerminalInput.vue';
 
@@ -18,7 +20,7 @@
   const { set: setTheme } = useTheme();
   const reduced = useReducedMotion();
   const bus = useTerminalBus();
-  const isMobile = useMediaQuery('(max-width: 899px)');
+  const isMobile = useMediaQuery(MOBILE_QUERY);
   const app = useAppMode();
   const modal = useModalRequest();
 

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+  import { DESKTOP_QUERY } from '#shared/layout';
   import { siteHost } from '#shared/site-host';
 
   import type { ShellTab } from './MobileTabs.vue';
@@ -11,7 +12,7 @@
   const host = siteHost(useRuntimeConfig().public.siteUrl);
   const bus = useTerminalBus();
   const reveal = usePanelReveal();
-  const isDesktop = useMediaQuery('(min-width: 900px)', true);
+  const isDesktop = useMediaQuery(DESKTOP_QUERY, true);
   const tab = ref<ShellTab>('resume');
   const mounted = ref(false);
   const terminalLoaded = ref(false);

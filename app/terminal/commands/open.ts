@@ -1,8 +1,6 @@
 import { githubUrl, mailtoUrl } from '#shared/cv/links';
+import { PDF_FILE, PDF_PATH } from '#shared/pdf';
 import type { Command, CommandContext } from '~/terminal/types';
-
-export const PDF_FILENAME = 'hamed-niroomand-cv.pdf';
-export const PDF_PATH = `/${PDF_FILENAME}`;
 
 const TARGETS = ['github', 'linkedin', 'email', 'cue', 'pdf'] as const;
 
@@ -32,7 +30,7 @@ export default {
   run(argv, ctx) {
     const target = argv[0];
     if (target === 'pdf') {
-      ctx.ui.download(PDF_PATH, PDF_FILENAME);
+      ctx.ui.download(PDF_PATH, PDF_FILE);
       return 0;
     }
     const url = target ? urlFor(target, ctx) : null;

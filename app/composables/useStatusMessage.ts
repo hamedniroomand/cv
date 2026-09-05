@@ -1,6 +1,5 @@
-const CLEAR_MS = 1500;
-
 export function useStatusMessage() {
+  const { statusMs } = useAppConfig().feedback;
   const message = ref('');
   let timer: ReturnType<typeof setTimeout> | undefined;
 
@@ -9,7 +8,7 @@ export function useStatusMessage() {
     clearTimeout(timer);
     timer = setTimeout(() => {
       message.value = '';
-    }, CLEAR_MS);
+    }, statusMs);
   }
 
   onBeforeUnmount(() => clearTimeout(timer));

@@ -7,7 +7,7 @@
   }>();
   const emit = defineEmits<{ 'update:ratio': [value: number] }>();
 
-  const KEY_STEP = 0.02;
+  const { splitKeyStep } = useAppConfig().panel;
 
   const root = ref<HTMLElement | null>(null);
   const dragging = ref(false);
@@ -40,8 +40,8 @@
 
   function onKeydown(event: KeyboardEvent): void {
     const targets: Record<string, number> = {
-      ArrowLeft: props.ratio - KEY_STEP,
-      ArrowRight: props.ratio + KEY_STEP,
+      ArrowLeft: props.ratio - splitKeyStep,
+      ArrowRight: props.ratio + splitKeyStep,
       Home: SPLIT_MIN,
       End: SPLIT_MAX,
     };
