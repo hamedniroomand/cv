@@ -74,6 +74,7 @@ export default defineNuxtConfig({
     '~/assets/css/themes.css',
     '~/assets/css/crt.css',
     '~/assets/css/base.css',
+    '~/assets/css/code.css',
   ],
   app: {
     head: {

@@ -1,0 +1,70 @@
+/* Markup from rangi with `classes: true`: .shj > .shj-scroll > .shj-numbers + .shj-code */
+.shj {
+  white-space: pre;
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  line-height: 1.6;
+  tab-size: 2;
+  color: var(--fg);
+  background: var(--bg-elev);
+}
+
+.shj-scroll {
+  display: flex;
+  overflow-x: auto;
+  padding: var(--space-3) 0;
+}
+
+.shj-numbers {
+  flex: none;
+  padding: 0 var(--space-3);
+  text-align: right;
+  color: var(--fg-dim);
+  user-select: none;
+}
+
+.shj-code {
+  flex: 1;
+  padding-right: var(--space-3);
+}
+
+.shj-kwd,
+.shj-type {
+  color: var(--accent-2);
+}
+
+.shj-num,
+.shj-bool,
+.shj-class,
+.shj-esc {
+  color: var(--accent);
+}
+
+.shj-str,
+.shj-insert {
+  color: var(--success);
+}
+
+.shj-func,
+.shj-section {
+  color: var(--prompt);
+}
+
+.shj-cmnt {
+  color: var(--fg-dim);
+  font-style: italic;
+}
+
+.shj-oper,
+.shj-bracket {
+  color: var(--fg-dim);
+}
+
+.shj-deleted,
+.shj-err {
+  color: var(--error);
+}
+
+.shj-var {
+  color: var(--fg);
+}

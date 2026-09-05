@@ -23,3 +23,24 @@ export function isPlainKey(event: KeyboardEvent): boolean {
 export function isControlKey(event: KeyboardEvent, key: string): boolean {
   return event.ctrlKey && !event.altKey && !event.metaKey && event.key.toLocaleLowerCase() === key;
 }
+
+export function selectContents(el: HTMLElement): void {
+  const range = document.createRange();
+  range.selectNodeContents(el);
+  const selection = window.getSelection();
+  selection?.removeAllRanges();
+  selection?.addRange(range);
+}
+
+function nextFrame(): Promise<void> {
+  return new Promise(resolve => requestAnimationFrame(() => resolve()));
+}
+
+export async function waitForElement(id: string, frames: number): Promise<HTMLElement | null> {
+  for (let i = 0; i < frames; i++) {
+    const el = document.getElementById(id);
+    if (el) return el;
+    await nextFrame();
+  }
+  return null;
+}

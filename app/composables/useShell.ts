@@ -59,6 +59,9 @@ export function useShell(hooks: ShellHooks) {
 
   const history = new History();
   const fs = new Vfs(buildTree(cv), { home: HOME });
+  const initialCwd = useTerminalCwd().value;
+  if (initialCwd && fs.exists(initialCwd) && fs.stat(initialCwd).type === 'dir')
+    fs.chdir(initialCwd);
   const env: ShellEnv = {
     user: 'hamed',
     host: siteHost(siteUrl),
