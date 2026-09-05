@@ -25,6 +25,34 @@ describe('content slash commands', () => {
     expect(app.calls.exits).toBe(1);
   });
 
+  it('/dotfiles picks a config file, prints it and opens its page', async () => {
+    const app = makeApp({ picks: ['vscode-settings'] });
+
+    expect(await app.run('/dotfiles')).toBe(0);
+    expect(app.lines[0]!.spans).toEqual([{ text: 'VS Code settings', style: 'accent' }]);
+    expect(app.text()).toContain('File: ~/.config/Code/User/settings.json');
+    expect(app.text()).toContain('Page: https://hamed.test/dotfiles/vscode-settings');
+    expect(app.text()).toContain('  "editor.fontSize": 15');
+    expect(app.calls.navigate).toContainEqual({ section: 'dotfiles', slug: 'vscode-settings' });
+    expect(app.calls.pick[0]?.items).toEqual([
+      {
+        value: 'vscode-settings',
+        label: 'VS Code settings',
+        description: '~/.config/Code/User/settings.json',
+        keywords: ['vscode-settings', 'jsonc'],
+      },
+    ]);
+  });
+
+  it('/dotfiles resolves a slug directly and reports unknown values', async () => {
+    const app = makeApp();
+
+    expect(await app.run('/dotfiles VSCODE-SETTINGS')).toBe(0);
+    expect(app.calls.pick).toHaveLength(0);
+    expect(await app.run('/dotfiles nope')).toBe(1);
+    expect(app.text()).toContain('vscode-settings');
+  });
+
   it('/experience picks a company, prints its generated README and highlight bullets', async () => {
     const app = makeApp({ picks: ['acme'] });
 

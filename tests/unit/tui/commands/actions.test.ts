@@ -17,6 +17,7 @@ describe('action slash commands', () => {
       '/api',
       '/clear',
       '/contact',
+      '/dotfiles',
       '/education',
       '/exit',
       '/experience',

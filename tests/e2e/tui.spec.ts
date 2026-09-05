@@ -42,12 +42,13 @@ test.describe('desktop interactive app', () => {
 
     const menu = page.getByRole('listbox', { name: 'Slash commands' });
     await expect(menu).toHaveAttribute('id', 'tui-slash-listbox');
-    await expect(menu.getByRole('option')).toHaveCount(12);
+    await expect(menu.getByRole('option')).toHaveCount(13);
     await expect(menu.locator('.slash-menu__name')).toHaveText([
       '/about',
       '/api',
       '/clear',
       '/contact',
+      '/dotfiles',
       '/education',
       '/exit',
       '/experience',
