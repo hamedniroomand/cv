@@ -17,8 +17,6 @@
     "test": "bun --bun vitest run --passWithNoTests",
     "test:coverage": "bun --bun vitest run --coverage",
     "test:watch": "bun --bun vitest",
-    "build:e2e": "NUXT_PUBLIC_SITE_URL=http://localhost:3457 NUXT_PUBLIC_TURNSTILE_SITE_KEY=1x00000000000000000000AA bun --bun nuxt build",
-    "test:e2e": "bun run build:e2e && playwright test",
     "prepare": "command -v vp >/dev/null 2>&1 && vp config || exit 0",
     "icons": "bun run scripts/build-icons.ts",
     "check": "vp check",

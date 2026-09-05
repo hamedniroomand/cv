@@ -96,7 +96,7 @@ To run the tests:
 bun run test        # unit tests
 bun run build       # production build, required once before the browser tests
 bunx playwright install chromium
-bun run test:e2e    # browser tests
+vp run test:e2e     # builds the e2e app, then runs browser tests
 ```
 
 The contact form works without configuration. It logs messages to the server console. Copy

@@ -125,4 +125,18 @@ export default defineConfig({
     '*.{ts,mts,cts,js,mjs,cjs,vue}': 'vp check --fix',
     '*.{json,yml,yaml,css}': 'vp fmt',
   },
+
+  run: {
+    tasks: {
+      'build:e2e': {
+        command:
+          'NUXT_PUBLIC_SITE_URL=http://localhost:3457 NUXT_PUBLIC_TURNSTILE_SITE_KEY=1x00000000000000000000AA bun --bun nuxt build',
+        env: ['NUXT_PUBLIC_SITE_URL', 'NUXT_PUBLIC_TURNSTILE_SITE_KEY'],
+      },
+      'test:e2e': {
+        command: 'playwright test',
+        dependsOn: ['build:e2e'],
+      },
+    },
+  },
 });
