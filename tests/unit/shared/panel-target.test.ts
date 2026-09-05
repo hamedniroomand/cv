@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vite-plus/test';
 
-import { panelTargetId } from '#shared/cv/panel-target';
+import { DOTFILES_INDEX, dotfilePath, panelRoute, panelTargetId } from '#shared/cv/panel-target';
 
 describe('panelTargetId', () => {
   it('uses section ids by default', () => {
@@ -15,5 +15,25 @@ describe('panelTargetId', () => {
 
   it('ignores slugs on other sections', () => {
     expect(panelTargetId({ section: 'skills', slug: 'frontend' })).toBe('section-skills');
+  });
+});
+
+describe('dotfile targets', () => {
+  it('prefixes dotfile slugs', () => {
+    expect(panelTargetId({ section: 'dotfiles', slug: 'vscode-settings' })).toBe(
+      'dotfile-vscode-settings',
+    );
+    expect(panelTargetId({ section: 'dotfiles' })).toBe('section-dotfiles');
+  });
+
+  it('routes dotfile targets to their pages and everything else home', () => {
+    expect(dotfilePath('vscode-settings')).toBe('/dotfiles/vscode-settings');
+    expect(DOTFILES_INDEX).toBe('/dotfiles');
+    expect(panelRoute({ section: 'dotfiles', slug: 'vscode-settings' })).toBe(
+      '/dotfiles/vscode-settings',
+    );
+    expect(panelRoute({ section: 'dotfiles' })).toBe('/dotfiles');
+    expect(panelRoute({ section: 'about' })).toBe('/');
+    expect(panelRoute({ section: 'experience', slug: 'acme' })).toBe('/');
   });
 });

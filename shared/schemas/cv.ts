@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 import { RenderedBody } from './common.ts';
+import { DotfileSchema } from './dotfile.ts';
 import { EducationSchema } from './education.ts';
 import { ExperienceSchema } from './experience.ts';
 import { ProfileSchema } from './profile.ts';
@@ -12,6 +13,7 @@ export const CvDataSchema = z.object({
   about: RenderedBody,
   experience: z.array(ExperienceSchema).min(1),
   projects: z.array(ProjectSchema),
+  dotfiles: z.array(DotfileSchema),
   skills: SkillsSchema,
   education: EducationSchema,
   secrets: z.object({ body: z.string() }),

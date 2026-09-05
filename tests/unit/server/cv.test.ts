@@ -7,6 +7,7 @@ describe('getPublicCv', () => {
   it('returns resume data without secrets', () => {
     const pub = getPublicCv();
     expect(pub).not.toHaveProperty('secrets');
+    expect(pub).not.toHaveProperty('dotfiles');
     expect(pub.profile).toEqual(fixtureCv.profile);
     expect(pub.projects).toEqual(fixtureCv.projects);
   });

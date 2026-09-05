@@ -40,6 +40,7 @@
     "@types/bun": "^1.4.1",
     "@vitest/coverage-v8": "4.1.11",
     "h3": "2.0.1-rc.31",
+    "rangi": "2.2.0",
     "typescript": "^6",
     "vite": "npm:@voidzero-dev/vite-plus-core@0.3.0",
     "vite-plus": "0.3.0",

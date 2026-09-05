@@ -1,8 +1,7 @@
-import { readdir, readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
 import { marked } from 'marked';
-import { z } from 'zod';
+import type { z } from 'zod';
 
 import type { CvData } from '#shared/schemas/cv';
 import { CvDataSchema } from '#shared/schemas/cv';
@@ -15,18 +14,31 @@ import type { Project } from '#shared/schemas/project';
 import { ProjectFrontmatter } from '#shared/schemas/project';
 import { SkillsSchema } from '#shared/schemas/skills';
 
-import { parseFrontmatter } from './frontmatter.ts';
+import { loadDotfiles } from './dotfiles.ts';
+import { ContentError } from './errors.ts';
+import type { GistFetcher } from './github.ts';
+import type { Highlighter } from './highlight.ts';
+import {
+  byOrder,
+  listDirs,
+  listMarkdown,
+  readJson,
+  readMarkdown,
+  slugOf,
+  validate,
+} from './read.ts';
 
 export type ReadmeFetcher = (repo: string) => Promise<string | null>;
 
+export interface LoadDeps {
+  fetchReadme: ReadmeFetcher;
+  fetchGist: GistFetcher;
+  highlight: Highlighter;
+}
+
 marked.setOptions({ gfm: true, async: false });
 
-export class ContentError extends Error {
-  constructor(file: string, detail: string) {
-    super(`content validation failed in ${file}: ${detail}`);
-    this.name = 'ContentError';
-  }
-}
+export { ContentError };
 
 function render(markdown: string): string {
   return marked.parse(markdown) as string;
@@ -34,52 +46,6 @@ function render(markdown: string): string {
 
 function rendered(body: string): { body: string; html: string } {
   return { body, html: render(body) };
-}
-
-function validate<T>(schema: z.ZodType<T>, value: unknown, file: string): T {
-  const result = schema.safeParse(value);
-  if (!result.success) throw new ContentError(file, z.prettifyError(result.error));
-  return result.data;
-}
-
-function slugOf(fileName: string): string {
-  return fileName.replace(/\.md$/, '');
-}
-
-function byOrder<T extends { order: number }>(a: T, b: T): number {
-  return a.order - b.order;
-}
-
-async function readText(path: string): Promise<string> {
-  return readFile(path, 'utf8');
-}
-
-async function readJson(path: string): Promise<unknown> {
-  return JSON.parse(await readText(path));
-}
-
-async function readMarkdown(path: string) {
-  return parseFrontmatter(await readText(path));
-}
-
-async function listDirs(path: string): Promise<string[]> {
-  const entries = await readdir(path, { withFileTypes: true });
-  return entries
-    .filter(entry => entry.isDirectory())
-    .map(entry => entry.name)
-    .sort();
-}
-
-async function listMarkdown(path: string): Promise<string[]> {
-  try {
-    const entries = await readdir(path, { withFileTypes: true });
-    return entries
-      .filter(entry => entry.isFile() && entry.name.endsWith('.md'))
-      .map(entry => entry.name)
-      .sort();
-  } catch {
-    return [];
-  }
 }
 
 async function loadHighlights(dir: string): Promise<Highlight[]> {
@@ -139,7 +105,7 @@ async function loadJson<T>(schema: z.ZodType<T>, file: string): Promise<T> {
 
 export async function loadContent(
   contentDir: string,
-  fetchReadme: ReadmeFetcher,
+  deps: LoadDeps,
   now = new Date(),
 ): Promise<CvData> {
   const at = (name: string): string => join(contentDir, name);
@@ -152,7 +118,8 @@ export async function loadContent(
     profile,
     about: rendered(about.body),
     experience: await loadExperience(at('experience')),
-    projects: await loadProjects(at('projects'), fetchReadme),
+    projects: await loadProjects(at('projects'), deps.fetchReadme),
+    dotfiles: await loadDotfiles(at('dotfiles'), profile.links.github, deps),
     skills,
     education: await loadEducation(at('education.md')),
     secrets: { body: secrets.body },

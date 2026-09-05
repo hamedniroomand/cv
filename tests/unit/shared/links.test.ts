@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vite-plus/test';
 
-import { githubUrl, linkLabel, mailtoUrl, stripScheme } from '#shared/cv/links';
+import { gistUrl, githubUrl, linkLabel, mailtoUrl, stripScheme } from '#shared/cv/links';
 
 describe('links', () => {
   it('builds github and mailto urls', () => {
@@ -17,5 +17,11 @@ describe('links', () => {
   it('builds a short label without scheme or www', () => {
     expect(linkLabel('https://www.linkedin.com/in/x')).toBe('linkedin.com/in/x');
     expect(linkLabel('https://linkedin.com/in/x')).toBe('linkedin.com/in/x');
+  });
+
+  it('builds gist urls', () => {
+    expect(gistUrl('hamedniroomand', 'dc74c846d1e701c65779fdaf7d58e1bf')).toBe(
+      'https://gist.github.com/hamedniroomand/dc74c846d1e701c65779fdaf7d58e1bf',
+    );
   });
 });
