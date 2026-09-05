@@ -10,6 +10,7 @@
   const value = ref('');
   const status = ref('Type / for commands · ↑↓ to choose · Esc to leave');
   const prompt = ref<{ focus: () => void } | null>(null);
+  const root = ref<HTMLElement | null>(null);
   const outputEl = ref<HTMLElement | null>(null);
   const isMobile = useMediaQuery('(max-width: 899px)');
   let exited = false;
@@ -206,13 +207,26 @@
   view.print('Welcome. Try /experience to browse companies, /skills for the stack,');
   view.print('or /pdf to grab the one-pager.');
 
-  onMounted(focusPrompt);
+  function onWindowKeydown(event: KeyboardEvent): void {
+    if (event.key !== 'Escape' || event.defaultPrevented) return;
+    if (event.target instanceof Node && root.value?.contains(event.target)) return;
+    if (document.querySelector('dialog[open]')) return;
+    event.preventDefault();
+    exit();
+  }
+
+  onMounted(() => {
+    focusPrompt();
+    window.addEventListener('keydown', onWindowKeydown);
+  });
+  onBeforeUnmount(() => window.removeEventListener('keydown', onWindowKeydown));
 
   defineExpose({ insert });
 </script>
 
 <template>
   <section
+    ref="root"
     class="tui"
     aria-label="Interactive app"
     @keydown.capture="onAppKeydown"

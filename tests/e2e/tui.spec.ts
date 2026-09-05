@@ -257,6 +257,14 @@ test.describe('desktop interactive app', () => {
     await expect(page.getByRole('log', { name: 'App output' })).toContainText('/experience');
   });
 
+  test('Escape from outside the app closes it', async ({ page }) => {
+    await openApp(page);
+    await page.getByRole('heading', { name: 'About' }).click();
+    await page.keyboard.press('Escape');
+    await expect(page.getByLabel('Terminal input')).toBeVisible();
+    await expect(page.getByRole('log', { name: 'Terminal output' })).toContainText('hamed: exited');
+  });
+
   test('empty Escape and Ctrl+D exit the app', async ({ page }) => {
     let prompt = await openApp(page);
     await prompt.press('Escape');
