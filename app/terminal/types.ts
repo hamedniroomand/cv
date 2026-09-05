@@ -61,6 +61,8 @@ export interface CompletionContext {
 export interface PanelControls {
   navigate: (target: PanelTarget) => void;
   toggle: () => void;
+  /** Shows the panel: opens it when it is closed and switches to it on mobile. */
+  reveal: () => void;
 }
 
 export interface CommandContext {

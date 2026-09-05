@@ -24,6 +24,7 @@ import { createAppRegistry } from '~/tui/registry';
 export interface ShellHooks {
   navigate: (target: PanelTarget) => void;
   togglePanel: () => void;
+  revealPanel: () => void;
   setTheme: (name: ThemeName) => void;
   setLang: (lang: Lang) => void;
   openApp: () => Promise<void>;
@@ -85,7 +86,7 @@ export function useShell(hooks: ShellHooks) {
     env,
     sink: push,
     nextId: () => ++nextId,
-    panel: { navigate: hooks.navigate, toggle: hooks.togglePanel },
+    panel: { navigate: hooks.navigate, toggle: hooks.togglePanel, reveal: hooks.revealPanel },
     theme: { set: hooks.setTheme },
     lang: { set: hooks.setLang },
     ui: createTerminalUi(hooks, clear),

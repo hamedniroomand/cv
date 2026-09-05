@@ -10,6 +10,7 @@
   const { ratio, panelOpen, setRatio, toggle } = useSplitPane();
   const host = siteHost(useRuntimeConfig().public.siteUrl);
   const bus = useTerminalBus();
+  const reveal = usePanelReveal();
   const isDesktop = useMediaQuery('(min-width: 900px)', true);
   const tab = ref<ShellTab>('resume');
   const mounted = ref(false);
@@ -31,6 +32,14 @@
     () => bus.requested.value,
     () => {
       if (!isDesktop.value) tab.value = 'terminal';
+    },
+  );
+
+  watch(
+    () => reveal.requested.value,
+    () => {
+      tab.value = 'resume';
+      if (!panelOpen.value) toggle();
     },
   );
 

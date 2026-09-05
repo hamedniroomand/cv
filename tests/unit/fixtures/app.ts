@@ -54,6 +54,13 @@ export function makeApp({ commands = [], picks = [] }: AppOptions = {}) {
     },
   };
 
+  deps.panel.toggle = () => {
+    calls.toggled++;
+  };
+  deps.panel.reveal = () => {
+    calls.revealed++;
+  };
+
   let liveTheme: ThemeName = deps.env.theme;
   const applyTheme = deps.theme.set;
   deps.theme.set = name => {

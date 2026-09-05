@@ -314,8 +314,37 @@ test.describe('mobile interactive app', () => {
     await prompt.fill('/');
     await page.getByRole('option', { name: /^\/experience\b/ }).click();
     await page.getByRole('option', { name: /Thales MFI GmbH/ }).click();
-    await expect(page.getByRole('log', { name: 'App output' })).toContainText('Thales MFI');
+    await expect(page.getByRole('tab', { name: 'Resume' })).toHaveAttribute(
+      'aria-selected',
+      'true',
+    );
+    await expect(page.locator('#exp-thales')).toBeVisible();
     await expect(page.locator('#exp-thales')).toHaveClass(/is-highlighted/);
+    await page.getByRole('tab', { name: 'Terminal' }).click();
+    await expect(page.getByRole('log', { name: 'App output' })).toContainText(
+      'Opened Thales MFI GmbH in the panel.',
+    );
+    await expect(page.getByRole('combobox', { name: 'App command' })).toBeVisible();
+  });
+});
+
+test.describe('app commands reveal the panel', () => {
+  test.skip(({ isMobile }) => isMobile, 'desktop only');
+
+  test('a content command reopens a closed panel and prints only a confirmation', async ({
+    page,
+  }) => {
+    const prompt = await openApp(page);
+    await page.keyboard.press('Control+`');
+    await expect(page.locator('html')).toHaveAttribute('data-panel', 'closed');
+    await prompt.fill('/about');
+    await prompt.press('Enter');
+    await expect(page.locator('html')).not.toHaveAttribute('data-panel', 'closed');
+    const output = page.getByRole('log', { name: 'App output' });
+    await expect(output).toContainText('Opened About in the panel.');
+    await expect(output).toContainText('Raw text: bat ~/about.md');
+    await expect(output).not.toContainText('senior web developer');
+    await expect(page.locator('#section-about')).toHaveClass(/is-highlighted/);
   });
 });
 

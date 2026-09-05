@@ -1,12 +1,11 @@
-import { printMarkdown } from '~/tui/markdown';
+import { openInPanel } from '~/tui/panel';
 import type { AppCommand } from '~/tui/types';
 
 export default {
   name: 'about',
-  description: 'Read the profile summary',
+  description: 'Open the profile summary',
   run(_argv, ctx) {
-    printMarkdown(ctx.view, ctx.fs.readFile('~/about.md'));
-    ctx.panel.navigate({ section: 'about' });
+    openInPanel(ctx, 'About', { section: 'about' }, 'bat ~/about.md');
     return 0;
   },
 } satisfies AppCommand;

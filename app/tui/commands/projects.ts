@@ -1,8 +1,7 @@
-import { githubUrl } from '#shared/cv/links';
 import type { Project } from '#shared/schemas/project';
 import { unknownValueMessage } from '~/terminal/messages';
 import { chooseValue } from '~/tui/choose';
-import { printMarkdown } from '~/tui/markdown';
+import { openInPanel } from '~/tui/panel';
 import type { AppCommand, AppContext, PickerItem } from '~/tui/types';
 import { EXIT_CANCELLED } from '~/tui/types';
 
@@ -18,10 +17,6 @@ function choices(ctx: AppContext): PickerItem[] {
 function resolveProject(input: string, projects: Project[]): Project | undefined {
   const query = input.toLocaleLowerCase();
   return projects.find(project => project.slug.toLocaleLowerCase() === query);
-}
-
-function printLink(ctx: AppContext, label: string, href: string): void {
-  ctx.view.print([{ text: `${label}: ` }, { text: href, style: 'accent', href }]);
 }
 
 export default {
@@ -42,10 +37,12 @@ export default {
       return 1;
     }
 
-    printMarkdown(ctx.view, ctx.fs.readFile(`~/projects/${project.slug}/README.md`));
-    printLink(ctx, 'Repository', githubUrl(project.repo));
-    if (project.docs) printLink(ctx, 'Docs', project.docs);
-    ctx.panel.navigate({ section: 'projects', slug: project.slug });
+    openInPanel(
+      ctx,
+      project.name,
+      { section: 'projects', slug: project.slug },
+      `bat ~/projects/${project.slug}/README.md`,
+    );
     return 0;
   },
 } satisfies AppCommand;

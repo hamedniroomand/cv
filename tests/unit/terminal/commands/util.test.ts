@@ -30,7 +30,10 @@ describe('navigateFor', () => {
   it('no-ops when the path is missing', () => {
     const term = makeShell(commands);
     const navigate = vi.fn();
-    navigateFor({ fs: term.deps.fs, panel: { navigate, toggle: () => {} } } as never, 'nope');
+    navigateFor(
+      { fs: term.deps.fs, panel: { navigate, toggle: () => {}, reveal: () => {} } } as never,
+      'nope',
+    );
     expect(navigate).not.toHaveBeenCalled();
   });
 });

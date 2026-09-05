@@ -1,12 +1,11 @@
-import { printMarkdown } from '~/tui/markdown';
+import { openInPanel } from '~/tui/panel';
 import type { AppCommand } from '~/tui/types';
 
 export default {
   name: 'education',
-  description: 'Read education details',
+  description: 'Open education details',
   run(_argv, ctx) {
-    printMarkdown(ctx.view, ctx.fs.readFile('~/education.md'));
-    ctx.panel.navigate({ section: 'education' });
+    openInPanel(ctx, 'Education', { section: 'education' }, 'bat ~/education.md');
     return 0;
   },
 } satisfies AppCommand;

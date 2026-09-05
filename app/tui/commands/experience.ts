@@ -2,7 +2,7 @@ import { formatRange } from '#shared/cv/format';
 import type { Experience } from '#shared/schemas/experience';
 import { unknownValueMessage } from '~/terminal/messages';
 import { chooseValue } from '~/tui/choose';
-import { printMarkdown } from '~/tui/markdown';
+import { openInPanel } from '~/tui/panel';
 import type { AppCommand, AppContext, PickerItem } from '~/tui/types';
 import { EXIT_CANCELLED } from '~/tui/types';
 
@@ -29,15 +29,6 @@ function resolveExperience(input: string, experiences: Experience[]): Experience
   return byCompany.length === 1 ? byCompany[0] : undefined;
 }
 
-function highlightsMarkdown(experience: Experience): string[] {
-  if (experience.highlights.length === 0) return [];
-  return [
-    '',
-    '## Highlights',
-    ...experience.highlights.map(highlight => `- ${highlight.title} — ${highlight.body}`),
-  ];
-}
-
 export default {
   name: 'experience',
   description: 'Browse roles and highlights',
@@ -56,9 +47,12 @@ export default {
       return 1;
     }
 
-    const readme = ctx.fs.readFile(`~/experience/${experience.slug}/README.md`);
-    printMarkdown(ctx.view, [readme, ...highlightsMarkdown(experience)].join('\n'));
-    ctx.panel.navigate({ section: 'experience', slug: experience.slug });
+    openInPanel(
+      ctx,
+      experience.company,
+      { section: 'experience', slug: experience.slug },
+      `bat ~/experience/${experience.slug}/README.md`,
+    );
     return 0;
   },
 } satisfies AppCommand;

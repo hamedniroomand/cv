@@ -1,5 +1,6 @@
 import { unknownValueMessage } from '~/terminal/messages';
 import { chooseValue } from '~/tui/choose';
+import { openInPanel } from '~/tui/panel';
 import type { AppCommand, AppContext, PickerItem } from '~/tui/types';
 import { EXIT_CANCELLED } from '~/tui/types';
 
@@ -29,7 +30,10 @@ export default {
     if (requested === null) return EXIT_CANCELLED;
 
     const query = requested.toLocaleLowerCase();
-    if (query === ALL) return ctx.shell('skills');
+    if (query === ALL) {
+      openInPanel(ctx, 'Skills', { section: 'skills' }, 'skills');
+      return 0;
+    }
 
     const { categories } = ctx.cv.skills;
     const category = categories.find(item => item.id.toLocaleLowerCase() === query);
@@ -43,6 +47,7 @@ export default {
       );
       return 1;
     }
-    return ctx.shell(`skills --category ${category.id}`);
+    openInPanel(ctx, category.label, { section: 'skills' }, `skills --category ${category.id}`);
+    return 0;
   },
 } satisfies AppCommand;

@@ -1,7 +1,7 @@
-import { dotfilePath } from '#shared/cv/panel-target';
 import type { Dotfile } from '#shared/schemas/dotfile';
 import { unknownValueMessage } from '~/terminal/messages';
 import { chooseValue } from '~/tui/choose';
+import { openInPanel } from '~/tui/panel';
 import type { AppCommand, AppContext, PickerItem } from '~/tui/types';
 import { EXIT_CANCELLED } from '~/tui/types';
 
@@ -19,19 +19,9 @@ function resolveDotfile(input: string, dotfiles: Dotfile[]): Dotfile | undefined
   return dotfiles.find(dotfile => dotfile.slug.toLocaleLowerCase() === query);
 }
 
-function printDotfile(ctx: AppContext, dotfile: Dotfile): void {
-  const url = `${ctx.env.siteUrl}${dotfilePath(dotfile.slug)}`;
-  ctx.view.print(dotfile.title, 'accent');
-  ctx.view.print(dotfile.description);
-  ctx.view.print([{ text: 'File: ' }, { text: dotfile.path, style: 'dim' }]);
-  ctx.view.print([{ text: 'Page: ' }, { text: url, style: 'accent', href: url }]);
-  ctx.view.print('');
-  for (const line of dotfile.content.split('\n')) ctx.view.print(line, 'pre');
-}
-
 export default {
   name: 'dotfiles',
-  description: 'Browse config files',
+  description: 'Open a config file',
   args: '[name]',
   complete: (_argv, ctx) => choices(ctx),
   async run(argv, ctx) {
@@ -51,8 +41,12 @@ export default {
       return 1;
     }
 
-    printDotfile(ctx, dotfile);
-    ctx.panel.navigate({ section: 'dotfiles', slug: dotfile.slug });
+    openInPanel(
+      ctx,
+      dotfile.title,
+      { section: 'dotfiles', slug: dotfile.slug },
+      `cat ${dotfile.path}`,
+    );
     return 0;
   },
 } satisfies AppCommand;

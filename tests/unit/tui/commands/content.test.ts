@@ -25,15 +25,15 @@ describe('content slash commands', () => {
     expect(app.calls.exits).toBe(1);
   });
 
-  it('/dotfiles picks a config file, prints it and opens its page', async () => {
+  it('/dotfiles picks a config file and opens it in the panel', async () => {
     const app = makeApp({ picks: ['vscode-settings'] });
 
     expect(await app.run('/dotfiles')).toBe(0);
-    expect(app.lines[0]!.spans).toEqual([{ text: 'VS Code settings', style: 'accent' }]);
-    expect(app.text()).toContain('File: ~/.config/Code/User/settings.json');
-    expect(app.text()).toContain('Page: https://hamed.test/dotfiles/vscode-settings');
-    expect(app.text()).toContain('  "editor.fontSize": 15');
-    expect(app.calls.navigate).toContainEqual({ section: 'dotfiles', slug: 'vscode-settings' });
+    expect(app.text()).toBe(
+      'Opened VS Code settings in the panel.\nRaw text: cat ~/.config/Code/User/settings.json',
+    );
+    expect(app.calls.revealed).toBe(1);
+    expect(app.calls.navigate).toEqual([{ section: 'dotfiles', slug: 'vscode-settings' }]);
     expect(app.calls.pick[0]?.items).toEqual([
       {
         value: 'vscode-settings',
@@ -53,14 +53,16 @@ describe('content slash commands', () => {
     expect(app.text()).toContain('vscode-settings');
   });
 
-  it('/experience picks a company, prints its generated README and highlight bullets', async () => {
+  it('/experience picks a company and opens it in the panel with a raw-text hint', async () => {
     const app = makeApp({ picks: ['acme'] });
 
     expect(await app.run('/experience')).toBe(0);
-    expect(app.lines[0]!.spans).toEqual([{ text: 'Acme', style: 'accent' }]);
-    expect(app.text()).toContain('Team Lead · Sep 2022 – Aug 2026');
-    expect(app.text()).toContain('  • Shipped the thing — Shipped the thing to production.');
-    expect(app.calls.navigate).toContainEqual({ section: 'experience', slug: 'acme' });
+    expect(app.text()).toBe('Opened Acme in the panel.\nRaw text: bat ~/experience/acme/README.md');
+    expect(app.lines[1]!.spans).toEqual([
+      { text: 'Raw text: bat ~/experience/acme/README.md', style: 'dim' },
+    ]);
+    expect(app.calls.revealed).toBe(1);
+    expect(app.calls.navigate).toEqual([{ section: 'experience', slug: 'acme' }]);
     expect(app.calls.pick[0]?.items).toContainEqual(
       expect.objectContaining({
         value: 'acme',
@@ -72,8 +74,8 @@ describe('content slash commands', () => {
   });
 
   it.each([
-    ['/experience acme', 'Acme\nTeam Lead'],
-    ['/experience GLOB', 'Globex\nWeb Developer'],
+    ['/experience acme', 'Opened Acme in the panel.'],
+    ['/experience GLOB', 'Opened Globex in the panel.'],
   ])('%s resolves a slug or unique case-insensitive company prefix', async (line, heading) => {
     const app = makeApp();
 
@@ -88,6 +90,7 @@ describe('content slash commands', () => {
     expect(await app.run('/experience unknown')).toBe(1);
     expect(app.text()).toContain('acme, globex');
     expect(app.calls.navigate).toHaveLength(0);
+    expect(app.calls.revealed).toBe(0);
   });
 
   it('/experience exposes company picker completions', () => {
@@ -96,14 +99,13 @@ describe('content slash commands', () => {
     expect(app.complete('experience').map(item => item.value)).toEqual(['acme', 'globex']);
   });
 
-  it('/projects prints its README and links, then navigates to the selected project', async () => {
+  it('/projects opens the selected project in the panel', async () => {
     const app = makeApp({ picks: ['cue'] });
 
     expect(await app.run('/projects')).toBe(0);
-    expect(app.lines[0]!.spans).toEqual([{ text: 'Cue', style: 'accent' }]);
-    expect(app.text()).toContain('https://github.com/hamedniroomand/cue');
-    expect(app.text()).toContain('https://hamedniroomand.github.io/cue');
-    expect(app.calls.navigate).toContainEqual({ section: 'projects', slug: 'cue' });
+    expect(app.text()).toBe('Opened Cue in the panel.\nRaw text: bat ~/projects/cue/README.md');
+    expect(app.calls.revealed).toBe(1);
+    expect(app.calls.navigate).toEqual([{ section: 'projects', slug: 'cue' }]);
   });
 
   it('/projects accepts a direct slug and reports unknown values with valid slugs', async () => {
@@ -112,8 +114,7 @@ describe('content slash commands', () => {
 
     expect(await selected.run('/projects CUE')).toBe(0);
     expect(selected.calls.pick).toHaveLength(0);
-    expect(selected.text()).toContain('Cue');
-    expect(selected.text()).not.toContain('# Cue');
+    expect(selected.text()).toContain('Opened Cue');
     expect(await unknown.run('/projects unknown')).toBe(1);
     expect(unknown.text()).toContain('cue');
   });
@@ -131,22 +132,22 @@ describe('content slash commands', () => {
     );
   });
 
-  it('/skills delegates category rendering to the existing shell command', async () => {
+  it('/skills opens a category in the panel and hints at the shell filter', async () => {
     const app = makeApp({ picks: ['frontend'] });
 
     expect(await app.run('/skills')).toBe(0);
-    expect(app.calls.shell).toContain('skills --category frontend');
-    expect(app.text()).toContain('Vue 3, Nuxt 4');
-    expect(app.calls.navigate).toContainEqual({ section: 'skills' });
+    expect(app.text()).toBe('Opened Frontend in the panel.\nRaw text: skills --category frontend');
+    expect(app.calls.shell).toEqual([]);
+    expect(app.calls.revealed).toBe(1);
+    expect(app.calls.navigate).toEqual([{ section: 'skills' }]);
   });
 
-  it('/skills delegates the all option without a category filter', async () => {
+  it('/skills opens all categories in the panel', async () => {
     const app = makeApp({ picks: ['all'] });
 
     expect(await app.run('/skills')).toBe(0);
-    expect(app.calls.shell).toEqual(['skills']);
-    expect(app.text()).toContain('Frontend');
-    expect(app.text()).toContain('Backend');
+    expect(app.text()).toBe('Opened Skills in the panel.\nRaw text: skills');
+    expect(app.calls.navigate).toEqual([{ section: 'skills' }]);
   });
 
   it('/skills exposes all and category picker completions', () => {
@@ -159,7 +160,7 @@ describe('content slash commands', () => {
     ]);
   });
 
-  it.each(['/experience', '/projects', '/skills'])(
+  it.each(['/experience', '/projects', '/skills', '/dotfiles'])(
     '%s cancellation prints nothing and returns 130',
     async line => {
       const app = makeApp({ picks: [null] });
@@ -167,27 +168,26 @@ describe('content slash commands', () => {
       expect(await app.run(line)).toBe(130);
       expect(app.text()).toBe('');
       expect(app.calls.navigate).toHaveLength(0);
+      expect(app.calls.revealed).toBe(0);
       expect(app.calls.shell).toHaveLength(0);
     },
   );
 
-  it('/about prints the VFS document and navigates to about', async () => {
+  it('/about opens the profile summary in the panel', async () => {
     const app = makeApp();
 
     expect(await app.run('/about')).toBe(0);
-    expect(app.text()).toBe('About paragraph one.\n\nAbout paragraph two.');
+    expect(app.text()).toBe('Opened About in the panel.\nRaw text: bat ~/about.md');
+    expect(app.calls.revealed).toBe(1);
     expect(app.calls.navigate).toEqual([{ section: 'about' }]);
   });
 
-  it('/education prints the generated VFS document and navigates to education', async () => {
+  it('/education opens education in the panel', async () => {
     const app = makeApp();
 
     expect(await app.run('/education')).toBe(0);
-    expect(app.lines[0]!.spans).toEqual([
-      { text: 'B.Sc. Mechanical Engineering', style: 'accent' },
-    ]);
-    expect(app.text()).toContain('Sep 2018 – Jun 2022');
-    expect(app.text()).toContain('Studied while working.');
+    expect(app.text()).toBe('Opened Education in the panel.\nRaw text: bat ~/education.md');
+    expect(app.calls.revealed).toBe(1);
     expect(app.calls.navigate).toEqual([{ section: 'education' }]);
   });
 });

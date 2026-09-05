@@ -12,6 +12,7 @@ import { joinLines } from './output';
 export interface ShellCalls {
   navigate: PanelTarget[];
   toggled: number;
+  revealed: number;
   apps: number;
   opened: string[];
   downloads: string[];
@@ -26,6 +27,7 @@ function emptyCalls(): ShellCalls {
   return {
     navigate: [],
     toggled: 0,
+    revealed: 0,
     apps: 0,
     opened: [],
     downloads: [],
@@ -56,7 +58,11 @@ export function makeShell(commands: Command[], overrides: Partial<ShellDeps> = {
     },
     sink: line => lines.push(line),
     nextId: () => ++id,
-    panel: { navigate: target => calls.navigate.push(target), toggle: () => calls.toggled++ },
+    panel: {
+      navigate: target => calls.navigate.push(target),
+      toggle: () => calls.toggled++,
+      reveal: () => calls.revealed++,
+    },
     theme: { set: name => calls.themes.push(name) },
     lang: { set: lang => calls.langs.push(lang) },
     ui: {

@@ -14,6 +14,7 @@
 
   const { navigate } = usePanelNav();
   const { toggle } = useSplitPane();
+  const reveal = usePanelReveal();
   const { set: setTheme } = useTheme();
   const reduced = useReducedMotion();
   const bus = useTerminalBus();
@@ -24,6 +25,7 @@
   const shell = useShell({
     navigate,
     togglePanel: toggle,
+    revealPanel: reveal.request,
     setTheme,
     setLang: () => {},
     openApp: app.request,
