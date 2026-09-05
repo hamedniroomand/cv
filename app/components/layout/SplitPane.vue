@@ -34,6 +34,10 @@
     (event.currentTarget as HTMLElement).releasePointerCapture(event.pointerId);
   }
 
+  function reset(): void {
+    update(SPLIT_DEFAULT);
+  }
+
   function onKeydown(event: KeyboardEvent): void {
     const targets: Record<string, number> = {
       ArrowLeft: props.ratio - KEY_STEP,
@@ -64,6 +68,7 @@
       role="separator"
       aria-orientation="vertical"
       aria-label="Resize terminal and resume"
+      title="Drag to resize. Double-click to reset."
       aria-controls="resume"
       :aria-valuenow="percent"
       :aria-valuemin="SPLIT_MIN * 100"
@@ -73,6 +78,7 @@
       @pointermove="onPointerMove"
       @pointerup="onPointerUp"
       @pointercancel="onPointerUp"
+      @dblclick="reset"
       @keydown="onKeydown"
     />
     <div

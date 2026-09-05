@@ -29,6 +29,18 @@ test.describe('split layout', () => {
 test.describe('split layout first paint', () => {
   test.skip(({ isMobile }) => isMobile, 'desktop only');
 
+  test('double-clicking the divider resets and saves the default ratio', async ({ page }) => {
+    await page.goto('/');
+    const divider = page.getByRole('separator', { name: 'Resize terminal and resume' });
+    await divider.focus();
+    await divider.press('End');
+    await expect(divider).toHaveAttribute('aria-valuenow', '80');
+    await divider.dblclick();
+    await expect(divider).toHaveAttribute('aria-valuenow', '55');
+    await page.reload();
+    await expect(divider).toHaveAttribute('aria-valuenow', '55');
+  });
+
   test('a saved ratio is applied before hydration', async ({ page }) => {
     await page.goto('/');
     const divider = page.getByRole('separator', { name: 'Resize terminal and resume' });
