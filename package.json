@@ -28,7 +28,7 @@
     "@vercel/analytics": "^2.0.1",
     "@vercel/speed-insights": "^2.0.0",
     "marked": "^18.0.11",
-    "nuxt": "npm:nuxt-nightly@5.0.0-29807919.2cbde35e",
+    "nuxt": "npm:nuxt-nightly@5.0.0-29809882.5e9dc0cc",
     "vue": "^3.5.42",
     "vue-router": "^5.3.1",
     "zod": "^4.5.4"

@@ -1,7 +1,7 @@
-import { buildTree, HOME } from '#shared/cv/build-tree';
 import type { PanelTarget } from '#shared/cv/panel-target';
 import { siteHost } from '#shared/site-host';
 import { commands } from '~/terminal/commands';
+import { buildTree, HOME } from '~/terminal/fs/build-tree';
 import { Vfs } from '~/terminal/fs/vfs';
 import { completeLine } from '~/terminal/shell/completion';
 import type { ShellDeps } from '~/terminal/shell/executor';

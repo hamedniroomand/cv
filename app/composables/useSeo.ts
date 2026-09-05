@@ -13,8 +13,11 @@ function ogImageMeta(siteUrl: string, card: OgCard, alt: string) {
     ogImageWidth: OG_IMAGE.width,
     ogImageHeight: OG_IMAGE.height,
     ogImageAlt: alt,
-    twitterCard: 'summary_large_image' as const,
   };
+}
+
+function useTwitterCard(): void {
+  useHead({ meta: [{ name: 'twitter:card', content: 'summary_large_image' }] });
 }
 
 export function useResumeSeo(cv: CvData) {
@@ -32,10 +35,9 @@ export function useResumeSeo(cv: CvData) {
     ogType: 'profile',
     ogUrl: url,
     ogSiteName: profile.name,
-    twitterTitle: title,
-    twitterDescription: description,
     ...ogImageMeta(siteUrl, 'resume', `${profile.name}, ${profile.title}`),
   });
+  useTwitterCard();
 
   useHead({
     link: [{ rel: 'canonical', href: url }],
@@ -55,10 +57,9 @@ function pageSeo(title: string, description: string, path: string): void {
     ogType: 'website',
     ogUrl: url,
     ogSiteName: profile.name,
-    twitterTitle: title,
-    twitterDescription: description,
     ...ogImageMeta(siteUrl, 'dotfiles', `Dotfiles by ${profile.name}`),
   });
+  useTwitterCard();
   useHead({ link: [{ rel: 'canonical', href: url }] });
 }
 

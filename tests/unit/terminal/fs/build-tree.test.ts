@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vite-plus/test';
 
-import { buildTree, HOME } from '#shared/cv/build-tree';
+import { buildTree, HOME } from '~/terminal/fs/build-tree';
 import { Vfs } from '~/terminal/fs/vfs';
 import { fixtureCv } from '~~/tests/unit/fixtures/cv';
 

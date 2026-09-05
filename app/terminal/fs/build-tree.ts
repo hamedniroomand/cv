@@ -1,14 +1,14 @@
+import { splitDotfilePath } from '#shared/cv/dotfiles';
+import { formatRange } from '#shared/cv/format';
+import { githubUrl } from '#shared/cv/links';
+import type { PanelTarget } from '#shared/cv/panel-target';
 import type { CvData } from '#shared/schemas/cv';
 import type { Dotfile } from '#shared/schemas/dotfile';
 import type { Experience } from '#shared/schemas/experience';
 import type { Project } from '#shared/schemas/project';
-import type { FsDir, FsNode } from '~/terminal/fs/types';
-import { dir, file } from '~/terminal/fs/vfs';
 
-import { splitDotfilePath } from './dotfiles';
-import { formatRange } from './format';
-import { githubUrl } from './links';
-import type { PanelTarget } from './panel-target';
+import type { FsDir, FsNode } from './types';
+import { dir, file } from './vfs';
 
 export const HOME = '/home/hamed';
 

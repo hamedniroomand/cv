@@ -1,5 +1,5 @@
-import { buildTree, HOME } from '#shared/cv/build-tree';
 import type { PanelTarget } from '#shared/cv/panel-target';
+import { buildTree, HOME } from '~/terminal/fs/build-tree';
 import { Vfs } from '~/terminal/fs/vfs';
 import type { ShellDeps } from '~/terminal/shell/executor';
 import { Shell } from '~/terminal/shell/executor';
