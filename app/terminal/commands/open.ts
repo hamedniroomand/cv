@@ -1,8 +1,9 @@
-import { githubUrl, mailtoUrl } from '#shared/cv/links';
+import { githubUrl, mailtoUrl, projectUrl } from '#shared/cv/links';
 import { PDF_FILE, PDF_PATH } from '#shared/pdf';
 import type { Command, CommandContext } from '~/terminal/types';
 
-const TARGETS = ['github', 'linkedin', 'email', 'cue', 'pdf'] as const;
+const PROJECT_TARGETS = ['cue', 'kitdev'] as const;
+const TARGETS = ['github', 'linkedin', 'email', ...PROJECT_TARGETS, 'pdf'] as const;
 
 function urlFor(target: string, ctx: CommandContext): string | null {
   const { links } = ctx.cv.profile;
@@ -13,12 +14,13 @@ function urlFor(target: string, ctx: CommandContext): string | null {
       return links.linkedin;
     case 'email':
       return mailtoUrl(links.email);
-    case 'cue': {
-      const project = ctx.cv.projects.find(item => item.slug === 'cue') ?? ctx.cv.projects[0];
-      return project ? githubUrl(project.repo) : null;
-    }
-    default:
+    default: {
+      if ((PROJECT_TARGETS as readonly string[]).includes(target)) {
+        const project = ctx.cv.projects.find(item => item.slug === target) ?? ctx.cv.projects[0];
+        return project ? projectUrl(project) : null;
+      }
       return /^https?:\/\//.test(target) ? target : null;
+    }
   }
 }
 

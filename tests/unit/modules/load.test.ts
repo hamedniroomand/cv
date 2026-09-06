@@ -46,6 +46,7 @@ describe('loadContent', () => {
       'ai-tutor',
       'engineering-standards',
     ]);
+    expect(cv.projects.map(p => p.slug)).toEqual(['cue', 'kitdev']);
     expect(cv.projects[0]!.readmeSource).toBe('fallback');
     expect(cv.skills.categories.length).toBeGreaterThan(3);
     expect(cv.secrets.body).toContain('API contract');
@@ -56,6 +57,25 @@ describe('loadContent', () => {
     expect(cv.projects[0]!.readmeSource).toBe('github');
     expect(cv.projects[0]!.body).toContain('from github');
     expect(cv.projects[0]!.html).toContain('<h1>');
+  });
+
+  it('skips the README fetch for projects without a public repo', async () => {
+    const asked: string[] = [];
+    const cv = await loadContent(
+      dir,
+      deps({
+        fetchReadme: async repo => {
+          asked.push(repo);
+          return null;
+        },
+      }),
+    );
+    expect(asked).toEqual(['hamedniroomand/cue']);
+    const kitdev = cv.projects.find(p => p.slug === 'kitdev')!;
+    expect(kitdev.repo).toBeUndefined();
+    expect(kitdev.site).toBe('https://kitdev.space');
+    expect(kitdev.readmeSource).toBe('fallback');
+    expect(kitdev.html).toContain('<p>');
   });
 
   it('renders markdown to html', async () => {

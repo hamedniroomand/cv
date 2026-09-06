@@ -73,6 +73,16 @@ export const fixtureCv: CvData = {
       html: '<h1>Cue</h1>\n<p>Fallback readme.</p>\n',
       readmeSource: 'fallback',
     },
+    {
+      slug: 'kitdev',
+      name: 'KitDev Space',
+      site: 'https://kitdev.space',
+      tagline: 'Browser-based developer tools.',
+      stack: ['TypeScript', 'Bun'],
+      body: '# KitDev Space\n\nFallback readme.',
+      html: '<h1>KitDev Space</h1>\n<p>Fallback readme.</p>\n',
+      readmeSource: 'fallback',
+    },
   ],
   dotfiles: [
     {

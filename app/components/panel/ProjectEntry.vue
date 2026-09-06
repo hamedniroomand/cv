@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { githubUrl } from '#shared/cv/links';
+  import { githubUrl, linkLabel, projectUrl } from '#shared/cv/links';
   import { panelTargetId } from '#shared/cv/panel-target';
   import type { Project } from '#shared/schemas/project';
 
@@ -7,7 +7,8 @@
 
   const id = computed(() => panelTargetId({ section: 'projects', slug: props.project.slug }));
   const highlighted = usePanelHighlight(id);
-  const repo = computed(() => githubUrl(props.project.repo));
+  const primary = computed(() => projectUrl(props.project));
+  const repo = computed(() => (props.project.repo ? githubUrl(props.project.repo) : null));
   const path = computed(() => `~/projects/${props.project.slug}`);
 </script>
 
@@ -23,7 +24,7 @@
     >
       <h3 class="project__name">
         <a
-          :href="repo"
+          :href="primary"
           rel="noopener"
           target="_blank"
           >{{ project.name }}</a
@@ -35,6 +36,14 @@
     </p>
     <p class="project__links">
       <a
+        v-if="project.site"
+        :href="project.site"
+        rel="noopener"
+        target="_blank"
+        >{{ linkLabel(project.site) }}</a
+      >
+      <a
+        v-if="repo"
         :href="repo"
         rel="noopener"
         target="_blank"

@@ -17,3 +17,9 @@ export function stripScheme(url: string): string {
 export function linkLabel(url: string): string {
   return stripScheme(url).replace(/^www\./, '');
 }
+
+export function projectUrl(project: { repo?: string; site?: string }): string {
+  if (project.site) return project.site;
+  if (project.repo) return githubUrl(project.repo);
+  throw new Error('project has neither a site nor a repo');
+}

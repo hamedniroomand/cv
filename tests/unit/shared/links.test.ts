@@ -1,6 +1,13 @@
 import { describe, expect, it } from 'vite-plus/test';
 
-import { gistUrl, githubUrl, linkLabel, mailtoUrl, stripScheme } from '#shared/cv/links';
+import {
+  gistUrl,
+  githubUrl,
+  linkLabel,
+  mailtoUrl,
+  projectUrl,
+  stripScheme,
+} from '#shared/cv/links';
 
 describe('links', () => {
   it('builds github and mailto urls', () => {
@@ -23,5 +30,11 @@ describe('links', () => {
     expect(gistUrl('hamedniroomand', 'dc74c846d1e701c65779fdaf7d58e1bf')).toBe(
       'https://gist.github.com/hamedniroomand/dc74c846d1e701c65779fdaf7d58e1bf',
     );
+  });
+
+  it('prefers the hosted site over the repo for a project url', () => {
+    expect(projectUrl({ repo: 'o/r' })).toBe('https://github.com/o/r');
+    expect(projectUrl({ site: 'https://kitdev.space' })).toBe('https://kitdev.space');
+    expect(projectUrl({ repo: 'o/r', site: 'https://kitdev.space' })).toBe('https://kitdev.space');
   });
 });

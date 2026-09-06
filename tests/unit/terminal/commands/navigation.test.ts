@@ -41,7 +41,7 @@ describe('ls', () => {
   it('prints headers for multiple paths', async () => {
     const term = makeShell(commands);
     await term.exec('ls experience projects');
-    expect(term.text()).toBe('experience:\nacme/  globex/\n\nprojects:\ncue/');
+    expect(term.text()).toBe('experience:\nacme/  globex/\n\nprojects:\ncue/  kitdev/');
   });
 
   it('reports missing paths with exit 2', async () => {

@@ -32,7 +32,7 @@
 
     <ResumeSection
       section="projects"
-      title="Open source"
+      title="Projects"
       path="~/projects"
       command="ls ~/projects"
     >

@@ -83,7 +83,7 @@ async function loadProjects(dir: string, fetchReadme: ReadmeFetcher): Promise<Pr
     const file = join(dir, name);
     const { data, body } = await readMarkdown(file);
     const frontmatter = validate(ProjectFrontmatter, data, file);
-    const remote = await fetchReadme(frontmatter.repo);
+    const remote = frontmatter.repo ? await fetchReadme(frontmatter.repo) : null;
     projects.push({
       ...frontmatter,
       slug: slugOf(name),

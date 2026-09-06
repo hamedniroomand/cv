@@ -40,12 +40,14 @@ describe('open', () => {
     await term.exec('open linkedin');
     await term.exec('open email');
     await term.exec('open cue');
+    await term.exec('open kitdev');
     await term.exec('open https://example.test/x');
     expect(term.calls.opened).toEqual([
       'https://github.com/hamedniroomand',
       'https://linkedin.com/in/example',
       'mailto:me@example.com',
       'https://github.com/hamedniroomand/cue',
+      'https://kitdev.space',
       'https://example.test/x',
     ]);
   });
@@ -59,7 +61,7 @@ describe('open', () => {
   it('lists targets on unknown input', async () => {
     const term = makeShell(commands);
     expect((await term.exec('open zzz')).code).toBe(1);
-    expect(term.text()).toMatch(/github, linkedin, email, cue, pdf/);
+    expect(term.text()).toMatch(/github, linkedin, email, cue, kitdev, pdf/);
     expect((await term.exec('open')).code).toBe(1);
   });
 
