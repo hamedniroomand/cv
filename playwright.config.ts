@@ -1,19 +1,21 @@
-import process from 'node:process';
-
 import { defineConfig, devices } from '@playwright/test';
 
+const env =
+  (globalThis as typeof globalThis & { process?: { env: Record<string, string | undefined> } })
+    .process?.env ?? {};
 const PORT = 3457;
 const DISCORD_MOCK_PORT = 3458;
 const baseURL = `http://localhost:${PORT}`;
 const discordMockURL = `http://localhost:${DISCORD_MOCK_PORT}`;
-const reuseExistingServer = !process.env.CI;
+const reuseExistingServer = !env.CI;
 
 export default defineConfig({
   testDir: 'tests/e2e',
   fullyParallel: true,
-  forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 1 : 0,
-  reporter: process.env.CI ? [['list'], ['html', { open: 'never' }]] : 'list',
+  forbidOnly: !!env.CI,
+  retries: env.CI ? 1 : 0,
+  workers: env.CI ? 4 : undefined,
+  reporter: env.CI ? [['list'], ['html', { open: 'never' }]] : 'list',
   use: {
     baseURL,
     trace: 'retain-on-failure',
