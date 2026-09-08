@@ -12,9 +12,13 @@ interface Profile {
 
 interface Card {
   file: string;
-  command: string;
+  /** The small line above the heading, in capitals. */
+  eyebrow: string;
+  /** The path shown at the right of the eyebrow row. */
+  path: string;
   heading: string;
-  subheading: string;
+  /** The second part of the heading. It takes the accent colour. */
+  accent: string;
   line: string;
 }
 
@@ -23,6 +27,16 @@ const HEIGHT = 630;
 const FONT =
   'node_modules/@fontsource-variable/jetbrains-mono/files/jetbrains-mono-latin-wght-normal.woff2';
 
+/** The dark theme of the site. Keep these values equal to `app/assets/css/themes.css`. */
+const THEME = {
+  bg: '#151615',
+  fg: '#eeeae2',
+  dim: '#a3a59d',
+  accent: '#dcb66d',
+  accent2: '#a0bdb2',
+  border: '#30332e',
+};
+
 function escapeHtml(text: string): string {
   return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
@@ -30,20 +44,38 @@ function escapeHtml(text: string): string {
 function cards(profile: Profile): Card[] {
   return [
     {
+      file: 'public/og-home.png',
+      eyebrow: 'A PERSONAL WORKSHOP',
+      path: '~/hamed',
+      heading: 'Useful things.',
+      accent: 'Built with curiosity.',
+      line: 'Projects, tools and experiments by Hamed Niroomand.',
+    },
+    {
       file: 'public/og.png',
-      command: 'whoami',
+      eyebrow: 'CURRICULUM VITAE',
+      path: '~/hamed/cv',
       heading: profile.name,
-      subheading: profile.title,
+      accent: profile.title,
       line: profile.tagline ?? '',
     },
     {
       file: 'public/og-dotfiles.png',
-      command: 'ls -a ~/.config',
-      heading: 'Dotfiles',
-      subheading: `Config files ${profile.name} uses every day`,
-      line: 'Read them, copy them with one click, or cat them in the terminal.',
+      eyebrow: 'BEHIND THE SCENES',
+      path: '~/.config',
+      heading: 'Dotfiles.',
+      accent: 'Borrow what is useful.',
+      line: `The configuration files that ${profile.name} uses every day.`,
     },
   ];
+}
+
+/** A long heading needs a smaller size, or it fills the whole card. */
+function headingSize(card: Card): number {
+  const longest = Math.max(card.heading.length, card.accent.length);
+  if (longest > 34) return 60;
+  if (longest > 24) return 71;
+  return 82;
 }
 
 function cardHtml(card: Card, font: string): string {
@@ -52,23 +84,43 @@ function cardHtml(card: Card, font: string): string {
   @font-face { font-family: 'JetBrains Mono'; src: url(data:font/woff2;base64,${font}) format('woff2-variations'); font-weight: 100 800; }
   html, body { margin: 0; }
   body {
-    width: ${WIDTH}px; height: ${HEIGHT}px; box-sizing: border-box; padding: 72px 84px;
+    position: relative; isolation: isolate; overflow: hidden;
+    width: ${WIDTH}px; height: ${HEIGHT}px; box-sizing: border-box; padding: 68px 84px;
     display: flex; flex-direction: column; justify-content: space-between;
-    background: #10141c; color: #e8e6e1; font-family: 'JetBrains Mono', monospace;
+    background: ${THEME.bg}; color: ${THEME.fg};
+    font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   }
-  .prompt { font-size: 28px; color: #9aa3b0; }
-  .prompt b { color: #c7a4ff; font-weight: 500; }
-  .prompt span { color: #e8e6e1; }
-  h1 { margin: 0; font-size: 84px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.05; }
-  h2 { margin: 18px 0 0; font-size: 34px; font-weight: 500; color: #e3b341; }
-  p { margin: 28px 0 0; font-size: 28px; line-height: 1.4; color: #9aa3b0; max-width: 980px; }
-  footer { display: flex; align-items: center; justify-content: space-between; font-size: 26px; color: #9aa3b0; }
-  .cursor { display: inline-block; width: 16px; height: 30px; margin-left: 12px; vertical-align: -4px; background: #e8e6e1; }
+  /*
+   * The dot grid that the site draws behind its pages.
+   * The site also draws two pools of accent light, but a card leaves them out.
+   * A browser dithers a large gradient, and the noise makes the PNG 2.5 times larger.
+   * At the size of a link preview the light is not visible, so the card keeps only the grid.
+   */
+  body::before {
+    content: ''; position: absolute; z-index: -2; inset: 0;
+    background-image: radial-gradient(circle at 1px 1px, rgb(238 234 226 / 9%) 1px, transparent 0);
+    background-size: 34px 34px;
+    mask-image: radial-gradient(125% 85% at 50% 0%, #000 15%, transparent 78%);
+  }
+  .eyebrow {
+    display: flex; align-items: center; gap: 14px;
+    font: 17px 'JetBrains Mono', monospace; letter-spacing: 2.7px; color: ${THEME.dim};
+  }
+  .dot { width: 10px; height: 10px; border-radius: 50%; background: ${THEME.accent}; }
+  .eyebrow .path { margin-left: auto; letter-spacing: 0; }
+  h1 { margin: 0; font-size: ${headingSize(card)}px; font-weight: 500; letter-spacing: -0.05em; line-height: 1.07; }
+  h1 span { color: ${THEME.accent}; }
+  p { margin: 26px 0 0; font-size: 26px; line-height: 1.6; color: ${THEME.dim}; max-width: 900px; }
+  footer {
+    display: flex; align-items: center; justify-content: space-between;
+    padding-top: 30px; border-top: 1px solid ${THEME.border};
+    font: 20px 'JetBrains Mono', monospace; color: ${THEME.dim};
+  }
+  .cursor { display: inline-block; width: 11px; height: 22px; margin-left: 10px; vertical-align: -3px; background: ${THEME.accent}; }
 </style>
-<div class="prompt"><b>hamed@${DEFAULT_SITE_HOST}</b>:~$ <span>${escapeHtml(card.command)}</span></div>
+<div class="eyebrow"><i class="dot"></i>${escapeHtml(card.eyebrow)}<span class="path">${escapeHtml(card.path)}</span></div>
 <div>
-  <h1>${escapeHtml(card.heading)}</h1>
-  <h2>${escapeHtml(card.subheading)}</h2>
+  <h1>${escapeHtml(card.heading)}<br /><span>${escapeHtml(card.accent)}</span></h1>
   <p>${escapeHtml(card.line)}</p>
 </div>
 <footer><span>${DEFAULT_SITE_HOST}</span><span>hamed@${DEFAULT_SITE_HOST}:~$<i class="cursor"></i></span></footer>`;
