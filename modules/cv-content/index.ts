@@ -10,7 +10,8 @@ import {
 import type { Nuxt } from '@nuxt/schema';
 import { join } from 'pathe';
 
-import { DOTFILES_INDEX, dotfilePath, projectPath, RESUME_PATH } from '#shared/cv/panel-target';
+import { RESUME_PATH } from '#shared/cv/panel-target';
+import { indexableRoutes } from '#shared/cv/sitemap';
 import type { CvData } from '#shared/schemas/cv';
 
 import { fetchGist, fetchGithubReadme } from './github.ts';
@@ -41,10 +42,9 @@ function loadDeps(): LoadDeps {
 function registerPrerenderRoutes(nuxt: Nuxt, data: CvData): void {
   nuxt.options.nitro.prerender ||= {};
   const routes = new Set(nuxt.options.nitro.prerender.routes ?? []);
-  routes.add(DOTFILES_INDEX);
+  for (const route of indexableRoutes(data)) routes.add(route);
   routes.add(RESUME_PATH);
-  for (const dotfile of data.dotfiles) routes.add(dotfilePath(dotfile.slug));
-  for (const project of data.projects) routes.add(projectPath(project.slug));
+  routes.add('/sitemap.xml');
   nuxt.options.nitro.prerender.routes = [...routes];
 }
 

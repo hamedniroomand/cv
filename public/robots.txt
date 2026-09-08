@@ -1,8 +1,7 @@
-# Hi. If you're a crawler, /api/cv is the fastest path to the good stuff.
-# If you're a human, open the site and type `help`.
+# Hi. If you're a human, open the site and type `help`.
+# The resume lives at /cv and asks not to be indexed. Please respect that.
 User-agent: *
 Allow: /
-Disallow: /print
-Disallow: /api/contact
+Disallow: /api/
 
-Sitemap: /sitemap.xml
+Sitemap: https://niroomand.dev/sitemap.xml

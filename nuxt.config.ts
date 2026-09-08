@@ -68,6 +68,7 @@ export default defineNuxtConfig({
     '/api/cv': { isr: true },
     [`/${PDF_FILE}`]: {
       headers: {
+        'X-Robots-Tag': 'noindex',
         'Content-Disposition': `attachment; filename="${PDF_FILE}"`,
         'Cache-Control': 'public, max-age=3600',
       },
