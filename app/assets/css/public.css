@@ -1485,14 +1485,14 @@
 .text-link,
 .setup-file {
   transition:
-    color 160ms ease,
-    background-color 160ms ease,
-    border-color 160ms ease;
+    color var(--motion-fast) var(--ease),
+    background-color var(--motion-fast) var(--ease),
+    border-color var(--motion-fast) var(--ease);
 }
 .project-card h3 span,
 .text-link span {
   display: inline-block;
-  transition: transform 160ms ease;
+  transition: transform var(--motion-fast) var(--ease);
 }
 .project-card:focus-within h3 span,
 .project-card:hover h3 span,
@@ -1500,8 +1500,9 @@
   transform: translate(2px, -2px);
 }
 @media (prefers-reduced-motion: no-preference) {
-  .home-page > section {
-    animation: workshop-enter 300ms ease-out;
+  .section-revealed,
+  .earlier-work[open] .work-row {
+    animation: workshop-enter var(--motion-enter) var(--ease);
   }
   @keyframes workshop-enter {
     from {
@@ -1518,9 +1519,9 @@
   .setup-files,
   .site-header {
     transition:
-      background-color 180ms ease,
-      color 180ms ease,
-      border-color 180ms ease;
+      background-color var(--motion-ui) var(--ease),
+      color var(--motion-ui) var(--ease),
+      border-color var(--motion-ui) var(--ease);
   }
 }
 @media (max-width: 700px) {
@@ -1551,5 +1552,105 @@
   .project-card:focus-within h3 span,
   .text-link:hover span {
     transform: none;
+  }
+}
+
+/* Shared motion timings and legible supporting text across screen sizes. */
+:root {
+  --motion-fast: 160ms;
+  --motion-ui: 180ms;
+  --motion-enter: 300ms;
+}
+.earlier-work {
+  border-top: 1px solid var(--border);
+}
+.earlier-work summary {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 52px;
+  list-style: none;
+  cursor: pointer;
+  color: var(--fg);
+  font: 12px var(--font-mono);
+  padding: 12px 0;
+}
+.earlier-work summary::-webkit-details-marker {
+  display: none;
+}
+.earlier-work__count {
+  color: var(--fg-dim);
+  font-size: 11px;
+}
+.earlier-work__icon {
+  margin-left: auto;
+  font-size: 20px;
+  color: var(--accent);
+  transition: transform var(--motion-fast) var(--ease);
+}
+.earlier-work[open] .earlier-work__icon {
+  transform: rotate(45deg);
+}
+.earlier-work .work-list {
+  margin-top: 0;
+}
+.earlier-work .work-row:first-child .work-row__marker {
+  background: transparent;
+  box-shadow: none;
+}
+.project-card__meta,
+.work-row__where,
+.work-row__stack li,
+.setup-files__bar,
+.setup-files__note,
+.setup-file small,
+.footer-links {
+  font-size: 11px;
+}
+.visual-topline,
+.visual-bottomline,
+.cue-node,
+.tool-grid span,
+.project-page .tool-grid span {
+  font-size: 10px;
+}
+.hero-caption,
+.eyebrow {
+  font-size: 11px;
+  letter-spacing: 1px;
+}
+.project-card__meta,
+.work-row__where {
+  line-height: 1.6;
+}
+.project-card__meta {
+  flex-wrap: wrap;
+}
+.setup-file small {
+  overflow-wrap: anywhere;
+}
+@media (max-width: 700px) {
+  .hero-caption,
+  .eyebrow {
+    font-size: 10px;
+  }
+  .visual-topline,
+  .visual-bottomline {
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .tool-grid > div {
+    gap: 6px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --motion-fast: 0ms;
+    --motion-ui: 0ms;
+    --motion-enter: 0ms;
+  }
+  .section-revealed,
+  .earlier-work[open] .work-row {
+    animation: none;
   }
 }

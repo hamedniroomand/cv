@@ -97,8 +97,8 @@
     color: var(--fg-dim);
     background: var(--bg-elev);
     transition:
-      border-color 160ms,
-      color 160ms;
+      border-color var(--motion-fast),
+      color var(--motion-fast);
   }
   summary::-webkit-details-marker {
     display: none;
@@ -114,7 +114,7 @@
   }
   .theme-picker__chevron {
     margin-left: 4px;
-    transition: transform 140ms;
+    transition: transform var(--motion-fast);
   }
   details[open] .theme-picker__chevron {
     transform: rotate(180deg);
@@ -130,7 +130,7 @@
     border: 1px solid var(--border);
     border-radius: 9px;
     box-shadow: var(--shadow);
-    animation: picker-in 140ms ease-out;
+    animation: picker-in var(--motion-fast) ease-out;
   }
   .theme-picker__panel p {
     margin: 5px 8px 9px;
@@ -151,7 +151,7 @@
     text-transform: capitalize;
     font: inherit;
     cursor: pointer;
-    transition: background-color 140ms;
+    transition: background-color var(--motion-fast);
   }
   button:hover,
   button[aria-pressed='true'] {

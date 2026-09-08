@@ -7,41 +7,36 @@
 </script>
 
 <template>
-  <ol class="work-list">
-    <li
-      v-for="entry in entries"
-      :key="entry.slug"
-      class="work-row"
+  <div>
+    <ol class="work-list">
+      <WorkEntry
+        v-for="entry in entries.slice(0, 2)"
+        :key="entry.slug"
+        :entry="entry"
+      />
+    </ol>
+    <details
+      v-if="entries.length > 2"
+      class="earlier-work"
     >
-      <div class="work-row__when">
-        <span
-          class="work-row__marker"
+      <summary>
+        Earlier work <span class="earlier-work__count">{{ entries.length - 2 }} more</span
+        ><span
+          class="earlier-work__icon"
           aria-hidden="true"
+          >+</span
+        >
+      </summary>
+      <ol
+        class="work-list"
+        start="3"
+      >
+        <WorkEntry
+          v-for="entry in entries.slice(2)"
+          :key="entry.slug"
+          :entry="entry"
         />
-        <span>{{ entry.range }}</span>
-      </div>
-      <div class="work-row__what">
-        <h3>
-          <a
-            v-if="entry.url"
-            :href="entry.url"
-            target="_blank"
-            rel="noopener"
-            >{{ entry.company }} <span aria-hidden="true">↗</span></a
-          >
-          <template v-else>{{ entry.company }}</template>
-        </h3>
-        <p class="work-row__where">{{ entry.location }} · {{ entry.type }}</p>
-        <p class="work-row__summary">{{ entry.summary }}</p>
-        <ul class="work-row__stack">
-          <li
-            v-for="item in entry.stack"
-            :key="item"
-          >
-            {{ item }}
-          </li>
-        </ul>
-      </div>
-    </li>
-  </ol>
+      </ol>
+    </details>
+  </div>
 </template>

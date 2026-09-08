@@ -1,6 +1,9 @@
 <script setup lang="ts">
   import { MOBILE_QUERY } from '#shared/layout';
 
+  const content = ref<HTMLElement | null>(null);
+  useSectionReveals(content);
+
   const bus = useTerminalBus();
   const reveal = usePanelReveal();
   const terminalWindow = useTerminalWindow();
@@ -63,6 +66,7 @@
       @toggle-terminal="toggleTerminal"
     />
     <main
+      ref="content"
       id="main-content"
       tabindex="-1"
     >
