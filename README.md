@@ -1,30 +1,35 @@
 # niroomand.dev
 
-This repository contains the source of my personal resume site. The site has two views of the same
-data. Engineers can use a terminal. Everyone else can read a resume panel. When you run a command in
-the terminal, the panel scrolls to the matching section.
+A personal workshop for projects, developer tools, and dotfiles. The public homepage leads with
+Cue and KitDev Space. Each project has a dedicated overview, real links, and a visual explanation.
 
 Live site: <https://niroomand.dev>
 
-![The terminal and the resume panel side by side](docs/images/screenshot-1.png)
+## Explore
 
-## What you can do on the site
+- `/` — selected projects, a short work history, a look at my setup, and contact links.
+- `/projects/cue` and `/projects/kitdev` — project overviews and links.
+- `/dotfiles` — configuration files with highlighted code, Copy, Share, and gist links.
+- `/cv` — the full résumé and original split terminal experience. This route is unlisted and
+  marked `noindex`, not password-protected. The PDF and `/api/cv` remain available by direct URL.
 
-- Type `help` to see the commands. The shell supports pipes, `sudo`, Tab completion and command
-  history. Try `cat about.md | grep Nuxt` or `sudo cat .secrets`.
-- Type `bat <file>` to read a Markdown file with formatting. Type `cat <file>` to read the raw text.
-- Type `menu` to start a guided full-screen app with slash commands such as `/experience` and
-  `/skills`.
-- Type `theme` to change between five color themes. The site remembers your choice.
-- Type `contact` to send me a message from the site.
-- Click **Download PDF** in the panel to get the resume as a file.
-- Run `curl -s https://niroomand.dev/api/cv | jq .profile` to get the resume as JSON.
-- Open <https://niroomand.dev/dotfiles> to read the config files that I use, such as my VS Code
-  settings. Each file has a Copy button. In the terminal, each file is at its real path: try
-  `cat ~/.config/Code/User/settings.json` or `dotfiles`.
+The work history is public, but it gives only the company, the place, the dates and one line each.
+Role titles, skills, education and the PDF stay on `/cv`, which I send to a company by direct link.
 
-The site works on mobile. It has a Resume tab and a Terminal tab, and a key row for Tab, Ctrl+C and
-history.
+The public terminal loads only when opened. Try `ls projects`, `ls experience`, `dotfiles`, or
+`menu`. It has a public filesystem and command selection; career commands belong to the résumé
+terminal. Use Ctrl+backtick to toggle it, or Escape to close it. The window minimizes and maximizes
+from its own controls, and the shell session survives both. History stays available when you reopen
+it. Five color themes are available from the header and from `theme` in the terminal.
+
+On the public site the terminal opens the page of a project or a dotfile, and otherwise leaves the
+page and the scroll position alone.
+
+## Content and presentation
+
+Project links, names, and stacks come from `content/projects`. Curated public project descriptions
+live in `shared/public-site.ts`; résumé content stays in `content`. Shared public layout and
+responsive styling live in `app/components/site` and `app/assets/css/public.css`.
 
 ## Technical notes
 
@@ -46,9 +51,9 @@ tokens, so the five themes recolor the code without a client-side highlighter.
 under Vitest in Node without a browser. Each command is one file. The registry finds new commands
 automatically.
 
-**Fast and correct first paint.** The resume panel is prerendered to static HTML. A visitor without
-JavaScript, and a search engine, sees the full resume. The terminal is client-only and loads after
-the panel. A small inline script restores the saved theme, the split position and the panel state
+**Fast first paint.** Every page is prerendered to static HTML at build time: the home page, both
+project pages, the dotfile pages and the résumé. A visitor without JavaScript, and a search engine,
+sees the whole page. The public terminal is client-only and loads on request. A small inline script restores the saved theme, the split position and the panel state
 before the first frame, so hydration never moves the layout.
 
 **A contact form that resists bots.** The form has three layers: a honeypot field, a rate limit of ten
@@ -88,13 +93,13 @@ You need [Bun](https://bun.sh) 1.4 or later.
 1. Install the dependencies:
 
    ```bash
-   bun install
+   vp install
    ```
 
 2. Start the development server:
 
    ```bash
-   bun run dev
+   vp run dev
    ```
 
 3. Open <http://localhost:3000>.
