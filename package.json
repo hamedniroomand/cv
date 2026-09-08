@@ -25,8 +25,6 @@
     "og": "bun run scripts/build-og.ts"
   },
   "dependencies": {
-    "@vercel/analytics": "^2.0.1",
-    "@vercel/speed-insights": "^2.0.0",
     "marked": "^18.0.12",
     "nuxt": "npm:nuxt-nightly@5.0.0-29813549.1742ea7c",
     "vue": "^3.5.42",

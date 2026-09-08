@@ -35,7 +35,7 @@ function nitroPreset(): string {
 export default defineNuxtConfig({
   compatibilityDate: '2026-09-01',
   devtools: { enabled: true },
-  modules: ['./modules/cv-content', '@vercel/speed-insights', '@vercel/analytics'],
+  modules: ['./modules/cv-content'],
   components: [{ path: '~/components', pathPrefix: false }],
   typescript: {
     strict: true,
