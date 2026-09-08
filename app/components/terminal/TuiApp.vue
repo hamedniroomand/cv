@@ -5,7 +5,7 @@
 
   import type { MobileKey } from './MobileKeys.vue';
 
-  const props = defineProps<{ bridge: AppBridge }>();
+  const props = defineProps<{ bridge: AppBridge; publicMode?: boolean }>();
   const emit = defineEmits<{ exit: [] }>();
 
   const value = ref('');
@@ -205,8 +205,14 @@
     },
   );
 
-  view.print('Welcome. Try /experience to browse companies, /skills for the stack,');
-  view.print('or /pdf to grab the one-pager.');
+  if (props.publicMode) {
+    view.print('Welcome to the workshop.');
+    view.print('Type / to list the commands, or pick one of these:');
+    view.print('/projects   /dotfiles   /theme   /contact', 'dim');
+  } else {
+    view.print('Welcome. Try /experience to browse companies, /skills for the stack,');
+    view.print('or /pdf to grab the one-pager.');
+  }
 
   function onWindowKeydown(event: KeyboardEvent): void {
     if (event.key !== 'Escape' || event.defaultPrevented) return;
@@ -222,7 +228,7 @@
   });
   onBeforeUnmount(() => window.removeEventListener('keydown', onWindowKeydown));
 
-  defineExpose({ insert });
+  defineExpose({ insert, focus: focusPrompt });
 </script>
 
 <template>

@@ -17,6 +17,9 @@ export const ExperienceFrontmatter = z.object({
   roles: z.array(RoleSchema).min(1),
   stack: z.array(z.string()),
   order: z.number().int(),
+  /** One short line for the public work history. If it is absent, the site uses the first
+   * sentence of the body. */
+  summary: z.string().min(1).optional(),
 });
 export type ExperienceFrontmatterData = z.infer<typeof ExperienceFrontmatter>;
 

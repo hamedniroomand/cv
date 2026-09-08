@@ -6,7 +6,7 @@ test.describe('split layout', () => {
   test.skip(({ isMobile }) => isMobile, 'desktop only');
 
   test('Ctrl+` hides and restores the resume panel', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/cv');
     const resume = page.locator('#resume');
     await expect(resume).toBeVisible();
     await page.getByLabel('Terminal input').press('Control+`');
@@ -16,7 +16,7 @@ test.describe('split layout', () => {
   });
 
   test('divider is keyboard resizable', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/cv');
     const divider = page.getByRole('separator', { name: 'Resize terminal and resume' });
     const before = Number(await divider.getAttribute('aria-valuenow'));
     await divider.focus();
@@ -30,7 +30,7 @@ test.describe('split layout first paint', () => {
   test.skip(({ isMobile }) => isMobile, 'desktop only');
 
   test('double-clicking the divider resets and saves the default ratio', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/cv');
     const divider = page.getByRole('separator', { name: 'Resize terminal and resume' });
     await divider.focus();
     await divider.press('End');
@@ -42,7 +42,7 @@ test.describe('split layout first paint', () => {
   });
 
   test('a saved ratio is applied before hydration', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/cv');
     const divider = page.getByRole('separator', { name: 'Resize terminal and resume' });
     await divider.focus();
     await divider.press('End');
@@ -59,7 +59,7 @@ test.describe('split layout first paint', () => {
   });
 
   test('a closed panel stays closed before hydration', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/cv');
     await page.getByLabel('Terminal input').press('Control+`');
     await expect(page.locator('#resume')).toBeHidden();
 

@@ -10,7 +10,7 @@
     tabindex="-1"
   >
     <div
-      id="section-top"
+      id="top"
       class="panel__inner"
     >
       <slot />

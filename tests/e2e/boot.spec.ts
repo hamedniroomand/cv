@@ -10,7 +10,7 @@ test.describe('desktop terminal', () => {
     request,
   }) => {
     const { profile } = await (await request.get('/api/cv')).json();
-    const response = await page.goto('/');
+    const response = await page.goto('/cv');
     const html = await response!.text();
     expect(html).toContain('Jack Westin');
     expect(html).toContain('hamed@localhost:~$');
@@ -25,7 +25,7 @@ test.describe('desktop terminal', () => {
   });
 
   test('cd scrolls and highlights the matching panel entry', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/cv');
     const input = page.getByLabel('Terminal input');
     await input.fill('cd experience/thales');
     await input.press('Enter');
@@ -39,7 +39,7 @@ test.describe('desktop terminal', () => {
   test('the prompt stays flush with the terminal edge when scrolled up through long output', async ({
     page,
   }) => {
-    await page.goto('/');
+    await page.goto('/cv');
     const input = page.getByLabel('Terminal input');
     await input.fill('cat projects/cue/README.md');
     await input.press('Enter');
@@ -66,7 +66,7 @@ test.describe('desktop terminal', () => {
   test('resizing across the mobile breakpoint and back keeps terminal history', async ({
     page,
   }) => {
-    await page.goto('/');
+    await page.goto('/cv');
     const input = page.getByLabel('Terminal input');
     await expect(page.getByRole('log')).toContainText("Type 'help'");
     await input.fill('echo keep-me');
@@ -86,7 +86,7 @@ test.describe('desktop terminal', () => {
   });
 
   test('sudo is required for .secrets', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/cv');
     const input = page.getByLabel('Terminal input');
     await input.fill('cat ~/.secrets');
     await input.press('Enter');
@@ -97,7 +97,7 @@ test.describe('desktop terminal', () => {
   });
 
   test('tab completes paths', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/cv');
     const input = page.getByLabel('Terminal input');
     await input.fill('cat ab');
     await input.press('Tab');
@@ -109,7 +109,7 @@ test.describe('typing without focus', () => {
   test.skip(({ isMobile }) => isMobile, 'desktop only');
 
   test('printable keys reach the terminal input from anywhere on the page', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/cv');
     const input = await openTerminal(page);
     await page.getByRole('heading', { name: 'About' }).click();
     await expect(input).not.toBeFocused();
@@ -119,7 +119,7 @@ test.describe('typing without focus', () => {
   });
 
   test('keys on a focused control and shortcuts stay where they are', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/cv');
     const input = await openTerminal(page);
     const divider = page.getByRole('separator', { name: 'Resize terminal and resume' });
     await divider.focus();
@@ -132,7 +132,7 @@ test.describe('typing without focus', () => {
   });
 
   test('typing while the contact modal is open does not reach the terminal', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/cv');
     const input = await openTerminal(page);
     await input.fill('contact');
     await input.press('Enter');
@@ -158,7 +158,7 @@ test.describe('command history', () => {
   test('the last commands survive a reload and are recalled with the arrow keys', async ({
     page,
   }) => {
-    await page.goto('/');
+    await page.goto('/cv');
     await runCommand(page, 'echo first');
     await runCommand(page, 'echo second');
     await page.reload();

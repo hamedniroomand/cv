@@ -4,7 +4,7 @@ import { runCommand } from './helpers';
 
 test.describe('themes', () => {
   test('switches theme, reports the current value, and persists it', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/cv');
     await runCommand(page, 'theme light');
 
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
@@ -17,7 +17,7 @@ test.describe('themes', () => {
   });
 
   test('CRT theme renders its restrained scanline layer', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/cv');
     await runCommand(page, 'theme crt');
 
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'crt');
@@ -27,7 +27,7 @@ test.describe('themes', () => {
 
   test('CRT effects are removed when reduced motion is requested', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
-    await page.goto('/');
+    await page.goto('/cv');
     await runCommand(page, 'theme crt');
 
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'crt');

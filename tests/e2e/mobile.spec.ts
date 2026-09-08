@@ -4,7 +4,7 @@ test.describe('mobile', () => {
   test.skip(({ isMobile }) => !isMobile, 'mobile only');
 
   test('resume is the default view; terminal loads on tab switch', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/cv');
     await expect(page.locator('#resume')).toBeVisible();
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Hamed Niroomand');
     await expect(page.getByLabel('Terminal input')).toHaveCount(0);
@@ -19,7 +19,7 @@ test.describe('mobile', () => {
   });
 
   test('switching tabs keeps terminal history', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/cv');
     await page.getByRole('tab', { name: 'Terminal' }).click();
     const input = page.getByLabel('Terminal input');
     await expect(page.getByRole('log')).toContainText("Type 'help'");
@@ -57,7 +57,7 @@ test.describe('mobile', () => {
         },
       });
     });
-    await page.goto('/');
+    await page.goto('/cv');
     await page.getByRole('tab', { name: 'Terminal' }).click();
 
     const input = page.getByLabel('Terminal input');
@@ -96,7 +96,7 @@ test.describe('mobile shortcuts', () => {
   test.skip(({ isMobile }) => !isMobile, 'mobile only');
 
   test('inputs are 16px so iOS Safari does not zoom on focus', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/cv');
     await page.getByRole('tab', { name: 'Terminal' }).click();
     const input = page.getByLabel('Terminal input');
     await expect(input).toBeVisible();
@@ -105,7 +105,7 @@ test.describe('mobile shortcuts', () => {
   });
 
   test('key row completes, runs, recalls history and interrupts', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/cv');
     await page.getByRole('tab', { name: 'Terminal' }).click();
     const input = page.getByLabel('Terminal input');
     const keys = page.getByRole('toolbar', { name: 'Terminal shortcuts' });
@@ -131,7 +131,7 @@ test.describe('mobile shortcuts', () => {
   });
 
   test('app key row opens the slash menu and exits', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/cv');
     await page.getByRole('tab', { name: 'Terminal' }).click();
     const input = page.getByLabel('Terminal input');
     await input.fill('menu');

@@ -3,6 +3,7 @@ import { siteHost } from '#shared/site-host';
 import { commands } from '~/terminal/commands';
 import { buildTree, HOME } from '~/terminal/fs/build-tree';
 import { Vfs } from '~/terminal/fs/vfs';
+import { publicCommands } from '~/terminal/public-commands';
 import { completeLine } from '~/terminal/shell/completion';
 import type { ShellDeps } from '~/terminal/shell/executor';
 import { Shell } from '~/terminal/shell/executor';
@@ -22,6 +23,7 @@ import { commands as appCommands } from '~/tui/commands';
 import { createAppRegistry } from '~/tui/registry';
 
 export interface ShellHooks {
+  publicMode?: boolean;
   navigate: (target: PanelTarget) => void;
   togglePanel: () => void;
   revealPanel: () => void;
@@ -63,7 +65,7 @@ export function useShell(hooks: ShellHooks) {
     terminal.sessionHistorySize,
     createHistoryStore(terminal.historySize),
   );
-  const fs = new Vfs(buildTree(cv), { home: HOME });
+  const fs = new Vfs(buildTree(cv, hooks.publicMode), { home: HOME });
   const initialCwd = useTerminalCwd().value;
   if (initialCwd && fs.exists(initialCwd) && fs.stat(initialCwd).type === 'dir')
     fs.chdir(initialCwd);
@@ -85,7 +87,7 @@ export function useShell(hooks: ShellHooks) {
 
   const deps: ShellDeps = {
     fs,
-    registry: createRegistry(commands),
+    registry: createRegistry(hooks.publicMode ? publicCommands(commands) : commands),
     cv,
     env,
     sink: push,
@@ -97,7 +99,19 @@ export function useShell(hooks: ShellHooks) {
     history: history.list(),
   };
   const shell = new Shell(deps);
-  const bridge = createAppBridge(shell, deps, createAppRegistry(appCommands), () => theme.value);
+  const bridge = createAppBridge(
+    shell,
+    deps,
+    createAppRegistry(
+      hooks.publicMode
+        ? appCommands.filter(
+            command =>
+              !['about', 'experience', 'skills', 'education', 'pdf', 'api'].includes(command.name),
+          )
+        : appCommands,
+    ),
+    () => theme.value,
+  );
 
   const prompt = (): string => `${env.user}@${env.host}:${cwdLabel.value}$ `;
 

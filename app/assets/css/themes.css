@@ -1,17 +1,17 @@
 :root,
 :root[data-theme='dark'] {
   color-scheme: dark;
-  --bg: #10141c;
-  --bg-elev: #171c26;
-  --bg-hover: #1f2531;
-  --fg: #e8e6e1;
-  --fg-dim: #9aa3b0;
-  --accent: #e3b341;
-  --accent-2: #8ab9ec;
+  --bg: #151615;
+  --bg-elev: #1b1d1b;
+  --bg-hover: #232623;
+  --fg: #eeeae2;
+  --fg-dim: #a3a59d;
+  --accent: #dcb66d;
+  --accent-2: #a0bdb2;
   --error: #f47067;
   --success: #7fd18a;
   --prompt: #c7a4ff;
-  --border: #262d3a;
+  --border: #30332e;
   --selection: rgb(227 179 65 / 28%);
   --shadow: 0 1px 2px rgb(0 0 0 / 40%), 0 8px 24px rgb(0 0 0 / 35%);
 }

@@ -3,7 +3,7 @@ import { expect, test } from '@playwright/test';
 import { runCommand } from './helpers';
 
 test('keeps portrait and information inline in the active theme accent', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/cv');
   await runCommand(page, 'theme gruvbox');
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'gruvbox');
   await runCommand(page, 'neofetch');

@@ -352,7 +352,7 @@ test.describe('app commands reveal the panel', () => {
     await expect(output).toContainText('Opened About in the panel.');
     await expect(output).toContainText('Raw text: bat ~/about.md');
     await expect(output).not.toContainText('senior web developer based in Yerevan');
-    await expect(page.locator('#section-about')).toHaveClass(/is-highlighted/);
+    await expect(page.locator('#about')).toHaveClass(/is-highlighted/);
   });
 });
 

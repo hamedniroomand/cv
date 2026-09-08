@@ -1,8 +1,12 @@
 <script setup lang="ts">
+  import type { PanelTarget } from '#shared/cv/panel-target';
+  import { publicPanelRoute } from '#shared/cv/panel-target';
   import { MOBILE_QUERY } from '#shared/layout';
 
   import type { MobileKey } from './MobileKeys.vue';
   import type { TerminalInputHandle } from './TerminalInput.vue';
+
+  const props = withDefaults(defineProps<{ publicMode?: boolean }>(), { publicMode: false });
 
   const MOBILE_KEYS: MobileKey[] = [
     { id: 'tab', label: 'Tab', aria: 'Complete' },
@@ -11,10 +15,28 @@
     { id: 'interrupt', label: '^C', aria: 'Interrupt' },
     { id: 'clear', label: 'Clear', aria: 'Clear screen' },
     { id: 'help', label: 'help', aria: 'Run help' },
+    { id: 'menu', label: 'menu', aria: 'Open the guided menu' },
     { id: 'run', label: 'Run ↵', aria: 'Run command' },
   ];
 
-  const { navigate } = usePanelNav();
+  const { navigate: navigatePanel } = usePanelNav();
+  const terminalWindow = useTerminalWindow();
+  /**
+   * On the public site the terminal opens the page of a target that has one, such as a
+   * project or a dotfile. For all other targets it does nothing, so a visitor keeps the
+   * page and the scroll position that they chose. On the résumé the panel always follows.
+   */
+  async function navigate(target: PanelTarget): Promise<void> {
+    if (!props.publicMode) {
+      await navigatePanel(target);
+      return;
+    }
+    const route = publicPanelRoute(target);
+    if (!route) return;
+    await navigateTo(route);
+    // The page is the answer to the command, so the window steps out of the way.
+    terminalWindow.dispatch('minimize');
+  }
   const { toggle } = useSplitPane();
   const reveal = usePanelReveal();
   const { set: setTheme } = useTheme();
@@ -25,6 +47,7 @@
   const modal = useModalRequest();
 
   const shell = useShell({
+    publicMode: props.publicMode,
     navigate,
     togglePanel: toggle,
     revealPanel: reveal.request,
@@ -38,11 +61,18 @@
   const booted = ref(false);
   const root = ref<HTMLElement | null>(null);
   const inputRef = ref<TerminalInputHandle | null>(null);
-  const tuiApp = ref<{ insert: (text: string) => void } | null>(null);
+  const tuiApp = ref<{ insert: (text: string) => void; focus: () => void } | null>(null);
 
   useTypeToTerminal({
     enabled: () => booted.value && modal.kind.value === null && isVisible(root.value),
     insert: text => (app.open.value ? tuiApp.value : inputRef.value)?.insert(text),
+  });
+
+  defineExpose({
+    focus: () => {
+      if (app.open.value) tuiApp.value?.focus();
+      else focusInput();
+    },
   });
 
   function focusInput(): void {
@@ -64,6 +94,7 @@
     interrupt: () => inputRef.value?.interrupt(),
     clear: () => shell.clear(),
     help: () => inputRef.value?.submit('help'),
+    menu: () => inputRef.value?.submit('menu'),
     run: () => inputRef.value?.submit(),
   };
 
@@ -101,7 +132,12 @@
 
   async function onBoot(): Promise<void> {
     booted.value = true;
-    await shell.run('whoami', { record: false });
+    if (props.publicMode) {
+      shell.print('Hamed Niroomand — a personal workshop', 'accent');
+      shell.print('Read the projects, the work history and the dotfiles.');
+      shell.print("Try 'ls projects', 'ls experience', or 'menu' for guided mode.", 'dim');
+      shell.print('');
+    } else await shell.run('whoami', { record: false });
     await drainBus();
     nextTick(focusInput);
   }
@@ -129,7 +165,7 @@
     ref="root"
     class="terminal"
     :class="{ 'terminal--app': app.open.value }"
-    :style="{ height }"
+    :style="{ height: publicMode ? undefined : height }"
     @click="onRootClick"
   >
     <div
@@ -145,6 +181,7 @@
       v-else-if="app.open.value"
       ref="tuiApp"
       :bridge="shell.bridge"
+      :public-mode="publicMode"
       @exit="closeApp"
     />
     <template v-else>
@@ -205,5 +242,16 @@
     bottom: 0;
     padding: 0 var(--space-4) var(--space-4);
     background: var(--bg);
+  }
+
+  /*
+   * A touch device needs a 16px input, or Safari zooms the page on focus.
+   * The whole terminal takes that size, so the prompt in the log and the prompt
+   * on the input line stay the same size.
+   */
+  @media (max-width: 899px) {
+    .terminal {
+      font-size: 1rem;
+    }
   }
 </style>

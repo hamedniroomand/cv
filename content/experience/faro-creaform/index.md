@@ -1,5 +1,6 @@
 ---
 company: FARO Creaform
+url: https://www.faro.com
 location: Germany (remote)
 type: part-time
 roles:
@@ -12,6 +13,8 @@ stack:
   - Express
   - Vue
   - Vuetify
+summary: >-
+  Node.js and TypeScript REST services with Vue and Vuetify admin dashboards, built to enterprise codebase standards.
 order: 3
 ---
 

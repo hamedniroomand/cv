@@ -54,6 +54,13 @@ export default defineNuxtConfig({
   future: { compatibilityVersion: 5 },
   experimental: {
     early404: true,
+    payloadExtraction: 'client',
+    defaults: {
+      nuxtLink: {
+        prefetchOn: { visibility: false, interaction: true },
+      },
+    },
+    viewTransition: true,
   },
   routeRules: {
     '/api/cv': { isr: true },
@@ -74,13 +81,18 @@ export default defineNuxtConfig({
     '~/assets/css/crt.css',
     '~/assets/css/base.css',
     '~/assets/css/code.css',
+    '~/assets/css/public.css',
   ],
+  features: {
+    inlineStyles: true,
+  },
   app: {
+    pageTransition: { name: 'page', mode: 'out-in' },
     head: {
       htmlAttrs: { lang: 'en' },
       meta: [
         { name: 'color-scheme', content: 'dark light' },
-        { name: 'theme-color', content: '#10141c' },
+        { name: 'theme-color', content: '#151615' },
       ],
       link: [
         { rel: 'icon', href: '/favicon.svg', type: 'image/svg+xml' },

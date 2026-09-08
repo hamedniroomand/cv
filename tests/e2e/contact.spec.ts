@@ -6,7 +6,7 @@ test.describe('contact form', () => {
   test.skip(({ isMobile }) => isMobile, 'desktop only');
 
   test('sends once the turnstile widget has issued a token', async ({ page, request }) => {
-    await page.goto('/');
+    await page.goto('/cv');
     const input = page.getByLabel('Terminal input');
     await input.fill('contact');
     await input.press('Enter');
@@ -28,7 +28,7 @@ test.describe('contact form', () => {
   });
 
   test('shows a validation error under every invalid field and does not send', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/cv');
     const input = page.getByLabel('Terminal input');
     await input.fill('contact');
     await input.press('Enter');
@@ -49,7 +49,7 @@ test.describe('contact form', () => {
   });
 
   test('the turnstile widget is as wide as the message field', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/cv');
     const input = page.getByLabel('Terminal input');
     await input.fill('contact');
     await input.press('Enter');

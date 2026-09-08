@@ -152,7 +152,6 @@
     .input {
       align-items: center;
       min-height: 44px;
-      font-size: 1rem;
     }
   }
 </style>

@@ -20,7 +20,6 @@
     <PanelHead
       class="dotfile__head"
       :path="dotfile.path"
-      :command="`cat ${dotfile.path}`"
     >
       <h1 class="dotfile__title">{{ dotfile.title }}</h1>
     </PanelHead>

@@ -1,5 +1,6 @@
 ---
 company: Thales MFI GmbH
+url: https://thales-mfi.com
 location: Germany (remote)
 type: part-time
 roles:
@@ -12,6 +13,8 @@ stack:
   - Bun
   - NestJS
   - Hono
+summary: >-
+  Crypto asset-management company. Built a real-time portfolio tracker across 16 blockchains and 12 exchanges, a resource-management system, and a private MCP server.
 order: 2
 ---
 

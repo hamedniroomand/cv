@@ -4,7 +4,7 @@ test.describe('panel', () => {
   test.skip(({ isMobile }) => isMobile, 'desktop only');
 
   test('the resume is server-rendered with every experience entry', async ({ request }) => {
-    const html = await (await request.get('/')).text();
+    const html = await (await request.get('/cv')).text();
     expect(html).toContain('<title>Hamed Niroomand — ');
     expect(html).toContain('id="exp-jack-westin"');
     expect(html).toContain('id="exp-thales"');
@@ -13,7 +13,7 @@ test.describe('panel', () => {
   test('the home page publishes Open Graph and Twitter card tags with an image', async ({
     request,
   }) => {
-    const html = await (await request.get('/')).text();
+    const html = await (await request.get('/cv')).text();
     expect(html).toContain('<meta property="og:title" content="Hamed Niroomand — ');
     expect(html).toContain('<meta property="og:description" content="');
     expect(html).toContain('<meta property="og:image" content="http://localhost:3457/og.png">');
@@ -38,7 +38,7 @@ test.describe('panel', () => {
   });
 
   test('clicking a path label runs it in the terminal', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/cv');
     await expect(page.getByLabel('Terminal input')).toBeVisible();
     await page.getByRole('button', { name: '~/about.md' }).click();
     await expect(page.getByRole('log')).toContainText('bat ~/about.md');
@@ -46,7 +46,7 @@ test.describe('panel', () => {
   });
 
   test('the header links to the site source on GitHub', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/cv');
     const link = page.getByRole('link', { name: 'Source on GitHub' });
     await expect(link).toBeVisible();
     await expect(link).toHaveAttribute('href', 'https://github.com/hamedniroomand/cv');

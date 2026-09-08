@@ -18,6 +18,8 @@ stack:
   - Vitest
   - Laravel
   - AI SDK
+summary: >-
+  US MCAT-prep e-learning platform. Built the Vue and Nuxt learning products, an AI chat tutor, and the shared design system behind four apps.
 order: 1
 ---
 

@@ -1,5 +1,6 @@
 ---
 company: Joorchin Digital Marketing Agency
+url: https://joorchin.co
 location: Iran
 type: full-time
 roles:
@@ -10,6 +11,8 @@ stack:
   - Vue
   - WordPress
   - JavaScript
+summary: >-
+  Digital marketing agency. Turned Figma designs into responsive Vue and WordPress front-ends for client builds.
 order: 4
 ---
 

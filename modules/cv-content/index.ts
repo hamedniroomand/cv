@@ -10,7 +10,7 @@ import {
 import type { Nuxt } from '@nuxt/schema';
 import { join } from 'pathe';
 
-import { DOTFILES_INDEX, dotfilePath } from '#shared/cv/panel-target';
+import { DOTFILES_INDEX, dotfilePath, projectPath, RESUME_PATH } from '#shared/cv/panel-target';
 import type { CvData } from '#shared/schemas/cv';
 
 import { fetchGist, fetchGithubReadme } from './github.ts';
@@ -42,7 +42,9 @@ function registerPrerenderRoutes(nuxt: Nuxt, data: CvData): void {
   nuxt.options.nitro.prerender ||= {};
   const routes = new Set(nuxt.options.nitro.prerender.routes ?? []);
   routes.add(DOTFILES_INDEX);
+  routes.add(RESUME_PATH);
   for (const dotfile of data.dotfiles) routes.add(dotfilePath(dotfile.slug));
+  for (const project of data.projects) routes.add(projectPath(project.slug));
   nuxt.options.nitro.prerender.routes = [...routes];
 }
 

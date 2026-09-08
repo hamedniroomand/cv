@@ -2,6 +2,7 @@ import { splitDotfilePath } from '#shared/cv/dotfiles';
 import { formatRange } from '#shared/cv/format';
 import { githubUrl } from '#shared/cv/links';
 import type { PanelTarget } from '#shared/cv/panel-target';
+import { publicExperience } from '#shared/cv/public-experience';
 import type { CvData } from '#shared/schemas/cv';
 import type { Dotfile } from '#shared/schemas/dotfile';
 import type { Experience } from '#shared/schemas/experience';
@@ -120,7 +121,41 @@ function homeDir(cv: CvData, mtime: string): FsDir {
   return home;
 }
 
-export function buildTree(cv: CvData): FsDir {
+/** The work history for the public filesystem. It gives no role titles and no highlights. */
+function publicExperienceDir(cv: CvData, mtime: string): FsDir {
+  const files = publicExperience(cv.experience).map(entry =>
+    file(
+      `${entry.slug}.md`,
+      [
+        `# ${entry.company}`,
+        entry.range,
+        `Location: ${entry.location} · ${entry.type}`,
+        `Stack: ${entry.stack.join(', ')}`,
+        '',
+        entry.summary,
+        '',
+      ].join('\n'),
+      { mtime },
+    ),
+  );
+  return dir('experience', files, { mtime });
+}
+
+export function buildTree(cv: CvData, publicMode = false): FsDir {
   const mtime = cv.generatedAt;
-  return dir('', [dir('home', [homeDir(cv, mtime)], { mtime })], { mtime });
+  const home = homeDir(cv, mtime);
+  if (publicMode) {
+    for (const name of ['experience', 'skills.json', 'education.md', '.secrets'])
+      home.children.delete(name);
+    home.children.set('experience', publicExperienceDir(cv, mtime));
+    home.children.set(
+      'about.md',
+      file(
+        'about.md',
+        '# Hamed Niroomand\n\nI make tools for the way I like to work. Explore ~/projects and my dotfiles.\n',
+        { mtime },
+      ),
+    );
+  }
+  return dir('', [dir('home', [home], { mtime })], { mtime });
 }

@@ -4,6 +4,9 @@ import { expect } from '@playwright/test';
 export const DISCORD_MOCK_URL = 'http://localhost:3458';
 
 export async function openTerminal(page: Page): Promise<Locator> {
+  const trigger = page.getByRole('button', { name: 'Open terminal', exact: true });
+  if ((await trigger.isVisible()) && (await trigger.getAttribute('aria-expanded')) === 'false')
+    await trigger.click();
   const terminalTab = page.getByRole('tab', { name: 'Terminal' });
   if (await terminalTab.isVisible()) await terminalTab.click();
   const input = page.getByLabel('Terminal input');
@@ -18,7 +21,7 @@ export async function runCommand(page: Page, command: string): Promise<void> {
 }
 
 export async function openApp(page: Page): Promise<Locator> {
-  await page.goto('/');
+  await page.goto('/cv');
   await runCommand(page, 'menu');
   await expect(page.getByRole('heading', { name: /menu 1\.0/i })).toBeVisible();
   return page.getByRole('combobox', { name: 'App command' });

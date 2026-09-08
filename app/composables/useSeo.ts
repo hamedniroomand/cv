@@ -5,10 +5,10 @@ import type { Dotfile } from '#shared/schemas/dotfile';
 
 const OG_IMAGE = { width: 1200, height: 630 };
 
-type OgCard = 'resume' | 'dotfiles';
+type OgCard = 'resume' | 'dotfiles' | 'home';
 
 function ogImageMeta(siteUrl: string, card: OgCard, alt: string) {
-  const image = `${siteUrl}/og${card === 'dotfiles' ? '-dotfiles' : ''}.png`;
+  const image = `${siteUrl}/og${card === 'resume' ? '' : `-${card}`}.png`;
   return {
     ogImage: image,
     ogImageSecureUrl: image,
@@ -28,10 +28,11 @@ export function useResumeSeo(cv: CvData) {
   const { profile } = cv;
   const title = `${profile.name} — ${profile.title}`;
   const description = profile.description;
-  const url = `${siteUrl}/`;
+  const url = `${siteUrl}/cv`;
 
   useSeoMeta({
     title,
+    robots: 'noindex, follow',
     description,
     ogTitle: title,
     ogDescription: description,
@@ -58,6 +59,7 @@ function pageSeo(title: string, description: string, path: string): void {
     description,
     ogTitle: title,
     ogDescription: description,
+    robots: 'index, follow',
     ogType: 'website',
     ogUrl: url,
     ogSiteName: profile.name,
@@ -80,4 +82,22 @@ export function useDotfilesIndexSeo(): void {
     `Configuration files ${profile.name} uses day to day. Read them in the browser, copy them with one click, or cat them in the terminal.`,
     DOTFILES_INDEX,
   );
+}
+
+export function usePublicSeo(title: string, description: string, path = '/'): void {
+  const siteUrl = useRuntimeConfig().public.siteUrl;
+  useSeoMeta({
+    title,
+    description,
+    robots: 'index, follow',
+    ogTitle: title,
+    ogDescription: description,
+    ogType: 'website',
+    ogUrl: `${siteUrl}${path}`,
+    ogSiteName: 'Hamed Niroomand',
+    twitterTitle: title,
+    twitterDescription: description,
+    ...ogImageMeta(siteUrl, 'home', 'Hamed Niroomand — Projects, tools & experiments'),
+  });
+  useHead({ link: [{ rel: 'canonical', href: `${siteUrl}${path}` }] });
 }

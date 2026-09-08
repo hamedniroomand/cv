@@ -1,7 +1,7 @@
 import type { Page } from '@playwright/test';
 import { expect, test } from '@playwright/test';
 
-import { runCommand } from './helpers';
+import { openTerminal, runCommand } from './helpers';
 
 const URL = '/dotfiles/vscode-settings';
 
@@ -86,6 +86,7 @@ test.describe('dotfile page actions', () => {
 
   test('booting the terminal on a dotfile page stays on that page', async ({ page }) => {
     await page.goto(URL);
+    await openTerminal(page);
     await expect(page.getByRole('log')).toContainText('Hamed Niroomand');
     await expect(page).toHaveURL(/\/dotfiles\/vscode-settings$/);
     await expect(page.getByRole('heading', { level: 1, name: 'VS Code settings' })).toBeVisible();
@@ -93,9 +94,11 @@ test.describe('dotfile page actions', () => {
 
   test('the terminal starts in the file directory', async ({ page }) => {
     await page.goto(URL);
-    await expect(page.getByLabel('Terminal input')).toBeVisible();
+    await openTerminal(page);
     await expect(page.locator('.terminal')).toContainText('~/.config/Code/User$');
     await runCommand(page, 'cat settings.json');
+    // The command opens a page, so the window minimizes. Reopen it to read the output.
+    await openTerminal(page);
     await expect(page.getByRole('log')).toContainText('editor.fontFamily');
   });
 });
@@ -104,7 +107,7 @@ test.describe('dotfiles index', () => {
   test('lists entries and links to them', async ({ page, request }) => {
     const html = await (await request.get('/dotfiles')).text();
     expect(html).toContain('<title>Dotfiles — Hamed Niroomand</title>');
-    expect(html).toContain('id="section-dotfiles"');
+    expect(html).toContain('id="dotfiles"');
 
     await page.goto('/dotfiles');
     const link = page.getByRole('link', { name: 'VS Code settings' });
@@ -127,15 +130,17 @@ test.describe('terminal navigation between pages', () => {
     await runCommand(page, 'cat ~/.config/Code/User/settings.json');
     await expect(page).toHaveURL(/\/dotfiles\/vscode-settings$/);
     await expect(page.getByRole('heading', { level: 1, name: 'VS Code settings' })).toBeVisible();
+    await expect(page.locator('#public-terminal')).toHaveClass(/terminal-dock--minimized/);
+    await openTerminal(page);
     await expect(page.getByRole('log')).toContainText('before-navigation');
     await expect(page.getByRole('log')).toContainText('editor.fontFamily');
   });
 
-  test('cat about.md from a dotfile page returns to the resume', async ({ page }) => {
+  test('cat about.md stays in the public workshop', async ({ page }) => {
     await page.goto('/dotfiles/vscode-settings');
     await runCommand(page, 'cat ~/about.md');
-    await expect(page).toHaveURL(/\/$/);
-    await expect(page.locator('#section-about')).toBeInViewport();
+    await expect(page).toHaveURL(/\/dotfiles\/vscode-settings$/);
+    await expect(page.getByRole('log')).toContainText('I make tools');
     await expect(page.getByRole('log')).toContainText('cat ~/about.md');
   });
 
@@ -146,12 +151,12 @@ test.describe('terminal navigation between pages', () => {
     await expect(page.getByRole('link', { name: 'VS Code settings' })).toBeVisible();
   });
 
-  test('the mobile tab is labelled File on dotfile pages', async ({ browser }) => {
+  test('public navigation is available on mobile dotfile pages', async ({ browser }) => {
     const context = await browser.newContext({ viewport: { width: 400, height: 800 } });
     const page = await context.newPage();
     await page.goto('/dotfiles/vscode-settings');
-    await expect(page.getByRole('tab', { name: 'File' })).toBeVisible();
-    await page.goto('/');
+    await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible();
+    await page.goto('/cv');
     await expect(page.getByRole('tab', { name: 'Resume' })).toBeVisible();
     await context.close();
   });

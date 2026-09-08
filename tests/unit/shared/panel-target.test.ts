@@ -1,11 +1,17 @@
 import { describe, expect, it } from 'vite-plus/test';
 
-import { DOTFILES_INDEX, dotfilePath, panelRoute, panelTargetId } from '#shared/cv/panel-target';
+import {
+  DOTFILES_INDEX,
+  dotfilePath,
+  panelRoute,
+  panelTargetId,
+  publicPanelRoute,
+} from '#shared/cv/panel-target';
 
 describe('panelTargetId', () => {
-  it('uses section ids by default', () => {
-    expect(panelTargetId({ section: 'about' })).toBe('section-about');
-    expect(panelTargetId({ section: 'top' })).toBe('section-top');
+  it('uses the section name as the id by default', () => {
+    expect(panelTargetId({ section: 'about' })).toBe('about');
+    expect(panelTargetId({ section: 'top' })).toBe('top');
   });
 
   it('prefixes experience and project slugs', () => {
@@ -14,7 +20,7 @@ describe('panelTargetId', () => {
   });
 
   it('ignores slugs on other sections', () => {
-    expect(panelTargetId({ section: 'skills', slug: 'frontend' })).toBe('section-skills');
+    expect(panelTargetId({ section: 'skills', slug: 'frontend' })).toBe('skills');
   });
 });
 
@@ -23,17 +29,40 @@ describe('dotfile targets', () => {
     expect(panelTargetId({ section: 'dotfiles', slug: 'vscode-settings' })).toBe(
       'dotfile-vscode-settings',
     );
-    expect(panelTargetId({ section: 'dotfiles' })).toBe('section-dotfiles');
+    expect(panelTargetId({ section: 'dotfiles' })).toBe('dotfiles');
   });
 
-  it('routes dotfile targets to their pages and everything else home', () => {
+  it('routes dotfile targets to their pages and career content to the résumé', () => {
     expect(dotfilePath('vscode-settings')).toBe('/dotfiles/vscode-settings');
+    expect(panelRoute({ section: 'projects', slug: 'cue' })).toBe('/projects/cue');
     expect(DOTFILES_INDEX).toBe('/dotfiles');
     expect(panelRoute({ section: 'dotfiles', slug: 'vscode-settings' })).toBe(
       '/dotfiles/vscode-settings',
     );
     expect(panelRoute({ section: 'dotfiles' })).toBe('/dotfiles');
-    expect(panelRoute({ section: 'about' })).toBe('/');
-    expect(panelRoute({ section: 'experience', slug: 'acme' })).toBe('/');
+    expect(panelRoute({ section: 'about' })).toBe('/cv');
+    expect(panelRoute({ section: 'experience', slug: 'acme' })).toBe('/cv');
+  });
+});
+
+describe('publicPanelRoute', () => {
+  it('opens the page of a target that the public site publishes', () => {
+    expect(publicPanelRoute({ section: 'projects', slug: 'cue' })).toBe('/projects/cue');
+    expect(publicPanelRoute({ section: 'dotfiles' })).toBe('/dotfiles');
+    expect(publicPanelRoute({ section: 'dotfiles', slug: 'vscode-settings' })).toBe(
+      '/dotfiles/vscode-settings',
+    );
+  });
+
+  it('stays on the current page when the target is a home-page section', () => {
+    expect(publicPanelRoute({ section: 'top' })).toBeNull();
+    expect(publicPanelRoute({ section: 'contact' })).toBeNull();
+    expect(publicPanelRoute({ section: 'projects' })).toBeNull();
+  });
+
+  it('never sends a visitor to the résumé', () => {
+    for (const section of ['about', 'experience', 'skills', 'education'] as const)
+      expect(publicPanelRoute({ section })).toBeNull();
+    expect(publicPanelRoute({ section: 'experience', slug: 'jack-westin' })).toBeNull();
   });
 });

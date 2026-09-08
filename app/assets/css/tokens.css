@@ -26,6 +26,15 @@
 
   --ease: cubic-bezier(0.2, 0, 0, 1);
   --dur: 180ms;
+
+  /* The sticky header covers this much of the top of the screen. */
+  --header-height: 92px;
+}
+
+@media (max-width: 700px) {
+  :root {
+    --header-height: 124px;
+  }
 }
 
 @font-face {
