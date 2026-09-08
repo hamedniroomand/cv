@@ -25,6 +25,11 @@
     </PanelHead>
     <p class="dotfile__description">{{ dotfile.description }}</p>
     <DotfileCard :dotfile="dotfile" />
+    <DotfileExtensions
+      v-if="dotfile.registry === 'vscode-marketplace'"
+      :content="dotfile.content"
+      :path="dotfile.path"
+    />
   </PanelFrame>
 </template>
 

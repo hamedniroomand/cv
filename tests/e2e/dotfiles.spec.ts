@@ -161,3 +161,22 @@ test.describe('terminal navigation between pages', () => {
     await context.close();
   });
 });
+
+test('the extensions dotfile links every entry to the marketplace in a new tab', async ({
+  page,
+}) => {
+  await page.goto('/dotfiles/vscode-extensions');
+  const links = page.locator('.extensions__list a');
+  const count = await links.count();
+  expect(count).toBeGreaterThan(10);
+  await expect(page.getByRole('heading', { name: `${count} extensions` })).toBeVisible();
+
+  const volar = page.getByRole('link', { name: /volar/ });
+  await expect(volar).toHaveAttribute(
+    'href',
+    'https://marketplace.visualstudio.com/items?itemName=vue.volar',
+  );
+  await expect(volar).toHaveAttribute('target', '_blank');
+  await expect(volar).toHaveAttribute('rel', /noopener/);
+  await expect(page.locator('.extensions__install code')).toContainText('code --install-extension');
+});

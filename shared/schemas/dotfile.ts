@@ -25,6 +25,8 @@ export const DotfileFrontmatter = z.object({
   lang: z.string().min(1),
   order: z.number(),
   gist: DotfileGist.optional(),
+  /** Set this when each line of the file is a package that a registry publishes. */
+  registry: z.literal('vscode-marketplace').optional(),
 });
 
 export const DotfileSource = z.enum(['gist', 'inline']);
