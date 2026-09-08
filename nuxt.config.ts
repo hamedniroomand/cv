@@ -40,9 +40,11 @@ export default defineNuxtConfig({
   typescript: {
     strict: true,
     typeCheck: true,
-    // Cover unit/e2e tests with the app project so `nuxt typecheck` and type-aware lint see them.
+    // Cover tests and build scripts with the app project so `nuxt typecheck` and type-aware
+    // lint see them. Without the scripts, a lint of one staged script file cannot resolve
+    // the node types.
     tsConfig: {
-      include: ['../tests/**/*'],
+      include: ['../tests/**/*', '../scripts/**/*'],
       compilerOptions: { paths: { '#cv': ['../tests/unit/fixtures/cv-module.ts'] } },
     },
   },
