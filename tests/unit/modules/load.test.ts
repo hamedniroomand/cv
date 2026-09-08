@@ -59,7 +59,7 @@ describe('loadContent', () => {
     expect(cv.projects[0]!.html).toContain('<h1>');
   });
 
-  it('skips the README fetch for projects without a public repo', async () => {
+  it('asks GitHub for the README of each project that has a repo', async () => {
     const asked: string[] = [];
     const cv = await loadContent(
       dir,
@@ -70,12 +70,36 @@ describe('loadContent', () => {
         },
       }),
     );
-    expect(asked).toEqual(['hamedniroomand/cue']);
+    expect(asked).toEqual(['hamedniroomand/cue', 'hamedniroomand/kitdev-space']);
     const kitdev = cv.projects.find(p => p.slug === 'kitdev')!;
-    expect(kitdev.repo).toBeUndefined();
+    expect(kitdev.repo).toBe('hamedniroomand/kitdev-space');
     expect(kitdev.site).toBe('https://kitdev.space');
     expect(kitdev.readmeSource).toBe('fallback');
     expect(kitdev.html).toContain('<p>');
+  });
+
+  it('skips the README fetch for a project that has no repo', async () => {
+    const tmp = await contentCopy();
+    await writeFile(
+      join(tmp, 'projects', 'kitdev.md'),
+      '---\nname: KitDev Space\nsite: https://kitdev.space\ntagline: Tools.\nstack: []\n---\n\nLocal body.\n',
+    );
+    const asked: string[] = [];
+    const cv = await loadContent(
+      tmp,
+      deps({
+        fetchReadme: async repo => {
+          asked.push(repo);
+          return null;
+        },
+      }),
+    );
+    expect(asked).toEqual(['hamedniroomand/cue']);
+    const kitdev = cv.projects.find(p => p.slug === 'kitdev')!;
+    expect(kitdev.repo).toBeUndefined();
+    expect(kitdev.readmeSource).toBe('fallback');
+    expect(kitdev.body).toContain('Local body.');
+    await rm(tmp, { recursive: true, force: true });
   });
 
   it('renders markdown to html', async () => {
