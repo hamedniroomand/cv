@@ -36,7 +36,7 @@ describe('loadContent', () => {
       'thales',
       'faro-creaform',
       'joorchin',
-      'xankoo',
+      'xaankoo',
     ]);
     expect(cv.experience[0]!.highlights.map(h => h.slug)).toEqual([
       'team-lead',
@@ -127,7 +127,7 @@ describe('loadContent dotfiles', () => {
       '---\ntitle: Zsh\ndescription: Shell.\npath: ~/.zshrc\nlang: sh\norder: 0\n---\nexport EDITOR=vim\n',
     );
     const cv = await loadContent(tmp, deps());
-    expect(cv.dotfiles.map(d => d.slug)).toEqual(['zshrc', 'vscode-settings']);
+    expect(cv.dotfiles.map(d => d.slug)).toEqual(['zshrc', 'vscode-settings', 'vscode-extensions']);
     expect(cv.dotfiles[0]!.source).toBe('inline');
     expect(cv.dotfiles[0]!.gistUrl).toBeUndefined();
   });

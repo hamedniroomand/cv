@@ -1,5 +1,5 @@
 ---
-company: Xankoo
+company: Xaankoo
 location: Iran
 type: full-time
 roles:
@@ -11,9 +11,11 @@ stack:
   - Laravel
   - PHP
   - WordPress
+summary: >-
+  SEO-tooling startup. Built the customer-facing dashboard in Vue on Laravel: keyword research, rank tracking, and on-page SEO utilities.
 order: 5
 ---
 
-Xankoo is an SEO-tooling startup agency. I built the customer-facing SEO dashboard in Vue on a Laravel backend: keyword research and suggestions, daily tracking of Google indexing and ranking positions, and on-page and technical SEO utilities.
+Xaankoo is an SEO-tooling startup agency. I built the customer-facing SEO dashboard in Vue on a Laravel backend: keyword research and suggestions, daily tracking of Google indexing and ranking positions, and on-page and technical SEO utilities.
 
 I also implemented scheduled rank-tracking views, historical trend charts, and alerting so clients could see ranking changes without manual checks, and developed WordPress themes and plugins for agency clients that integrated with the dashboard data.
