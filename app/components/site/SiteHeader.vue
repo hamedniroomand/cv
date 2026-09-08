@@ -1,17 +1,9 @@
 <script setup lang="ts">
-  import { THEMES } from '#shared/theme';
-  import type { ThemeName } from '#shared/theme';
-
   defineProps<{ terminalOpen: boolean }>();
   defineEmits<{ toggleTerminal: [] }>();
 
   const route = useRoute();
-  const { theme, set } = useTheme();
   const launcher = ref<{ focus: () => void } | null>(null);
-
-  function changeTheme(event: Event): void {
-    set((event.target as HTMLSelectElement).value as ThemeName);
-  }
 
   defineExpose({ focusTerminalButton: () => launcher.value?.focus() });
 </script>
@@ -44,22 +36,7 @@
         <NuxtLink to="/dotfiles">Dotfiles</NuxtLink>
       </nav>
       <div class="site-controls">
-        <label class="theme-select">
-          <span class="visually-hidden">Color theme</span>
-          <select
-            :value="theme"
-            aria-label="Color theme"
-            @change="changeTheme"
-          >
-            <option
-              v-for="name in THEMES"
-              :key="name"
-              :value="name"
-            >
-              {{ name }}
-            </option>
-          </select>
-        </label>
+        <ThemePicker />
         <TerminalLauncher
           ref="launcher"
           :expanded="terminalOpen"

@@ -1480,3 +1480,76 @@
     transform: none;
   }
 }
+
+.site-nav a,
+.text-link,
+.setup-file {
+  transition:
+    color 160ms ease,
+    background-color 160ms ease,
+    border-color 160ms ease;
+}
+.project-card h3 span,
+.text-link span {
+  display: inline-block;
+  transition: transform 160ms ease;
+}
+.project-card:focus-within h3 span,
+.project-card:hover h3 span,
+.text-link:hover span {
+  transform: translate(2px, -2px);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .home-page > section {
+    animation: workshop-enter 300ms ease-out;
+  }
+  @keyframes workshop-enter {
+    from {
+      opacity: 0.6;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  body,
+  .project-visual,
+  .setup-files,
+  .site-header {
+    transition:
+      background-color 180ms ease,
+      color 180ms ease,
+      border-color 180ms ease;
+  }
+}
+@media (max-width: 700px) {
+  .project-card__meta,
+  .cue-node,
+  .tool-grid span,
+  .project-page .tool-grid span {
+    font-size: 10px;
+  }
+  .visual-topline,
+  .visual-bottomline,
+  .hero-caption {
+    font-size: 9px;
+  }
+  .project-card__meta {
+    flex-wrap: wrap;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .site-nav a,
+  .text-link,
+  .setup-file,
+  .project-card h3 span,
+  .text-link span {
+    transition: none;
+  }
+  .project-card:hover h3 span,
+  .project-card:focus-within h3 span,
+  .text-link:hover span {
+    transform: none;
+  }
+}
