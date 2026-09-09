@@ -4,7 +4,7 @@
       class="resume-nav"
       aria-label="Résumé navigation"
     >
-      <NuxtLink to="/">← Back to the workshop</NuxtLink>
+      <NuxtLink to="/">← Back to home</NuxtLink>
       <span>Curriculum vitae <span aria-hidden="true">/</span> Hamed Niroomand</span>
     </nav>
     <SiteShell panel-label="Resume"><slot /></SiteShell>

@@ -1,6 +1,6 @@
 <script setup lang="ts">
   import type { PanelTarget } from '#shared/cv/panel-target';
-  import { publicPanelRoute } from '#shared/cv/panel-target';
+  import { publicNavigation } from '#shared/cv/panel-target';
   import { MOBILE_QUERY } from '#shared/layout';
 
   import type { MobileKey } from './MobileKeys.vue';
@@ -21,6 +21,7 @@
 
   const { navigate: navigatePanel } = usePanelNav();
   const terminalWindow = useTerminalWindow();
+  const currentRoute = useRoute();
   /**
    * On the public site the terminal opens the page of a target that has one, such as a
    * project or a dotfile. For all other targets it does nothing, so a visitor keeps the
@@ -31,10 +32,10 @@
       await navigatePanel(target);
       return;
     }
-    const route = publicPanelRoute(target);
+    const route = publicNavigation(target, currentRoute.path);
     if (!route) return;
     await navigateTo(route);
-    // The page is the answer to the command, so the window steps out of the way.
+    // The window steps out of the way, because the new page answers the command.
     terminalWindow.dispatch('minimize');
   }
   const { toggle } = useSplitPane();
@@ -133,7 +134,7 @@
   async function onBoot(): Promise<void> {
     booted.value = true;
     if (props.publicMode) {
-      shell.print('Hamed Niroomand — a personal workshop', 'accent');
+      shell.print('Hamed Niroomand — personal website', 'accent');
       shell.print('Read the projects, the work history and the dotfiles.');
       shell.print("Try 'ls projects', 'ls experience', or 'menu' for guided mode.", 'dim');
       shell.print('');

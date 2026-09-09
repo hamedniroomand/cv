@@ -53,3 +53,13 @@ export function publicPanelRoute(target: PanelTarget): string | null {
   if (target.section === 'projects' && target.slug) return projectPath(target.slug);
   return null;
 }
+
+/**
+ * The page the public terminal should open for a target, or null to stay where the visitor is.
+ * The result is null when the public site has no page for the target, and also when that page
+ * is the one already open. A command that opens nothing must not move or hide anything.
+ */
+export function publicNavigation(target: PanelTarget, currentPath: string): string | null {
+  const route = publicPanelRoute(target);
+  return route === null || route === currentPath ? null : route;
+}

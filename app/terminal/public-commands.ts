@@ -4,7 +4,7 @@ import type { Command } from './types';
 
 const whoami: Command = {
   name: 'whoami',
-  description: 'Meet the person behind the workshop',
+  description: 'Get to know Hamed Niroomand',
   usage: 'whoami',
   run(_argv, ctx) {
     ctx.stdout.line(ctx.cv.profile.name, 'accent');

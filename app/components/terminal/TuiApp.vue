@@ -206,7 +206,7 @@
   );
 
   if (props.publicMode) {
-    view.print('Welcome to the workshop.');
+    view.print('Welcome to my personal website.');
     view.print('Type / to list the commands, or pick one of these:');
     view.print('/projects   /dotfiles   /theme   /contact', 'dim');
   } else {

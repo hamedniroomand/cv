@@ -4,7 +4,7 @@ import { commands } from '~/terminal/commands';
 import { publicCommands } from '~/terminal/public-commands';
 import { makeShell } from '~~/tests/unit/fixtures/context';
 
-it('public whoami introduces the workshop without the candidate biography', async () => {
+it('public whoami introduces the personal website without the candidate biography', async () => {
   const term = makeShell(publicCommands(commands));
   await term.exec('whoami');
   expect(term.text()).toContain('Hamed Niroomand');

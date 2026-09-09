@@ -71,7 +71,7 @@
     <NuxtLink
       to="/#projects"
       class="project-back"
-      >← All projects <span>Back to the workshop</span></NuxtLink
+      >← All projects <span>Back to projects</span></NuxtLink
     >
   </article>
 </template>

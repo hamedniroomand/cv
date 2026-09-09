@@ -148,3 +148,21 @@ test('the terminal minimizes when a command opens another page', async ({ page }
   await page.getByRole('button', { name: 'Restore terminal', exact: true }).click();
   await expect(page.getByRole('log')).toContainText('vue.volar');
 });
+
+test('a command for the page already open leaves the terminal alone', async ({ page }) => {
+  await page.goto('/projects/cue');
+  const dock = page.locator('#public-terminal');
+
+  // The path button runs `bat ~/projects/cue/README.md`, whose page is this one.
+  await page.getByRole('button', { name: /~\/projects\/cue/ }).click();
+  await expect(page.getByRole('log')).toContainText('Cue');
+  await expect(page).toHaveURL(/\/projects\/cue$/);
+  await expect(dock).not.toHaveClass(/terminal-dock--minimized/);
+
+  // A command whose page is a different one still steps out of the way.
+  const input = page.getByLabel('Terminal input');
+  await input.fill('cat ~/.config/Code/User/settings.json');
+  await input.press('Enter');
+  await expect(page).toHaveURL(/\/dotfiles\/vscode-settings$/);
+  await expect(dock).toHaveClass(/terminal-dock--minimized/);
+});

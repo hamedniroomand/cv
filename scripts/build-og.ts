@@ -66,11 +66,11 @@ function cards(profile: Profile): Card[] {
   return [
     {
       file: `public/${ogCardFile('home')}`,
-      eyebrow: 'A PERSONAL WORKSHOP',
+      eyebrow: 'PERSONAL WEBSITE',
       path: '~/hamed',
       heading: 'Useful things.',
       accent: 'Built with curiosity.',
-      line: 'Projects, tools and experiments by Hamed Niroomand.',
+      line: 'Projects, experience and everyday tools by Hamed Niroomand.',
     },
     {
       file: `public/${ogCardFile('resume')}`,

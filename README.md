@@ -1,6 +1,6 @@
 # niroomand.dev
 
-A personal workshop for projects, developer tools, and dotfiles. The public homepage leads with
+Hamed Niroomand’s personal website introducing his projects, experience, developer tools, and dotfiles. The public homepage leads with
 Cue and KitDev Space. Each project has a dedicated overview, real links, and a visual explanation.
 
 Live site: <https://niroomand.dev>

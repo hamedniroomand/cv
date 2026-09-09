@@ -18,8 +18,8 @@
       <p class="error-page__lede">
         {{
           missing
-            ? 'This page doesn’t live here. There’s still plenty to explore back at the workshop.'
-            : 'Try again in a moment, or head back to the workshop.'
+            ? 'This page doesn’t live here. There’s still plenty to explore on the homepage.'
+            : 'Try again in a moment, or head back home.'
         }}
       </p>
       <p class="error-page__prompt">hamed@{{ host }}:~$ open {{ route.fullPath }}</p>
@@ -27,7 +27,7 @@
         class="btn"
         href="/"
         @click.prevent="clearError({ redirect: '/' })"
-        >← Back to the workshop</a
+        >← Back to home</a
       >
     </div>
     <span

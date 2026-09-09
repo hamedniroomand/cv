@@ -136,7 +136,7 @@ test.describe('terminal navigation between pages', () => {
     await expect(page.getByRole('log')).toContainText('editor.fontFamily');
   });
 
-  test('cat about.md stays in the public workshop', async ({ page }) => {
+  test('cat about.md stays on the personal website', async ({ page }) => {
     await page.goto('/dotfiles/vscode-settings');
     await runCommand(page, 'cat ~/about.md');
     await expect(page).toHaveURL(/\/dotfiles\/vscode-settings$/);

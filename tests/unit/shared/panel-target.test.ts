@@ -5,6 +5,7 @@ import {
   dotfilePath,
   panelRoute,
   panelTargetId,
+  publicNavigation,
   publicPanelRoute,
 } from '#shared/cv/panel-target';
 
@@ -64,5 +65,22 @@ describe('publicPanelRoute', () => {
     for (const section of ['about', 'experience', 'skills', 'education'] as const)
       expect(publicPanelRoute({ section })).toBeNull();
     expect(publicPanelRoute({ section: 'experience', slug: 'jack-westin' })).toBeNull();
+  });
+});
+
+describe('publicNavigation', () => {
+  it('opens the page of a target that the visitor is not on', () => {
+    expect(publicNavigation({ section: 'projects', slug: 'cue' }, '/')).toBe('/projects/cue');
+    expect(publicNavigation({ section: 'dotfiles' }, '/projects/cue')).toBe('/dotfiles');
+  });
+
+  it('stays put when the target is the page already open', () => {
+    expect(publicNavigation({ section: 'projects', slug: 'cue' }, '/projects/cue')).toBeNull();
+    expect(publicNavigation({ section: 'dotfiles' }, '/dotfiles')).toBeNull();
+  });
+
+  it('stays put when the public site has no page for the target', () => {
+    expect(publicNavigation({ section: 'top' }, '/projects/cue')).toBeNull();
+    expect(publicNavigation({ section: 'experience', slug: 'thales' }, '/')).toBeNull();
   });
 });

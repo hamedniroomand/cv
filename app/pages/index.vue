@@ -1,8 +1,8 @@
 <script setup lang="ts">
   const { projects, dotfiles, experience } = useCv();
   usePublicSeo(
-    'Hamed Niroomand — Projects, tools & experiments',
-    'Useful things, built with curiosity. Explore Cue, KitDev Space, and the configuration files behind my everyday work.',
+    'Hamed Niroomand — Projects & experience',
+    'Get to know Hamed Niroomand through his projects, professional experience, and everyday tools.',
   );
 </script>
 
@@ -13,14 +13,14 @@
       class="home-hero"
     >
       <div class="hero-caption">
-        <span class="status-dot" /> A PERSONAL WORKSHOP
+        <span class="status-dot" /> PERSONAL WEBSITE
         <span class="hero-caption__path">~/hamed</span>
       </div>
       <h1>Useful things.<br />Built with <span>curiosity.</span></h1>
       <div class="hero-bottom">
         <p>
           I’m Hamed. I make tools for the way I like to work.<br class="desktop-break" />
-          This is where they live, along with a few things from my setup.
+          Here you’ll find my projects, experience, and a few things from my setup.
         </p>
         <a
           href="#projects"
