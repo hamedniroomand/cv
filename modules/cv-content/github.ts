@@ -41,6 +41,25 @@ function nonEmpty(text: string | undefined): string | null {
   return text && text.trim() ? text : null;
 }
 
+/**
+ * Reads the `llms.txt` of a site. That file lists the tools of the product, and the product
+ * publishes a new one on every deploy, so the site never shows an old list.
+ */
+export async function fetchLlmsTxt(
+  siteUrl: string,
+  fetchImpl: typeof fetch = fetch,
+  timeoutMs = DEFAULT_TIMEOUT_MS,
+): Promise<string | null> {
+  const url = `${siteUrl.replace(/\/+$/, '')}/llms.txt`;
+  const res = await fetchWithTimeout(fetchImpl, url, {}, timeoutMs);
+  if (!res) return null;
+  try {
+    return nonEmpty(await res.text());
+  } catch {
+    return null;
+  }
+}
+
 export async function fetchGithubReadme(
   repo: string,
   fetchImpl: typeof fetch = fetch,

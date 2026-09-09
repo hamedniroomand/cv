@@ -14,7 +14,7 @@ import { RESUME_PATH } from '#shared/cv/panel-target';
 import { indexableRoutes } from '#shared/cv/sitemap';
 import type { CvData } from '#shared/schemas/cv';
 
-import { fetchGist, fetchGithubReadme } from './github.ts';
+import { fetchGist, fetchGithubReadme, fetchLlmsTxt } from './github.ts';
 import { highlight } from './highlight.ts';
 import type { LoadDeps } from './load.ts';
 import { loadContent } from './load.ts';
@@ -34,6 +34,7 @@ function loadDeps(): LoadDeps {
   const token = process.env.GITHUB_TOKEN;
   return {
     fetchReadme: offline ? async () => null : fetchGithubReadme,
+    fetchLlms: offline ? async () => null : fetchLlmsTxt,
     fetchGist: offline ? async () => null : (id, file) => fetchGist(id, file, { token }),
     highlight,
   };

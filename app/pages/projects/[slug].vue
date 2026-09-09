@@ -1,4 +1,5 @@
 <script setup lang="ts">
+  import { linkLabel } from '#shared/cv/links';
   import { projectPath } from '#shared/cv/panel-target';
   import { projectStories } from '#shared/public-site';
   const route = useRoute();
@@ -28,6 +29,11 @@
       <ProjectActions :project="project" />
     </header>
     <ProjectVisual :slug="project.slug" />
+    <ProjectScreenshot
+      v-if="project.screenshots"
+      :shots="project.screenshots"
+      :fallback-frame="project.site ? linkLabel(project.site) : project.name"
+    />
     <div class="project-page__body">
       <aside>
         <p class="eyebrow">BUILT WITH</p>
@@ -51,6 +57,11 @@
         </section>
       </div>
     </div>
+    <ProjectToolCatalog
+      v-if="project.tools && project.site"
+      :catalog="project.tools"
+      :site-url="project.site"
+    />
     <NuxtLink
       to="/#projects"
       class="project-back"

@@ -3,6 +3,7 @@ import { join } from 'node:path';
 import { marked } from 'marked';
 import type { z } from 'zod';
 
+import { parseToolCatalog } from '#shared/cv/tool-catalog';
 import type { CvData } from '#shared/schemas/cv';
 import { CvDataSchema } from '#shared/schemas/cv';
 import type { Education } from '#shared/schemas/education';
@@ -29,9 +30,11 @@ import {
 } from './read.ts';
 
 export type ReadmeFetcher = (repo: string) => Promise<string | null>;
+export type LlmsFetcher = (siteUrl: string) => Promise<string | null>;
 
 export interface LoadDeps {
   fetchReadme: ReadmeFetcher;
+  fetchLlms: LlmsFetcher;
   fetchGist: GistFetcher;
   highlight: Highlighter;
 }
@@ -77,18 +80,26 @@ async function loadExperience(dir: string): Promise<Experience[]> {
   return experiences.sort(byOrder);
 }
 
-async function loadProjects(dir: string, fetchReadme: ReadmeFetcher): Promise<Project[]> {
+async function loadProjects(
+  dir: string,
+  fetchReadme: ReadmeFetcher,
+  fetchLlms: LlmsFetcher,
+): Promise<Project[]> {
   const projects: Project[] = [];
   for (const name of await listMarkdown(dir)) {
     const file = join(dir, name);
     const { data, body } = await readMarkdown(file);
     const frontmatter = validate(ProjectFrontmatter, data, file);
     const remote = frontmatter.repo ? await fetchReadme(frontmatter.repo) : null;
+    // A site that publishes `llms.txt` also publishes its list of tools.
+    const llms = frontmatter.site ? await fetchLlms(frontmatter.site) : null;
+    const tools = llms ? parseToolCatalog(llms) : undefined;
     projects.push({
       ...frontmatter,
       slug: slugOf(name),
       ...rendered(remote ?? body),
       readmeSource: remote ? 'github' : 'fallback',
+      ...(tools && tools.total > 0 ? { tools } : {}),
     });
   }
   return projects;
@@ -118,7 +129,7 @@ export async function loadContent(
     profile,
     about: rendered(about.body),
     experience: await loadExperience(at('experience')),
-    projects: await loadProjects(at('projects'), deps.fetchReadme),
+    projects: await loadProjects(at('projects'), deps.fetchReadme, deps.fetchLlms),
     dotfiles: await loadDotfiles(at('dotfiles'), profile.links.github, deps),
     skills,
     education: await loadEducation(at('education.md')),

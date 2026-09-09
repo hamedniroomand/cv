@@ -15,6 +15,7 @@ const stubHighlight: LoadDeps['highlight'] = (code, lang) =>
 function deps(overrides: Partial<LoadDeps> = {}): LoadDeps {
   return {
     fetchReadme: async () => null,
+    fetchLlms: async () => null,
     fetchGist: async () => null,
     highlight: stubHighlight,
     ...overrides,
@@ -100,6 +101,43 @@ describe('loadContent', () => {
     expect(kitdev.readmeSource).toBe('fallback');
     expect(kitdev.body).toContain('Local body.');
     await rm(tmp, { recursive: true, force: true });
+  });
+
+  it('reads the tool catalog of a project that publishes llms.txt', async () => {
+    const asked: string[] = [];
+    const cv = await loadContent(
+      dir,
+      deps({
+        fetchLlms: async siteUrl => {
+          asked.push(siteUrl);
+          return '## Data Lab\n\n- [JSON Formatter](/hub/data/json-formatter): Format JSON.\n';
+        },
+      }),
+    );
+    // Only the project with a site is asked.
+    expect(asked).toEqual(['https://kitdev.space']);
+    const kitdev = cv.projects.find(p => p.slug === 'kitdev')!;
+    expect(kitdev.tools).toEqual({
+      total: 1,
+      labs: [
+        {
+          name: 'Data Lab',
+          tools: [
+            {
+              name: 'JSON Formatter',
+              path: '/hub/data/json-formatter',
+              description: 'Format JSON.',
+            },
+          ],
+        },
+      ],
+    });
+    expect(cv.projects.find(p => p.slug === 'cue')!.tools).toBeUndefined();
+  });
+
+  it('leaves the catalog out when the live site cannot be read', async () => {
+    const cv = await loadContent(dir, deps({ fetchLlms: async () => null }));
+    expect(cv.projects.find(p => p.slug === 'kitdev')!.tools).toBeUndefined();
   });
 
   it('renders markdown to html', async () => {

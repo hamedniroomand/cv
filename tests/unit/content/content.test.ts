@@ -9,6 +9,7 @@ import { loadContent } from '~~/modules/cv-content/load';
 const dir = resolve('content');
 const deps: LoadDeps = {
   fetchReadme: async () => null,
+  fetchLlms: async () => null,
   fetchGist: async () => null,
   highlight: code => code,
 };
