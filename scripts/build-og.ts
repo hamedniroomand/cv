@@ -45,12 +45,12 @@ function escapeHtml(text: string): string {
 
 /** Each project gets a card of its own, so a shared link shows the project and not the home page. */
 async function projectCards(): Promise<Card[]> {
-  const cards: Card[] = [];
+  const projectList: Card[] = [];
   for (const name of await listMarkdown('content/projects')) {
     const { data } = await readMarkdown(`content/projects/${name}`);
     const project = data as { name?: string; tagline?: string };
     if (!project.name || !project.tagline) continue;
-    cards.push({
+    projectList.push({
       file: `public/${ogCardFile(slugOf(name))}`,
       eyebrow: 'PROJECT',
       path: `~/projects/${slugOf(name)}`,
@@ -59,7 +59,7 @@ async function projectCards(): Promise<Card[]> {
       line: `A project by Hamed Niroomand. Read it at ${DEFAULT_SITE_HOST}.`,
     });
   }
-  return cards;
+  return projectList;
 }
 
 function cards(profile: Profile): Card[] {
