@@ -1,14 +1,15 @@
 import { personJsonLd } from '#shared/cv/json-ld';
+import { ogCardFile } from '#shared/cv/og-card';
 import { DOTFILES_INDEX, dotfilePath } from '#shared/cv/panel-target';
 import type { CvData } from '#shared/schemas/cv';
 import type { Dotfile } from '#shared/schemas/dotfile';
 
 const OG_IMAGE = { width: 1200, height: 630 };
 
-type OgCard = 'resume' | 'dotfiles' | 'home';
+type OgCard = string;
 
 function ogImageMeta(siteUrl: string, card: OgCard, alt: string) {
-  const image = `${siteUrl}/og${card === 'resume' ? '' : `-${card}`}.png`;
+  const image = `${siteUrl}/${ogCardFile(card)}`;
   return {
     ogImage: image,
     ogImageSecureUrl: image,
@@ -39,8 +40,6 @@ export function useResumeSeo(cv: CvData) {
     ogType: 'profile',
     ogUrl: url,
     ogSiteName: profile.name,
-    twitterTitle: title,
-    twitterDescription: description,
     ...ogImageMeta(siteUrl, 'resume', `${profile.name}, ${profile.title}`),
   });
 
@@ -63,8 +62,6 @@ function pageSeo(title: string, description: string, path: string): void {
     ogType: 'website',
     ogUrl: url,
     ogSiteName: profile.name,
-    twitterTitle: title,
-    twitterDescription: description,
     ...ogImageMeta(siteUrl, 'dotfiles', `Dotfiles by ${profile.name}`),
   });
   useHead({ link: [{ rel: 'canonical', href: url }] });
@@ -84,7 +81,13 @@ export function useDotfilesIndexSeo(): void {
   );
 }
 
-export function usePublicSeo(title: string, description: string, path = '/'): void {
+export function usePublicSeo(
+  title: string,
+  description: string,
+  path = '/',
+  card = 'home',
+  cardAlt = 'Hamed Niroomand — Projects, tools & experiments',
+): void {
   const siteUrl = useRuntimeConfig().public.siteUrl;
   useSeoMeta({
     title,
@@ -95,9 +98,7 @@ export function usePublicSeo(title: string, description: string, path = '/'): vo
     ogType: 'website',
     ogUrl: `${siteUrl}${path}`,
     ogSiteName: 'Hamed Niroomand',
-    twitterTitle: title,
-    twitterDescription: description,
-    ...ogImageMeta(siteUrl, 'home', 'Hamed Niroomand — Projects, tools & experiments'),
+    ...ogImageMeta(siteUrl, card, cardAlt),
   });
   useHead({ link: [{ rel: 'canonical', href: `${siteUrl}${path}` }] });
 }

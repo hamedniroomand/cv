@@ -7,7 +7,13 @@
   if (!project)
     throw createError({ statusCode: 404, statusMessage: 'Project not found', fatal: true });
   const story = projectStories[project.slug];
-  usePublicSeo(`${project.name} — Hamed Niroomand`, project.tagline, projectPath(project.slug));
+  usePublicSeo(
+    `${project.name} — Hamed Niroomand`,
+    project.tagline,
+    projectPath(project.slug),
+    project.slug,
+    `${project.name} — ${project.tagline}`,
+  );
 </script>
 
 <template>

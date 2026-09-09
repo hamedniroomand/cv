@@ -2,6 +2,8 @@ import { readFile, writeFile } from 'node:fs/promises';
 
 import { chromium } from '@playwright/test';
 
+import { listMarkdown, readMarkdown, slugOf } from '../modules/cv-content/read.ts';
+import { ogCardFile } from '../shared/cv/og-card.ts';
 import { DEFAULT_SITE_HOST } from '../shared/site-host.ts';
 
 interface Profile {
@@ -41,10 +43,29 @@ function escapeHtml(text: string): string {
   return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
+/** Each project gets a card of its own, so a shared link shows the project and not the home page. */
+async function projectCards(): Promise<Card[]> {
+  const cards: Card[] = [];
+  for (const name of await listMarkdown('content/projects')) {
+    const { data } = await readMarkdown(`content/projects/${name}`);
+    const project = data as { name?: string; tagline?: string };
+    if (!project.name || !project.tagline) continue;
+    cards.push({
+      file: `public/${ogCardFile(slugOf(name))}`,
+      eyebrow: 'PROJECT',
+      path: `~/projects/${slugOf(name)}`,
+      heading: `${project.name}.`,
+      accent: project.tagline,
+      line: `A project by Hamed Niroomand. Read it at ${DEFAULT_SITE_HOST}.`,
+    });
+  }
+  return cards;
+}
+
 function cards(profile: Profile): Card[] {
   return [
     {
-      file: 'public/og-home.png',
+      file: `public/${ogCardFile('home')}`,
       eyebrow: 'A PERSONAL WORKSHOP',
       path: '~/hamed',
       heading: 'Useful things.',
@@ -52,7 +73,7 @@ function cards(profile: Profile): Card[] {
       line: 'Projects, tools and experiments by Hamed Niroomand.',
     },
     {
-      file: 'public/og.png',
+      file: `public/${ogCardFile('resume')}`,
       eyebrow: 'CURRICULUM VITAE',
       path: '~/hamed/cv',
       heading: profile.name,
@@ -60,7 +81,7 @@ function cards(profile: Profile): Card[] {
       line: profile.tagline ?? '',
     },
     {
-      file: 'public/og-dotfiles.png',
+      file: `public/${ogCardFile('dotfiles')}`,
       eyebrow: 'BEHIND THE SCENES',
       path: '~/.config',
       heading: 'Dotfiles.',
@@ -134,7 +155,7 @@ async function main(): Promise<void> {
     viewport: { width: WIDTH, height: HEIGHT },
     deviceScaleFactor: 1,
   });
-  for (const card of cards(profile)) {
+  for (const card of [...cards(profile), ...(await projectCards())]) {
     await page.setContent(cardHtml(card, font));
     await page.evaluate(() => document.fonts.ready);
     await writeFile(card.file, await page.screenshot({ type: 'png' }));
