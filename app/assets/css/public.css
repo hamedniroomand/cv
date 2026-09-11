@@ -480,6 +480,35 @@
   background: var(--prompt);
   margin-left: -2px;
 }
+.waverune-visual {
+  background-image: linear-gradient(
+    to bottom,
+    transparent calc(50% - 0.5px),
+    color-mix(in srgb, var(--fg-dim) 22%, transparent) calc(50% - 0.5px),
+    color-mix(in srgb, var(--fg-dim) 22%, transparent) calc(50% + 0.5px),
+    transparent calc(50% + 0.5px)
+  );
+}
+.wave {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 14px 0;
+}
+.wave-bar {
+  flex: 1;
+  max-width: 6px;
+  height: calc(var(--h) * 1%);
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--fg-dim) 45%, transparent);
+}
+.wave-bar--marked {
+  background: var(--accent);
+  box-shadow: 0 0 16px color-mix(in srgb, var(--accent) 35%, transparent);
+}
 .project-card__meta {
   display: flex;
   justify-content: space-between;
@@ -955,6 +984,16 @@
 .project-page .tool-grid span {
   font-size: 12px;
 }
+.project-page .wave {
+  max-width: 680px;
+  width: 100%;
+  align-self: center;
+  gap: 5px;
+}
+.project-page .wave-bar {
+  max-width: 10px;
+  border-radius: 3px;
+}
 .project-page__body {
   display: grid;
   grid-template-columns: 230px minmax(0, 1fr);
@@ -1352,6 +1391,9 @@
   }
   .tool-grid > div {
     padding: 12px 6px;
+  }
+  .wave {
+    gap: 2px;
   }
 }
 /* The direct-link résumé retains its shell with more deliberate reading hierarchy. */

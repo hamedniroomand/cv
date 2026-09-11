@@ -47,7 +47,7 @@ describe('loadContent', () => {
       'ai-tutor',
       'engineering-standards',
     ]);
-    expect(cv.projects.map(p => p.slug)).toEqual(['cue', 'kitdev']);
+    expect(cv.projects.map(p => p.slug)).toEqual(['cue', 'waverune', 'kitdev']);
     expect(cv.projects[0]!.readmeSource).toBe('fallback');
     expect(cv.skills.categories.length).toBeGreaterThan(3);
     expect(cv.secrets.body).toContain('API contract');
@@ -71,7 +71,11 @@ describe('loadContent', () => {
         },
       }),
     );
-    expect(asked).toEqual(['hamedniroomand/cue', 'hamedniroomand/kitdev-space']);
+    expect(asked).toEqual([
+      'hamedniroomand/cue',
+      'hamedniroomand/kitdev-space',
+      'hamedniroomand/waverune',
+    ]);
     const kitdev = cv.projects.find(p => p.slug === 'kitdev')!;
     expect(kitdev.repo).toBe('hamedniroomand/kitdev-space');
     expect(kitdev.site).toBe('https://kitdev.space');
@@ -83,7 +87,7 @@ describe('loadContent', () => {
     const tmp = await contentCopy();
     await writeFile(
       join(tmp, 'projects', 'kitdev.md'),
-      '---\nname: KitDev Space\nsite: https://kitdev.space\ntagline: Tools.\nstack: []\n---\n\nLocal body.\n',
+      '---\nname: KitDev Space\norder: 3\nsite: https://kitdev.space\ntagline: Tools.\nstack: []\n---\n\nLocal body.\n',
     );
     const asked: string[] = [];
     const cv = await loadContent(
@@ -95,7 +99,7 @@ describe('loadContent', () => {
         },
       }),
     );
-    expect(asked).toEqual(['hamedniroomand/cue']);
+    expect(asked).toEqual(['hamedniroomand/cue', 'hamedniroomand/waverune']);
     const kitdev = cv.projects.find(p => p.slug === 'kitdev')!;
     expect(kitdev.repo).toBeUndefined();
     expect(kitdev.readmeSource).toBe('fallback');
@@ -110,12 +114,13 @@ describe('loadContent', () => {
       deps({
         fetchLlms: async siteUrl => {
           asked.push(siteUrl);
+          if (!siteUrl.startsWith('https://kitdev.space')) return null;
           return '## Data Lab\n\n- [JSON Formatter](/hub/data/json-formatter): Format JSON.\n';
         },
       }),
     );
-    // Only the project with a site is asked.
-    expect(asked).toEqual(['https://kitdev.space']);
+    // Only the projects with a site are asked, in file order.
+    expect(asked).toEqual(['https://kitdev.space', 'https://hamedniroomand.github.io/waverune/']);
     const kitdev = cv.projects.find(p => p.slug === 'kitdev')!;
     expect(kitdev.tools).toEqual({
       total: 1,
@@ -133,6 +138,7 @@ describe('loadContent', () => {
       ],
     });
     expect(cv.projects.find(p => p.slug === 'cue')!.tools).toBeUndefined();
+    expect(cv.projects.find(p => p.slug === 'waverune')!.tools).toBeUndefined();
   });
 
   it('leaves the catalog out when the live site cannot be read', async () => {

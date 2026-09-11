@@ -1,14 +1,14 @@
 # niroomand.dev
 
 Hamed Niroomand’s personal website introducing his projects, experience, developer tools, and dotfiles. The public homepage leads with
-Cue and KitDev Space. Each project has a dedicated overview, real links, and a visual explanation.
+Cue, WaveRune and KitDev Space. Each project has a dedicated overview, real links, and a visual explanation.
 
 Live site: <https://niroomand.dev>
 
 ## Explore
 
 - `/` — selected projects, a short work history, a look at my setup, and contact links.
-- `/projects/cue` and `/projects/kitdev` — project overviews and links.
+- `/projects/cue`, `/projects/waverune` and `/projects/kitdev` — project overviews and links.
 - `/dotfiles` — configuration files with highlighted code, Copy, Share, and gist links.
 - `/cv` — the full résumé and original split terminal experience. This route is unlisted and
   marked `noindex`, not password-protected. The PDF and `/api/cv` remain available by direct URL.

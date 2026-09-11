@@ -37,6 +37,18 @@ const SHOTS: Shot[] = [
       await page.getByText('Mechanical Keyboard').waitFor({ timeout: 15_000 });
     },
   },
+  {
+    file: 'waverune-demo.webp',
+    url: 'https://hamedniroomand.github.io/waverune/',
+    async prepare(page) {
+      // The demo stores its theme itself and defaults to light. The site's cards are dark.
+      await page.evaluate(() => {
+        localStorage.setItem('waverune-theme', 'dark');
+        document.documentElement.dataset.theme = 'dark';
+      });
+      await page.getByRole('heading', { level: 1 }).waitFor({ timeout: 15_000 });
+    },
+  },
 ];
 
 const PLACEHOLDERS: Placeholder[] = [

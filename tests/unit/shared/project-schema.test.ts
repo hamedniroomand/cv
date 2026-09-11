@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vite-plus/test';
 
 import { ProjectFrontmatter } from '#shared/schemas/project';
 
-const base = { name: 'Cue', tagline: 'Drive agents.', stack: ['TypeScript'] };
+const base = { name: 'Cue', order: 1, tagline: 'Drive agents.', stack: ['TypeScript'] };
 
 describe('ProjectFrontmatter', () => {
   it('accepts a public repo without a site', () => {

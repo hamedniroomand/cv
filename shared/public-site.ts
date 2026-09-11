@@ -26,6 +26,26 @@ export const projectStories: Record<string, ProjectStory> = {
       },
     ],
   },
+  waverune: {
+    category: 'Open source / Audio library',
+    headline: 'Hidden data in sound.',
+    introduction:
+      'WaveRune embeds a 32-bit identifier in WAV audio and reads it back with a key. Detection is blind, so it never needs the original recording. Use it as a library, from the command line, or in the browser.',
+    sections: [
+      {
+        title: 'Classical signal processing, no models',
+        body: 'A keyed signal is spread across frequency slots under a simplified masking model and recovered through spectral correlation. There are no model downloads and no runtime dependencies, and the implementation is small enough to read in one sitting.',
+      },
+      {
+        title: 'One library, four ways to run it',
+        body: 'Import the ESM package in Node.js or Bun, script the CLI with its exit codes, install a standalone executable that embeds the Bun runtime, or open the browser demo. The demo processes files locally and uploads nothing.',
+      },
+      {
+        title: 'Measured, with the limits written down',
+        body: 'A reliability report records how often the detector recovered the identifier from clean, resampled and trimmed audio, and that no wrong payload was accepted in 585 rejection trials. Short clips and heavy edits are less reliable, and the documentation says so first.',
+      },
+    ],
+  },
   kitdev: {
     category: 'Web app / Developer tools',
     headline: 'The little tools you keep needing.',

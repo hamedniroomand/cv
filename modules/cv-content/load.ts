@@ -102,7 +102,7 @@ async function loadProjects(
       ...(tools && tools.total > 0 ? { tools } : {}),
     });
   }
-  return projects;
+  return projects.sort(byOrder);
 }
 
 async function loadEducation(file: string): Promise<Education> {
