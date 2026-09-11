@@ -2,7 +2,7 @@ import { githubUrl, mailtoUrl, projectUrl } from '#shared/cv/links';
 import { PDF_FILE, PDF_PATH } from '#shared/pdf';
 import type { Command, CommandContext } from '~/terminal/types';
 
-const PROJECT_TARGETS = ['cue', 'kitdev'] as const;
+const PROJECT_TARGETS = ['cue', 'waverune', 'kitdev'] as const;
 const TARGETS = ['github', 'linkedin', 'email', ...PROJECT_TARGETS, 'pdf'] as const;
 
 function urlFor(target: string, ctx: CommandContext): string | null {

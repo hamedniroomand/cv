@@ -37,6 +37,7 @@ test('public pages fit the viewport and connect to dotfiles', async ({ page }) =
   for (const path of [
     '/',
     '/projects/cue',
+    '/projects/waverune',
     '/projects/kitdev',
     '/dotfiles',
     '/dotfiles/vscode-settings',

@@ -6,6 +6,7 @@ import { RenderedBody } from './common.ts';
 export const ProjectFrontmatter = z
   .object({
     name: z.string().min(1),
+    order: z.number().int(),
     repo: z
       .string()
       .regex(/^[\w.-]+\/[\w.-]+$/)
@@ -14,7 +15,6 @@ export const ProjectFrontmatter = z
     docs: z.string().url().optional(),
     tagline: z.string().min(1),
     stack: z.array(z.string()),
-    /** Pictures of the product in use. They sit under the diagram on the project page. */
     screenshots: z
       .array(
         z.object({
@@ -23,7 +23,6 @@ export const ProjectFrontmatter = z
           caption: z.string().min(1),
           width: z.number().int().positive(),
           height: z.number().int().positive(),
-          /** The name shown in the window frame. Defaults to the project name. */
           frame: z.string().min(1).optional(),
         }),
       )

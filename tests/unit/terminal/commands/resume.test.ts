@@ -61,7 +61,7 @@ describe('open', () => {
   it('lists targets on unknown input', async () => {
     const term = makeShell(commands);
     expect((await term.exec('open zzz')).code).toBe(1);
-    expect(term.text()).toMatch(/github, linkedin, email, cue, kitdev, pdf/);
+    expect(term.text()).toMatch(/github, linkedin, email, cue, waverune, kitdev, pdf/);
     expect((await term.exec('open')).code).toBe(1);
   });
 

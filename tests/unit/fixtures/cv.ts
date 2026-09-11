@@ -65,6 +65,7 @@ export const fixtureCv: CvData = {
     {
       slug: 'cue',
       name: 'Cue',
+      order: 1,
       repo: 'hamedniroomand/cue',
       docs: 'https://hamedniroomand.github.io/cue',
       tagline: 'Drive coding agents from GitHub labels.',
@@ -76,6 +77,7 @@ export const fixtureCv: CvData = {
     {
       slug: 'kitdev',
       name: 'KitDev Space',
+      order: 2,
       site: 'https://kitdev.space',
       tagline: 'Browser-based developer tools.',
       stack: ['TypeScript', 'Bun'],
