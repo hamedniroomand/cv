@@ -26,11 +26,11 @@
     "screenshots": "bun run scripts/build-screenshots.ts"
   },
   "dependencies": {
-    "marked": "^18.0.12",
-    "nuxt": "npm:nuxt-nightly@5.0.0-29817842.7ab63d4b",
+    "marked": "^18.0.13",
+    "nuxt": "npm:nuxt-nightly@5.0.0-29819633.9319fd64",
     "vue": "^3.5.42",
     "vue-router": "^5.3.1",
-    "zod": "^4.6.2"
+    "zod": "^4.6.4"
   },
   "devDependencies": {
     "@commitlint/cli": "^21.2.2",
