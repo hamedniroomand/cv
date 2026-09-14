@@ -1,12 +1,19 @@
 <script setup lang="ts">
+  import { linkLabel } from '#shared/cv/links';
   import type { Project } from '#shared/schemas/project';
 
-  defineProps<{ shots: NonNullable<Project['screenshots']>; fallbackFrame: string }>();
+  const props = defineProps<{ project: Project }>();
+
+  const screenshots = computed(() => props.project.screenshots ?? []);
+  /** The window title of a shot without its own: the site host, or the project name. */
+  const frame = computed(() =>
+    props.project.site ? linkLabel(props.project.site) : props.project.name,
+  );
 </script>
 
 <template>
   <figure
-    v-for="shot in shots"
+    v-for="shot in screenshots"
     :key="shot.src"
     class="shot"
   >
@@ -16,7 +23,7 @@
         aria-hidden="true"
       >
         <span class="shot__lights"><i /><i /><i /></span>
-        <span class="shot__name">{{ shot.frame ?? fallbackFrame }}</span>
+        <span class="shot__name">{{ shot.frame ?? frame }}</span>
       </div>
       <img
         :src="shot.src"

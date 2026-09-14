@@ -1,5 +1,8 @@
 <script setup lang="ts">
-  const { projects, dotfiles, experience } = useCv();
+  import { mailtoUrl } from '#shared/cv/links';
+  import { dotfilePath } from '#shared/cv/panel-target';
+
+  const { projects, dotfiles, experience, profile } = useCv();
   usePublicSeo(
     'Hamed Niroomand — Projects & experience',
     'Get to know Hamed Niroomand through his projects, professional experience, and everyday tools.',
@@ -93,7 +96,7 @@
         <NuxtLink
           v-for="dotfile in dotfiles.slice(0, 3)"
           :key="dotfile.slug"
-          :to="`/dotfiles/${dotfile.slug}`"
+          :to="dotfilePath(dotfile.slug)"
           class="setup-file"
           ><span
             class="file-icon"
@@ -116,7 +119,7 @@
           it.
         </p>
         <a
-          href="mailto:hamed@niroomand.dev"
+          :href="mailtoUrl(profile.links.email)"
           class="text-link"
           >Let’s talk <span aria-hidden="true">↗</span></a
         >

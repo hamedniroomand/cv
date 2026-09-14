@@ -10,6 +10,7 @@
   const { splitKeyStep } = useAppConfig().panel;
 
   const root = ref<HTMLElement | null>(null);
+  const divider = ref<HTMLElement | null>(null);
   const dragging = ref(false);
   const percent = computed(() => Math.round(props.ratio * 100));
 
@@ -18,9 +19,8 @@
   }
 
   function onPointerDown(event: PointerEvent): void {
-    if (!root.value) return;
     dragging.value = true;
-    (event.currentTarget as HTMLElement).setPointerCapture(event.pointerId);
+    divider.value?.setPointerCapture(event.pointerId);
   }
 
   function onPointerMove(event: PointerEvent): void {
@@ -31,11 +31,7 @@
 
   function onPointerUp(event: PointerEvent): void {
     dragging.value = false;
-    (event.currentTarget as HTMLElement).releasePointerCapture(event.pointerId);
-  }
-
-  function reset(): void {
-    update(SPLIT_DEFAULT);
+    divider.value?.releasePointerCapture(event.pointerId);
   }
 
   function onKeydown(event: KeyboardEvent): void {
@@ -64,6 +60,7 @@
     </div>
     <div
       v-show="panelOpen"
+      ref="divider"
       class="split__divider"
       role="separator"
       aria-orientation="vertical"
@@ -78,7 +75,7 @@
       @pointermove="onPointerMove"
       @pointerup="onPointerUp"
       @pointercancel="onPointerUp"
-      @dblclick="reset"
+      @dblclick="update(SPLIT_DEFAULT)"
       @keydown="onKeydown"
     />
     <div

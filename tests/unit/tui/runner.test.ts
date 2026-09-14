@@ -31,7 +31,6 @@ function makeRunner(commands: AppCommand[], shellCode = 7) {
     cv: deps.cv,
     panel: deps.panel,
     theme: deps.theme,
-    lang: deps.lang,
     history: deps.history,
     ui: deps.ui,
     view,

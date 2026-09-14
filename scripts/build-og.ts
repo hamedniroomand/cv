@@ -2,15 +2,18 @@ import { readFile, writeFile } from 'node:fs/promises';
 
 import { chromium } from '@playwright/test';
 
-import { listMarkdown, readMarkdown, slugOf } from '../modules/cv-content/read.ts';
+import {
+  listMarkdown,
+  readJson,
+  readMarkdown,
+  slugOf,
+  validate,
+} from '../modules/cv-content/read.ts';
 import { ogCardFile } from '../shared/cv/og-card.ts';
+import type { Profile } from '../shared/schemas/profile.ts';
+import { ProfileSchema } from '../shared/schemas/profile.ts';
+import { ProjectFrontmatter } from '../shared/schemas/project.ts';
 import { DEFAULT_SITE_HOST } from '../shared/site-host.ts';
-
-interface Profile {
-  name: string;
-  title: string;
-  tagline?: string;
-}
 
 interface Card {
   file: string;
@@ -47,13 +50,13 @@ function escapeHtml(text: string): string {
 async function projectCards(): Promise<Card[]> {
   const projectList: Card[] = [];
   for (const name of await listMarkdown('content/projects')) {
-    const { data } = await readMarkdown(`content/projects/${name}`);
-    const project = data as { name?: string; tagline?: string };
-    if (!project.name || !project.tagline) continue;
+    const file = `content/projects/${name}`;
+    const project = validate(ProjectFrontmatter, (await readMarkdown(file)).data, file);
+    const slug = slugOf(name);
     projectList.push({
-      file: `public/${ogCardFile(slugOf(name))}`,
+      file: `public/${ogCardFile(slug)}`,
       eyebrow: 'PROJECT',
-      path: `~/projects/${slugOf(name)}`,
+      path: `~/projects/${slug}`,
       heading: `${project.name}.`,
       accent: project.tagline,
       line: `A project by Hamed Niroomand. Read it at ${DEFAULT_SITE_HOST}.`,
@@ -148,7 +151,11 @@ function cardHtml(card: Card, font: string): string {
 }
 
 async function main(): Promise<void> {
-  const profile = JSON.parse(await readFile('content/profile.json', 'utf8')) as Profile;
+  const profile = validate(
+    ProfileSchema,
+    await readJson('content/profile.json'),
+    'content/profile.json',
+  );
   const font = (await readFile(FONT)).toString('base64');
   const browser = await chromium.launch();
   const page = await browser.newPage({

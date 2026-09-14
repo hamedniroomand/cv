@@ -4,9 +4,9 @@
   const props = defineProps<{ panelLabel: string }>();
   const tab = defineModel<ShellTab>({ required: true });
 
-  const tabs = computed<{ id: ShellTab; label: string }[]>(() => [
-    { id: 'resume', label: props.panelLabel },
-    { id: 'terminal', label: 'Terminal' },
+  const tabs = computed<{ id: ShellTab; label: string; controls: string }[]>(() => [
+    { id: 'resume', label: props.panelLabel, controls: 'panel-pane' },
+    { id: 'terminal', label: 'Terminal', controls: 'terminal' },
   ]);
 </script>
 
@@ -25,7 +25,7 @@
       class="tabs__tab"
       :class="{ 'is-active': tab === item.id }"
       :aria-selected="tab === item.id"
-      :aria-controls="item.id === 'resume' ? 'panel-pane' : 'terminal'"
+      :aria-controls="item.controls"
       @click="tab = item.id"
     >
       {{ item.label }}

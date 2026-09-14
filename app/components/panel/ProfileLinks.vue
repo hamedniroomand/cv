@@ -4,30 +4,29 @@
 
   const props = defineProps<{ links: Profile['links'] }>();
 
-  const github = computed(() => githubUrl(props.links.github));
-  const linkedin = computed(() => linkLabel(props.links.linkedin));
+  const items = computed(() => [
+    {
+      href: githubUrl(props.links.github),
+      label: `github.com/${props.links.github}`,
+      external: true,
+    },
+    { href: props.links.linkedin, label: linkLabel(props.links.linkedin), external: true },
+    { href: mailtoUrl(props.links.email), label: props.links.email, external: false },
+  ]);
 </script>
 
 <template>
   <ul class="links">
-    <li>
+    <li
+      v-for="item in items"
+      :key="item.href"
+    >
       <a
-        :href="github"
-        rel="me noopener"
-        target="_blank"
-        >github.com/{{ links.github }}</a
+        :href="item.href"
+        :rel="item.external ? 'me noopener' : undefined"
+        :target="item.external ? '_blank' : undefined"
+        >{{ item.label }}</a
       >
-    </li>
-    <li>
-      <a
-        :href="links.linkedin"
-        rel="me noopener"
-        target="_blank"
-        >{{ linkedin }}</a
-      >
-    </li>
-    <li>
-      <a :href="mailtoUrl(links.email)">{{ links.email }}</a>
     </li>
   </ul>
 </template>

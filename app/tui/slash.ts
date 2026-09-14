@@ -44,8 +44,9 @@ function keyTier(query: string, key: string): number | null {
 }
 
 function matchTier(query: string, command: AppCommand): number | null {
+  const needle = query.toLowerCase();
   const tiers = [command.name, ...(command.aliases ?? [])]
-    .map(key => keyTier(query.toLowerCase(), key.toLowerCase()))
+    .map(key => keyTier(needle, key.toLowerCase()))
     .filter((tier): tier is number => tier !== null);
   return tiers.length > 0 ? Math.min(...tiers) : null;
 }

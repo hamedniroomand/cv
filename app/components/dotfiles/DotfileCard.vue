@@ -2,21 +2,18 @@
   import { dotfilePath, panelTargetId } from '#shared/cv/panel-target';
   import type { Dotfile } from '#shared/schemas/dotfile';
 
-  import type DotfileCode from './DotfileCode.vue';
-
   const props = defineProps<{ dotfile: Dotfile }>();
 
   const id = computed(() => panelTargetId({ section: 'dotfiles', slug: props.dotfile.slug }));
   const highlighted = usePanelHighlight(id);
-  const pageUrl = computed(
-    () => `${useRuntimeConfig().public.siteUrl}${dotfilePath(props.dotfile.slug)}`,
-  );
+  const siteUrl = useRuntimeConfig().public.siteUrl;
+  const pageUrl = computed(() => `${siteUrl}${dotfilePath(props.dotfile.slug)}`);
 
   const hydrated = useHydrated();
   const { copy } = useClipboard();
   const { share } = useShare();
   const { message, announce } = useStatusMessage();
-  const code = ref<InstanceType<typeof DotfileCode> | null>(null);
+  const code = ref<{ select: () => void } | null>(null);
 
   async function onCopy(): Promise<void> {
     if (await copy(props.dotfile.content)) {

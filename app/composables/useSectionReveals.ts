@@ -1,6 +1,6 @@
 import type { Ref } from 'vue';
 
-/** Animate once when a section arrives. Content stays readable without JS or browser support. */
+/** Marks each section one time when it enters the viewport. Without JS the content stays visible. */
 export function useSectionReveals(root: Ref<HTMLElement | null>): void {
   let observer: IntersectionObserver | undefined;
   const seen = new WeakSet<Element>();

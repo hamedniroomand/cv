@@ -20,7 +20,7 @@ export function byOrder<T extends { order: number }>(a: T, b: T): number {
   return a.order - b.order;
 }
 
-export async function readText(path: string): Promise<string> {
+async function readText(path: string): Promise<string> {
   return readFile(path, 'utf8');
 }
 

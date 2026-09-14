@@ -95,13 +95,10 @@ class Parser {
     }
     if (!this.match('dot')) this.fail(token);
 
-    let node: JqNode = { type: 'identity' };
-    let hasPath = false;
-    for (let path = this.pathStep(); path; path = this.pathStep()) {
-      node = hasPath ? { type: 'pipe', left: node, right: path } : path;
-      hasPath = true;
-    }
-    return node;
+    let node: JqNode | null = null;
+    for (let step = this.pathStep(); step; step = this.pathStep())
+      node = node ? { type: 'pipe', left: node, right: step } : step;
+    return node ?? { type: 'identity' };
   }
 
   private pathStep(): JqNode | null {

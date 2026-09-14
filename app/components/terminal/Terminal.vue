@@ -8,36 +8,9 @@
 
   const props = withDefaults(defineProps<{ publicMode?: boolean }>(), { publicMode: false });
 
-  const MOBILE_KEYS: MobileKey[] = [
-    { id: 'tab', label: 'Tab', aria: 'Complete' },
-    { id: 'up', label: '↑', aria: 'Previous command' },
-    { id: 'down', label: '↓', aria: 'Next command' },
-    { id: 'interrupt', label: '^C', aria: 'Interrupt' },
-    { id: 'clear', label: 'Clear', aria: 'Clear screen' },
-    { id: 'help', label: 'help', aria: 'Run help' },
-    { id: 'menu', label: 'menu', aria: 'Open the guided menu' },
-    { id: 'run', label: 'Run ↵', aria: 'Run command' },
-  ];
-
   const { navigate: navigatePanel } = usePanelNav();
   const terminalWindow = useTerminalWindow();
   const currentRoute = useRoute();
-  /**
-   * On the public site the terminal opens the page of a target that has one, such as a
-   * project or a dotfile. For all other targets it does nothing, so a visitor keeps the
-   * page and the scroll position that they chose. On the résumé the panel always follows.
-   */
-  async function navigate(target: PanelTarget): Promise<void> {
-    if (!props.publicMode) {
-      await navigatePanel(target);
-      return;
-    }
-    const route = publicNavigation(target, currentRoute.path);
-    if (!route) return;
-    await navigateTo(route);
-    // The window steps out of the way, because the new page answers the command.
-    terminalWindow.dispatch('minimize');
-  }
   const { toggle } = useSplitPane();
   const reveal = usePanelReveal();
   const { set: setTheme } = useTheme();
@@ -47,34 +20,36 @@
   const app = useAppMode();
   const modal = useModalRequest();
 
+  /**
+   * The résumé panel follows every target. The public site only opens a target that has
+   * a page, so a visitor keeps the page and the scroll position on other targets.
+   */
+  async function navigate(target: PanelTarget): Promise<void> {
+    if (!props.publicMode) {
+      await navigatePanel(target);
+      return;
+    }
+    const route = publicNavigation(target, currentRoute.path);
+    if (!route) return;
+    await navigateTo(route);
+    // The new page answers the command, so the window steps out of the way.
+    terminalWindow.dispatch('minimize');
+  }
+
   const shell = useShell({
     publicMode: props.publicMode,
     navigate,
     togglePanel: toggle,
     revealPanel: reveal.request,
     setTheme,
-    setLang: () => {},
     openApp: app.request,
     openModal: modal.request,
-    destroy: () => {},
   });
 
   const booted = ref(false);
   const root = ref<HTMLElement | null>(null);
   const inputRef = ref<TerminalInputHandle | null>(null);
   const tuiApp = ref<{ insert: (text: string) => void; focus: () => void } | null>(null);
-
-  useTypeToTerminal({
-    enabled: () => booted.value && modal.kind.value === null && isVisible(root.value),
-    insert: text => (app.open.value ? tuiApp.value : inputRef.value)?.insert(text),
-  });
-
-  defineExpose({
-    focus: () => {
-      if (app.open.value) tuiApp.value?.focus();
-      else focusInput();
-    },
-  });
 
   function focusInput(): void {
     inputRef.value?.focus();
@@ -88,20 +63,21 @@
     nextTick(() => requestAnimationFrame(scrollToBottom)),
   );
 
-  const mobileActions: Record<string, () => void> = {
-    tab: () => inputRef.value?.complete(),
-    up: () => inputRef.value?.historyUp(),
-    down: () => inputRef.value?.historyDown(),
-    interrupt: () => inputRef.value?.interrupt(),
-    clear: () => shell.clear(),
-    help: () => inputRef.value?.submit('help'),
-    menu: () => inputRef.value?.submit('menu'),
-    run: () => inputRef.value?.submit(),
-  };
+  useTypeToTerminal({
+    enabled: () => booted.value && modal.kind.value === null && isVisible(root.value),
+    insert: text => (app.open.value ? tuiApp.value : inputRef.value)?.insert(text),
+  });
 
-  function onMobileKey(id: string): void {
-    mobileActions[id]?.();
-  }
+  const mobileKeys: MobileKey[] = [
+    { label: 'Tab', aria: 'Complete', press: () => inputRef.value?.complete() },
+    { label: '↑', aria: 'Previous command', press: () => inputRef.value?.historyUp() },
+    { label: '↓', aria: 'Next command', press: () => inputRef.value?.historyDown() },
+    { label: '^C', aria: 'Interrupt', press: () => inputRef.value?.interrupt() },
+    { label: 'Clear', aria: 'Clear screen', press: () => shell.clear() },
+    { label: 'help', aria: 'Run help', press: () => inputRef.value?.submit('help') },
+    { label: 'menu', aria: 'Open the guided menu', press: () => inputRef.value?.submit('menu') },
+    { label: 'Run ↵', aria: 'Run command', press: () => inputRef.value?.submit() },
+  ];
 
   function closeModal(): void {
     modal.close();
@@ -159,6 +135,13 @@
     () => shell.lines.value.length,
     () => nextTick(scrollToBottom),
   );
+
+  defineExpose({
+    focus: () => {
+      if (app.open.value) tuiApp.value?.focus();
+      else focusInput();
+    },
+  });
 </script>
 
 <template>
@@ -207,8 +190,7 @@
         <MobileKeys
           v-if="isMobile"
           label="Terminal shortcuts"
-          :keys="MOBILE_KEYS"
-          @press="onMobileKey"
+          :keys="mobileKeys"
         />
       </div>
     </template>

@@ -24,9 +24,9 @@ export function createAppBridge(
   registry: AppRegistry,
   liveTheme: () => ThemeName = () => deps.env.theme,
 ): AppBridge {
-  const { fs, env, cv, panel, theme, lang, history, ui } = deps;
+  const { fs, env, cv, panel, theme, history, ui } = deps;
   return {
-    context: { fs, env, cv, panel, theme, lang, history, ui },
+    context: { fs, env, cv, panel, theme, history, ui },
     registry,
     exec: async (line, sink, nextId, signal) => {
       deps.env.theme = liveTheme();

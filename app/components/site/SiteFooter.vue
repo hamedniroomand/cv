@@ -1,5 +1,13 @@
 <script setup lang="ts">
+  import { githubUrl, mailtoUrl } from '#shared/cv/links';
+
   const { site } = useAppConfig();
+  const { links } = useCv().profile;
+  const items = [
+    { href: mailtoUrl(links.email), label: 'Say hello', external: false },
+    { href: githubUrl(links.github), label: 'GitHub', external: true },
+    { href: site.repo, label: 'Source', external: true },
+  ];
 </script>
 
 <template>
@@ -16,17 +24,13 @@
       <p>A small corner of the internet. Made by hand, with curiosity.</p>
     </div>
     <div class="footer-links">
-      <a href="mailto:hamed@niroomand.dev">Say hello ↗</a
-      ><a
-        href="https://github.com/hamedniroomand"
-        target="_blank"
-        rel="noopener"
-        >GitHub ↗</a
-      ><a
-        :href="site.repo"
-        target="_blank"
-        rel="noopener"
-        >Source ↗</a
+      <a
+        v-for="item in items"
+        :key="item.href"
+        :href="item.href"
+        :target="item.external ? '_blank' : undefined"
+        :rel="item.external ? 'noopener' : undefined"
+        >{{ item.label }} ↗</a
       >
     </div>
   </footer>

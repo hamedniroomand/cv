@@ -8,8 +8,15 @@
   const id = computed(() => panelTargetId({ section: 'projects', slug: props.project.slug }));
   const highlighted = usePanelHighlight(id);
   const primary = computed(() => projectUrl(props.project));
-  const repo = computed(() => (props.project.repo ? githubUrl(props.project.repo) : null));
   const path = computed(() => `~/projects/${props.project.slug}`);
+  const links = computed(() => {
+    const { site, repo, docs } = props.project;
+    const items: { href: string; label: string }[] = [];
+    if (site) items.push({ href: site, label: linkLabel(site) });
+    if (repo) items.push({ href: githubUrl(repo), label: `github.com/${repo}` });
+    if (docs) items.push({ href: docs, label: 'docs' });
+    return items;
+  });
 </script>
 
 <template>
@@ -36,25 +43,12 @@
     </p>
     <p class="project__links">
       <a
-        v-if="project.site"
-        :href="project.site"
+        v-for="link in links"
+        :key="link.href"
+        :href="link.href"
         rel="noopener"
         target="_blank"
-        >{{ linkLabel(project.site) }}</a
-      >
-      <a
-        v-if="repo"
-        :href="repo"
-        rel="noopener"
-        target="_blank"
-        >github.com/{{ project.repo }}</a
-      >
-      <a
-        v-if="project.docs"
-        :href="project.docs"
-        rel="noopener"
-        target="_blank"
-        >docs</a
+        >{{ link.label }}</a
       >
     </p>
     <StackTags :items="project.stack" />

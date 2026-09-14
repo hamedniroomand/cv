@@ -3,7 +3,7 @@
 
   const Terminal = defineAsyncComponent(() => import('~/components/terminal/Terminal.vue'));
 
-  const props = defineProps<{ mode: TerminalWindowMode }>();
+  defineProps<{ mode: TerminalWindowMode }>();
   defineEmits<{ minimize: []; toggleMaximize: []; close: [] }>();
 
   const terminal = ref<{ focus: () => void } | null>(null);
@@ -14,7 +14,7 @@
   <aside
     id="public-terminal"
     class="terminal-dock"
-    :class="`terminal-dock--${props.mode}`"
+    :class="`terminal-dock--${mode}`"
     aria-label="Terminal"
   >
     <div class="terminal-dock__bar">
@@ -23,8 +23,8 @@
         <span class="muted">/ interactive shell</span>
       </span>
       <TerminalWindowControls
-        :maximized="props.mode === 'maximized'"
-        :minimized="props.mode === 'minimized'"
+        :maximized="mode === 'maximized'"
+        :minimized="mode === 'minimized'"
         @minimize="$emit('minimize')"
         @toggle-maximize="$emit('toggleMaximize')"
         @close="$emit('close')"

@@ -2,7 +2,7 @@ import type { Ref } from 'vue';
 
 import { pickerItemMatches } from '~/tui/picker';
 import { filterCommands, parseSlashInput, slashOptionId } from '~/tui/slash';
-import type { AppCommand, AppContext, AppRegistry } from '~/tui/types';
+import type { AppCommand, AppContext, AppRegistry, PickerItem } from '~/tui/types';
 
 export interface SlashMenuItem {
   key: string;
@@ -31,6 +31,17 @@ function commandItem(command: AppCommand): SlashMenuItem {
   };
 }
 
+function argumentItem(command: AppCommand, item: PickerItem): SlashMenuItem {
+  const line = `/${command.name} ${item.value}`;
+  return {
+    key: `argument-${item.value}`,
+    label: item.label,
+    description: item.description,
+    completion: line,
+    runLine: line,
+  };
+}
+
 export function useSlashMenu({ value, registry, blocked, completionContext }: SlashMenuDeps) {
   const suppressed = ref(false);
   const parsed = computed(() => parseSlashInput(value.value));
@@ -47,18 +58,12 @@ export function useSlashMenu({ value, registry, blocked, completionContext }: Sl
     if (slash.partial) return filterCommands(slash.name, registry.list()).map(commandItem);
 
     const command = registry.get(slash.name);
-    const choices = command?.complete?.(slash.argv, completionContext(command));
-    if (!command || !choices) return [];
+    if (!command?.complete) return [];
     const query = value.value.endsWith(' ') ? '' : (slash.argv.at(-1) ?? '');
-    return choices
+    return command
+      .complete(slash.argv, completionContext(command))
       .filter(item => pickerItemMatches(item, query))
-      .map(item => ({
-        key: `argument-${String(item.value)}`,
-        label: item.label,
-        description: item.description,
-        completion: `/${command.name} ${String(item.value)}`,
-        runLine: `/${command.name} ${String(item.value)}`,
-      }));
+      .map(item => argumentItem(command, item));
   });
 
   const { selected, move, reset } = useListSelection(() => items.value.length);

@@ -29,13 +29,16 @@ const CV_TYPES = [
   ``,
 ].join('\n');
 
+const none = async (): Promise<null> => null;
+
 function loadDeps(): LoadDeps {
-  const offline = process.env.CV_OFFLINE === '1';
+  if (process.env.CV_OFFLINE === '1')
+    return { fetchReadme: none, fetchLlms: none, fetchGist: none, highlight };
   const token = process.env.GITHUB_TOKEN;
   return {
-    fetchReadme: offline ? async () => null : fetchGithubReadme,
-    fetchLlms: offline ? async () => null : fetchLlmsTxt,
-    fetchGist: offline ? async () => null : (id, file) => fetchGist(id, file, { token }),
+    fetchReadme: fetchGithubReadme,
+    fetchLlms: fetchLlmsTxt,
+    fetchGist: (id, file) => fetchGist(id, file, { token }),
     highlight,
   };
 }

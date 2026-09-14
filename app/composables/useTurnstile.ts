@@ -3,14 +3,13 @@ import type { Ref } from 'vue';
 export function useTurnstile(el: Ref<HTMLElement | null>, siteKey: string, token: Ref<string>) {
   let widgetId: string | undefined;
 
+  function clearToken(): void {
+    token.value = '';
+  }
+
   onMounted(async () => {
-    let api: TurnstileApi;
-    try {
-      api = await loadTurnstile();
-    } catch {
-      return;
-    }
-    if (!el.value) return;
+    const api = await loadTurnstile().catch(() => null);
+    if (!api || !el.value) return;
     widgetId = api.render(el.value, {
       sitekey: siteKey,
       theme: turnstileTheme(),
@@ -18,12 +17,8 @@ export function useTurnstile(el: Ref<HTMLElement | null>, siteKey: string, token
       callback: (value: string) => {
         token.value = value;
       },
-      'expired-callback': () => {
-        token.value = '';
-      },
-      'error-callback': () => {
-        token.value = '';
-      },
+      'expired-callback': clearToken,
+      'error-callback': clearToken,
     });
   });
 
@@ -32,7 +27,7 @@ export function useTurnstile(el: Ref<HTMLElement | null>, siteKey: string, token
   });
 
   function reset(): void {
-    token.value = '';
+    clearToken();
     if (widgetId) window.turnstile?.reset(widgetId);
   }
 

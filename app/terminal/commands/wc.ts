@@ -2,7 +2,7 @@ import { byteLength } from '~/terminal/io/text';
 import { parseFlags } from '~/terminal/shell/flags';
 import type { Command, CommandContext } from '~/terminal/types';
 
-import { printUsage, reportFsError } from './_util';
+import { forEachFile, printUsage } from './_util';
 
 interface Counts {
   lines: number;
@@ -13,7 +13,7 @@ interface Counts {
 type CountKey = keyof Counts;
 
 const ALL_COUNTS: CountKey[] = ['lines', 'words', 'bytes'];
-const FLAG_TO_COUNT: Record<string, CountKey> = { l: 'lines', w: 'words', c: 'bytes' };
+const COUNT_FLAGS: Record<CountKey, string> = { lines: 'l', words: 'w', bytes: 'c' };
 const ZERO: Counts = { lines: 0, words: 0, bytes: 0 };
 
 function count(text: string): Counts {
@@ -42,25 +42,15 @@ function format(counts: Counts, selected: CountKey[], label?: string): string {
   return label ? `${numbers} ${label}` : numbers;
 }
 
-function selectedCounts(flags: Set<string>): CountKey[] {
-  if (flags.size === 0) return ALL_COUNTS;
-  return ALL_COUNTS.filter(key => [...flags].some(flag => FLAG_TO_COUNT[flag] === key));
-}
-
 function countFiles(ctx: CommandContext, paths: string[], selected: CountKey[]): number {
-  let code = 0;
-  let successes = 0;
   let total = ZERO;
-  for (const path of paths) {
-    try {
-      const counts = count(ctx.fs.readFile(path, { sudo: ctx.sudo }));
-      ctx.stdout.line(format(counts, selected, path));
-      total = add(total, counts);
-      successes++;
-    } catch (err) {
-      code = reportFsError(ctx, err);
-    }
-  }
+  let successes = 0;
+  const code = forEachFile(ctx, paths, (path, text) => {
+    const counts = count(text);
+    ctx.stdout.line(format(counts, selected, path));
+    total = add(total, counts);
+    successes++;
+  });
   if (paths.length > 1 && successes > 0) ctx.stdout.line(format(total, selected, 'total'));
   return code;
 }
@@ -70,9 +60,12 @@ export default {
   description: 'Count lines, words, and bytes',
   usage: 'wc [-lwc] [file...]',
   run(argv, ctx) {
-    const { flags, positionals, unknown } = parseFlags(argv, { boolean: ['l', 'w', 'c'] });
+    const { flags, positionals, unknown } = parseFlags(argv, {
+      boolean: Object.values(COUNT_FLAGS),
+    });
     if (unknown.length > 0) return printUsage(ctx);
-    const selected = selectedCounts(flags);
+    const selected =
+      flags.size === 0 ? ALL_COUNTS : ALL_COUNTS.filter(key => flags.has(COUNT_FLAGS[key]));
     if (positionals.length > 0) return countFiles(ctx, positionals, selected);
     if (ctx.stdin === null) return printUsage(ctx);
     ctx.stdout.line(format(count(ctx.stdin), selected));

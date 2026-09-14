@@ -24,22 +24,17 @@ export interface LinkableProject {
  * The link to the repository is last, because fewer visitors want the source code.
  */
 export function projectActions(project: LinkableProject): ProjectAction[] {
-  const actions: Omit<ProjectAction, 'variant'>[] = [];
-  if (project.site)
-    actions.push({ kind: 'site', href: project.site, label: `Visit ${project.name}` });
-  if (project.docs) actions.push({ kind: 'docs', href: project.docs, label: 'Documentation' });
-  if (project.repo)
-    actions.push({ kind: 'repo', href: githubUrl(project.repo), label: 'View on GitHub' });
-
-  return actions.map((action, index) => ({
-    kind: action.kind,
-    href: action.href,
-    label: action.label,
-    variant: index === 0 ? 'primary' : 'secondary',
-  }));
+  const actions: ProjectAction[] = [];
+  const add = (kind: ProjectActionKind, href: string, label: string): void => {
+    actions.push({ kind, href, label, variant: actions.length === 0 ? 'primary' : 'secondary' });
+  };
+  if (project.site) add('site', project.site, `Visit ${project.name}`);
+  if (project.docs) add('docs', project.docs, 'Documentation');
+  if (project.repo) add('repo', githubUrl(project.repo), 'View on GitHub');
+  return actions;
 }
 
-/** What the project page says under SOURCE. A repository is public; everything else is private. */
+/** The text under SOURCE on the project page. A repository is public. Everything else is private. */
 export function projectSourceLabel(project: { repo?: string; site?: string }): string {
   return project.repo ? 'Open source' : 'Private source';
 }

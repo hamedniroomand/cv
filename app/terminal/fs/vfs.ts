@@ -60,9 +60,9 @@ export class Vfs implements VirtualFS {
 
   constructor(
     private readonly root: FsDir,
-    opts: { home?: string; cwd?: string } = {},
+    opts: { home: string; cwd?: string },
   ) {
-    this.home = opts.home ?? '/home/hamed';
+    this.home = opts.home;
     this.currentDir = opts.cwd ?? this.home;
   }
 

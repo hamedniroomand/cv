@@ -23,7 +23,6 @@ describe('createAppBridge', () => {
     expect(bridge.context.cv).toBe(shell.deps.cv);
     expect(bridge.context.panel).toBe(shell.deps.panel);
     expect(bridge.context.theme).toBe(shell.deps.theme);
-    expect(bridge.context.lang).toBe(shell.deps.lang);
     expect(bridge.context.history).toBe(shell.deps.history);
     expect(bridge.context.ui).toBe(shell.deps.ui);
   });

@@ -17,27 +17,15 @@ export function useTuiRunner({ bridge, view, sink, nextId, onSettled }: TuiRunne
   const history = new History();
   let controller: AbortController | null = null;
 
-  const runShell = (line: string, signal: AbortSignal): Promise<number> =>
-    bridge.exec(line, sink, nextId, signal);
-
   const runner = createAppRunner({
     registry: bridge.registry,
     context: { ...bridge.context, view },
-    shell: runShell,
+    shell: (line, signal) => bridge.exec(line, sink, nextId, signal),
   });
 
   function completionContext(command: AppCommand): AppContext {
     const signal = controller?.signal ?? new AbortController().signal;
-    return {
-      ...bridge.context,
-      argv0: `/${command.name}`,
-      registry: bridge.registry,
-      sudo: false,
-      signal,
-      view,
-      shell: line => runShell(line, signal),
-      slash: line => runner.run(line, signal),
-    };
+    return runner.commandContext(command.name, signal);
   }
 
   async function run(line: string): Promise<void> {

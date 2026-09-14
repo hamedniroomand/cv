@@ -63,7 +63,7 @@
       action();
       return;
     }
-    if (event.key.length === 1 && isPlainKey(event)) {
+    if (isPrintableKey(event)) {
       event.preventDefault();
       editQuery(query.value + event.key);
     }

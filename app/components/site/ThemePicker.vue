@@ -4,7 +4,7 @@
 
   const { theme, set } = useTheme();
   const root = ref<HTMLDetailsElement | null>(null);
-  const swatches: Record<ThemeName, string[]> = {
+  const SWATCHES: Record<ThemeName, string[]> = {
     dark: ['#151615', '#eeeae2', '#dcb66d'],
     light: ['#f6f5f2', '#1c1f26', '#8a5a00'],
     gruvbox: ['#282828', '#ebdbb2', '#fabd2f'],
@@ -63,7 +63,7 @@
           class="theme-picker__swatches"
           aria-hidden="true"
           ><i
-            v-for="color in swatches[name]"
+            v-for="color in SWATCHES[name]"
             :key="color"
             :style="{ background: color }"
         /></span>

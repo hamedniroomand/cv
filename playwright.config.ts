@@ -1,8 +1,8 @@
+import process from 'node:process';
+
 import { defineConfig, devices } from '@playwright/test';
 
-const env =
-  (globalThis as typeof globalThis & { process?: { env: Record<string, string | undefined> } })
-    .process?.env ?? {};
+const { env } = process;
 const PORT = 3457;
 const DISCORD_MOCK_PORT = 3458;
 const baseURL = `http://localhost:${PORT}`;

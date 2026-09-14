@@ -2,10 +2,7 @@
   import { dotfileDir } from '#shared/cv/dotfiles';
 
   const route = useRoute();
-  const cv = useCv();
-  const slug = String(route.params.slug ?? '');
-  const dotfile = cv.dotfiles.find(entry => entry.slug === slug);
-
+  const dotfile = useCv().dotfiles.find(entry => entry.slug === String(route.params.slug));
   if (!dotfile) {
     throw createError({ statusCode: 404, statusMessage: 'Not Found', fatal: true });
   }

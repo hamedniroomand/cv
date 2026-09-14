@@ -20,12 +20,6 @@
     nextTick(() => prompt.value?.focus());
   }
 
-  function insert(text: string): void {
-    if (picker.value) return;
-    value.value += text;
-    focusPrompt();
-  }
-
   const output = useTuiOutput();
   const { picker, pick, settle: settlePicker } = useTuiPicker(focusPrompt);
 
@@ -62,16 +56,27 @@
     emit('exit');
   }
 
-  function submitLine(line = value.value): void {
+  function insert(text: string): void {
+    if (picker.value) return;
+    value.value += text;
+    focusPrompt();
+  }
+
+  function submitLine(line: string): void {
     if (runner.busy.value) return;
     value.value = '';
     menu.reveal();
     if (line.trim()) void runner.run(line);
   }
 
-  function activateMenu(index: number): void {
+  function runItem(index: number): void {
     const item = menu.items.value[index];
     if (item) submitLine(item.runLine);
+  }
+
+  /** Runs the highlighted menu item. Without one, runs the typed line. */
+  function runCurrent(): void {
+    submitLine(menu.current.value?.runLine ?? value.value);
   }
 
   function completeMenu(): void {
@@ -81,10 +86,26 @@
     menu.reveal();
   }
 
+  function showCommands(): void {
+    value.value = '/';
+    menu.reveal();
+    focusPrompt();
+  }
+
   function interrupt(): void {
     runner.abort();
     value.value = '';
     menu.suppress();
+  }
+
+  function previous(): void {
+    if (menu.visible.value) menu.move(-1);
+    else historyUp();
+  }
+
+  function next(): void {
+    if (menu.visible.value) menu.move(1);
+    else historyDown();
   }
 
   function onEscape(): void {
@@ -106,47 +127,31 @@
     return 'Esc · exit';
   });
 
-  function onControlKey(event: KeyboardEvent): boolean {
+  const keyActions: Record<string, () => void> = {
+    Enter: runCurrent,
+    Escape: onEscape,
+    ArrowUp: previous,
+    ArrowDown: next,
+  };
+
+  function onControlKey(event: KeyboardEvent): void {
     if (isControlKey(event, 'c')) {
       event.preventDefault();
       interrupt();
-      return true;
+      return;
     }
     if (isControlKey(event, 'd') && !value.value && !menu.visible.value) {
       event.preventDefault();
       exit();
-      return true;
     }
-    return event.ctrlKey;
   }
-
-  function onMenuKey(event: KeyboardEvent): boolean {
-    const actions: Record<string, () => void> = {
-      ArrowUp: () => menu.move(-1),
-      ArrowDown: () => menu.move(1),
-      Tab: completeMenu,
-      Escape: onEscape,
-    };
-    if (event.key === 'Enter' && menu.items.value.length > 0)
-      actions.Enter = () => activateMenu(menu.selected.value);
-    const action = actions[event.key];
-    if (!action) return false;
-    event.preventDefault();
-    action();
-    return true;
-  }
-
-  const promptActions: Record<string, () => void> = {
-    Enter: () => submitLine(),
-    Escape: onEscape,
-    ArrowUp: historyUp,
-    ArrowDown: historyDown,
-  };
 
   function onKeydown(event: KeyboardEvent): void {
-    if (onControlKey(event)) return;
-    if (menu.visible.value && onMenuKey(event)) return;
-    const action = promptActions[event.key];
+    if (event.ctrlKey) {
+      onControlKey(event);
+      return;
+    }
+    const action = event.key === 'Tab' && menu.visible.value ? completeMenu : keyActions[event.key];
     if (!action) return;
     event.preventDefault();
     action();
@@ -163,46 +168,23 @@
   const mobileKeys = computed<MobileKey[]>(() => {
     const menuOpen = menu.visible.value;
     return [
-      { id: 'slash', label: '/', aria: 'Show commands' },
-      { id: 'tab', label: 'Tab', aria: 'Complete', disabled: !menuOpen },
-      { id: 'up', label: '↑', aria: menuOpen ? 'Previous option' : 'Previous command' },
-      { id: 'down', label: '↓', aria: menuOpen ? 'Next option' : 'Next command' },
-      { id: 'interrupt', label: '^C', aria: 'Interrupt' },
-      { id: 'esc', label: 'Esc', aria: 'Escape' },
-      { id: 'run', label: 'Run ↵', aria: 'Run command' },
+      { label: '/', aria: 'Show commands', press: showCommands },
+      { label: 'Tab', aria: 'Complete', press: completeMenu, disabled: !menuOpen },
+      { label: '↑', aria: menuOpen ? 'Previous option' : 'Previous command', press: previous },
+      { label: '↓', aria: menuOpen ? 'Next option' : 'Next command', press: next },
+      { label: '^C', aria: 'Interrupt', press: interrupt },
+      { label: 'Esc', aria: 'Escape', press: onEscape },
+      { label: 'Run ↵', aria: 'Run command', press: runCurrent },
     ];
   });
 
-  const mobileActions: Record<string, () => void> = {
-    slash: () => {
-      value.value = '/';
-      menu.reveal();
-      focusPrompt();
-    },
-    tab: () => {
-      if (menu.visible.value) completeMenu();
-    },
-    up: () => (menu.visible.value ? menu.move(-1) : historyUp()),
-    down: () => (menu.visible.value ? menu.move(1) : historyDown()),
-    interrupt,
-    esc: onEscape,
-    run: () => {
-      if (menu.visible.value && menu.items.value.length > 0) activateMenu(menu.selected.value);
-      else submitLine();
-    },
-  };
-
-  function onMobileKey(id: string): void {
-    mobileActions[id]?.();
+  function scrollToBottom(): void {
+    if (outputEl.value) outputEl.value.scrollTop = outputEl.value.scrollHeight;
   }
 
   watch(
     () => output.lines.value.length,
-    () => {
-      nextTick(() => {
-        if (outputEl.value) outputEl.value.scrollTop = outputEl.value.scrollHeight;
-      });
-    },
+    () => nextTick(scrollToBottom),
   );
 
   if (props.publicMode) {
@@ -273,7 +255,7 @@
         :items="menu.items.value"
         :selected="menu.selected.value"
         @highlight="menu.selected.value = $event"
-        @select="activateMenu"
+        @select="runItem"
       />
       <TuiPrompt
         ref="prompt"
@@ -288,7 +270,6 @@
         v-if="isMobile"
         label="App shortcuts"
         :keys="mobileKeys"
-        @press="onMobileKey"
       />
     </footer>
   </section>

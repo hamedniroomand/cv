@@ -11,4 +11,4 @@ export const portrait = [
   '│ Permission granted.          │',
   '│ ~ $ █                        │',
   '╰──────────────────────────────╯',
-] satisfies string[];
+];

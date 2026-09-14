@@ -5,76 +5,89 @@ import type { CvData } from '#shared/schemas/cv';
 import type { Dotfile } from '#shared/schemas/dotfile';
 
 const OG_IMAGE = { width: 1200, height: 630 };
+const HOME_CARD_ALT = 'Hamed Niroomand — Projects, tools & experiments';
 
-type OgCard = string;
+interface PageSeo {
+  title: string;
+  description: string;
+  path: string;
+  siteName: string;
+  robots: 'index, follow' | 'noindex, follow';
+  ogType: 'website' | 'profile';
+  card: string;
+  cardAlt: string;
+  jsonLd?: object;
+}
 
-function ogImageMeta(siteUrl: string, card: OgCard, alt: string) {
-  const image = `${siteUrl}/${ogCardFile(card)}`;
-  return {
+function applySeo(seo: PageSeo): void {
+  const siteUrl = useRuntimeConfig().public.siteUrl;
+  const url = `${siteUrl}${seo.path}`;
+  const image = `${siteUrl}/${ogCardFile(seo.card)}`;
+  useSeoMeta({
+    title: seo.title,
+    description: seo.description,
+    robots: seo.robots,
+    ogTitle: seo.title,
+    ogDescription: seo.description,
+    ogType: seo.ogType,
+    ogUrl: url,
+    ogSiteName: seo.siteName,
     ogImage: image,
     ogImageSecureUrl: image,
-    ogImageType: 'image/png' as const,
+    ogImageType: 'image/png',
     ogImageWidth: OG_IMAGE.width,
     ogImageHeight: OG_IMAGE.height,
-    ogImageAlt: alt,
-    // Telegram's link preview prefers Twitter Card image tags over og:image alone.
-    twitterCard: 'summary_large_image' as const,
+    ogImageAlt: seo.cardAlt,
+    // Telegram link previews read the Twitter Card image tags, not og:image alone.
+    twitterCard: 'summary_large_image',
     twitterImage: image,
-    twitterImageAlt: alt,
-  };
-}
-
-export function useResumeSeo(cv: CvData) {
-  const siteUrl = useRuntimeConfig().public.siteUrl;
-  const { profile } = cv;
-  const title = `${profile.name} — ${profile.title}`;
-  const description = profile.description;
-  const url = `${siteUrl}/cv`;
-
-  useSeoMeta({
-    title,
-    robots: 'noindex, follow',
-    description,
-    ogTitle: title,
-    ogDescription: description,
-    ogType: 'profile',
-    ogUrl: url,
-    ogSiteName: profile.name,
-    ...ogImageMeta(siteUrl, 'resume', `${profile.name}, ${profile.title}`),
+    twitterImageAlt: seo.cardAlt,
   });
-
   useHead({
     link: [{ rel: 'canonical', href: url }],
-    script: [{ type: 'application/ld+json', innerHTML: JSON.stringify(personJsonLd(cv, siteUrl)) }],
+    script: seo.jsonLd
+      ? [{ type: 'application/ld+json', innerHTML: JSON.stringify(seo.jsonLd) }]
+      : [],
   });
 }
 
-function pageSeo(title: string, description: string, path: string): void {
-  const siteUrl = useRuntimeConfig().public.siteUrl;
+export function useResumeSeo(cv: CvData): void {
+  const { profile } = cv;
+  applySeo({
+    title: `${profile.name} — ${profile.title}`,
+    description: profile.description,
+    path: '/cv',
+    siteName: profile.name,
+    robots: 'noindex, follow',
+    ogType: 'profile',
+    card: 'resume',
+    cardAlt: `${profile.name}, ${profile.title}`,
+    jsonLd: personJsonLd(cv, useRuntimeConfig().public.siteUrl),
+  });
+}
+
+function dotfilesSeo(title: string, description: string, path: string): void {
   const { profile } = useCv();
-  const url = `${siteUrl}${path}`;
-  useSeoMeta({
+  applySeo({
     title,
     description,
-    ogTitle: title,
-    ogDescription: description,
+    path,
+    siteName: profile.name,
     robots: 'index, follow',
     ogType: 'website',
-    ogUrl: url,
-    ogSiteName: profile.name,
-    ...ogImageMeta(siteUrl, 'dotfiles', `Dotfiles by ${profile.name}`),
+    card: 'dotfiles',
+    cardAlt: `Dotfiles by ${profile.name}`,
   });
-  useHead({ link: [{ rel: 'canonical', href: url }] });
 }
 
 export function useDotfileSeo(dotfile: Dotfile): void {
   const { profile } = useCv();
-  pageSeo(`${dotfile.title} — ${profile.name}`, dotfile.description, dotfilePath(dotfile.slug));
+  dotfilesSeo(`${dotfile.title} — ${profile.name}`, dotfile.description, dotfilePath(dotfile.slug));
 }
 
 export function useDotfilesIndexSeo(): void {
   const { profile } = useCv();
-  pageSeo(
+  dotfilesSeo(
     `Dotfiles — ${profile.name}`,
     `Configuration files ${profile.name} uses day to day. Read them in the browser, copy them with one click, or cat them in the terminal.`,
     DOTFILES_INDEX,
@@ -86,19 +99,16 @@ export function usePublicSeo(
   description: string,
   path = '/',
   card = 'home',
-  cardAlt = 'Hamed Niroomand — Projects, tools & experiments',
+  cardAlt = HOME_CARD_ALT,
 ): void {
-  const siteUrl = useRuntimeConfig().public.siteUrl;
-  useSeoMeta({
+  applySeo({
     title,
     description,
+    path,
+    siteName: useCv().profile.name,
     robots: 'index, follow',
-    ogTitle: title,
-    ogDescription: description,
     ogType: 'website',
-    ogUrl: `${siteUrl}${path}`,
-    ogSiteName: 'Hamed Niroomand',
-    ...ogImageMeta(siteUrl, card, cardAlt),
+    card,
+    cardAlt,
   });
-  useHead({ link: [{ rel: 'canonical', href: `${siteUrl}${path}` }] });
 }

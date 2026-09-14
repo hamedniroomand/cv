@@ -8,7 +8,7 @@ const CORS_HEADERS: Record<string, string> = {
 };
 
 export default defineEventHandler(event => {
-  if (!event.url.pathname.startsWith('/api/')) return;
+  if (!event.url.pathname.startsWith('/api/')) return undefined;
   for (const [name, value] of Object.entries(CORS_HEADERS)) event.res.headers.set(name, value);
-  if (event.req.method === 'OPTIONS') return noContent();
+  return event.req.method === 'OPTIONS' ? noContent() : undefined;
 });

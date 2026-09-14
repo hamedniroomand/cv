@@ -1,6 +1,9 @@
 import { githubUrl, mailtoUrl, projectUrl } from '#shared/cv/links';
+import type { CvData } from '#shared/schemas/cv';
 
 import type { Command } from './types';
+
+const PRIVATE_COMMANDS = new Set(['cv', 'whoami', 'skills', 'neofetch', 'open']);
 
 const whoami: Command = {
   name: 'whoami',
@@ -15,28 +18,24 @@ const whoami: Command = {
   },
 };
 
+function openUrl(target: string, cv: CvData): string | null {
+  if (target === 'github') return githubUrl(cv.profile.links.github);
+  if (target === 'email') return mailtoUrl(cv.profile.links.email);
+  const project = cv.projects.find(entry => entry.slug === target);
+  if (project) return projectUrl(project);
+  return /^https?:\/\//.test(target) ? target : null;
+}
+
 const open: Command = {
   name: 'open',
   description: 'Open a project or contact link',
   usage: 'open <github|email|project|url>',
   complete: (_argv, ctx) => ['github', 'email', ...ctx.cv.projects.map(project => project.slug)],
   run(argv, ctx) {
-    const target = argv[0] ?? '';
-    const project = ctx.cv.projects.find(entry => entry.slug === target);
-    const url =
-      target === 'github'
-        ? githubUrl(ctx.cv.profile.links.github)
-        : target === 'email'
-          ? mailtoUrl(ctx.cv.profile.links.email)
-          : project
-            ? projectUrl(project)
-            : /^https?:\/\//.test(target)
-              ? target
-              : null;
+    const url = openUrl(argv[0] ?? '', ctx.cv);
     if (!url) {
-      ctx.stderr.line(
-        `open: choose github, email, or a project: ${ctx.cv.projects.map(entry => entry.slug).join(', ')}`,
-      );
+      const slugs = ctx.cv.projects.map(entry => entry.slug).join(', ');
+      ctx.stderr.line(`open: choose github, email, or a project: ${slugs}`);
       return 1;
     }
     ctx.stdout.link(url, url);
@@ -47,11 +46,5 @@ const open: Command = {
 };
 
 export function publicCommands(commands: Command[]): Command[] {
-  return [
-    ...commands.filter(
-      command => !['cv', 'whoami', 'skills', 'neofetch', 'open'].includes(command.name),
-    ),
-    whoami,
-    open,
-  ];
+  return [...commands.filter(command => !PRIVATE_COMMANDS.has(command.name)), whoami, open];
 }

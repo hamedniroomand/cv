@@ -29,8 +29,7 @@ export const DotfileFrontmatter = z.object({
   registry: z.literal('vscode-marketplace').optional(),
 });
 
-export const DotfileSource = z.enum(['gist', 'inline']);
-export type DotfileSource = z.infer<typeof DotfileSource>;
+const DotfileSource = z.enum(['gist', 'inline']);
 
 export const DotfileSchema = DotfileFrontmatter.extend({
   slug: z.string().min(1),

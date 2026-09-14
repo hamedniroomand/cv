@@ -15,18 +15,12 @@ const COLOUR_STYLES: LineStyle[] = [
   'plain',
 ];
 
-type InfoLine = string | Span[];
-
-function colourBlocks(): Span[] {
-  return COLOUR_STYLES.map(style => ({ text: '█', style }));
-}
-
-function infoLines(ctx: CommandContext): InfoLine[] {
+function infoLines(ctx: CommandContext): Span[][] {
   const skillCount = ctx.cv.skills.categories.reduce(
     (count, category) => count + category.items.length,
     0,
   );
-  return [
+  const lines = [
     `${ctx.env.user}@${ctx.env.host}`,
     '-----------------',
     'OS:       hamed.sh 1.0 (Nuxt 5 / Bun)',
@@ -37,13 +31,8 @@ function infoLines(ctx: CommandContext): InfoLine[] {
     'Shell:    hamed-sh',
     `Theme:    ${ctx.env.theme}`,
     'Terminal: en_US',
-    colourBlocks(),
   ];
-}
-
-function writeInfo(ctx: CommandContext, details: InfoLine | undefined): void {
-  if (typeof details === 'string') ctx.stdout.write(details);
-  else if (details) ctx.stdout.raw(details);
+  return [...lines.map(text => [{ text }]), COLOUR_STYLES.map(style => ({ text: '█', style }))];
 }
 
 export default {
@@ -54,9 +43,8 @@ export default {
     const info = infoLines(ctx);
     const lineCount = Math.max(portrait.length, info.length);
     for (let i = 0; i < lineCount; i++) {
-      const art = portrait[i] ?? '';
-      ctx.stdout.raw([{ text: `${art.padEnd(ART_WIDTH)}${ART_GAP}`, style: 'pre' }]);
-      writeInfo(ctx, info[i]);
+      const art = (portrait[i] ?? '').padEnd(ART_WIDTH);
+      ctx.stdout.raw([{ text: `${art}${ART_GAP}`, style: 'pre' }, ...(info[i] ?? [])]);
       ctx.stdout.line();
     }
     return 0;

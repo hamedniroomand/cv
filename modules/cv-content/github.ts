@@ -19,6 +19,7 @@ interface GistPayload {
   files?: Record<string, GistFile | undefined>;
 }
 
+/** Returns null for a network error, a timeout, or a response that is not `ok`. */
 async function fetchWithTimeout(
   fetchImpl: typeof fetch,
   url: string,
@@ -41,16 +42,11 @@ function nonEmpty(text: string | undefined): string | null {
   return text && text.trim() ? text : null;
 }
 
-/**
- * Reads the `llms.txt` of a site. That file lists the tools of the product, and the product
- * publishes a new one on every deploy, so the site never shows an old list.
- */
-export async function fetchLlmsTxt(
-  siteUrl: string,
-  fetchImpl: typeof fetch = fetch,
-  timeoutMs = DEFAULT_TIMEOUT_MS,
+async function fetchText(
+  fetchImpl: typeof fetch,
+  url: string,
+  timeoutMs: number,
 ): Promise<string | null> {
-  const url = `${siteUrl.replace(/\/+$/, '')}/llms.txt`;
   const res = await fetchWithTimeout(fetchImpl, url, {}, timeoutMs);
   if (!res) return null;
   try {
@@ -60,23 +56,24 @@ export async function fetchLlmsTxt(
   }
 }
 
-export async function fetchGithubReadme(
+/**
+ * Reads the `llms.txt` of a site. The file lists the tools of the product.
+ * The product publishes a new file on every deploy, so the site never shows an old list.
+ */
+export function fetchLlmsTxt(
+  siteUrl: string,
+  fetchImpl: typeof fetch = fetch,
+  timeoutMs = DEFAULT_TIMEOUT_MS,
+): Promise<string | null> {
+  return fetchText(fetchImpl, `${siteUrl.replace(/\/+$/, '')}/llms.txt`, timeoutMs);
+}
+
+export function fetchGithubReadme(
   repo: string,
   fetchImpl: typeof fetch = fetch,
   timeoutMs = DEFAULT_TIMEOUT_MS,
 ): Promise<string | null> {
-  const res = await fetchWithTimeout(
-    fetchImpl,
-    `${RAW_GITHUB}/${repo}/HEAD/README.md`,
-    {},
-    timeoutMs,
-  );
-  if (!res) return null;
-  try {
-    return nonEmpty(await res.text());
-  } catch {
-    return null;
-  }
+  return fetchText(fetchImpl, `${RAW_GITHUB}/${repo}/HEAD/README.md`, timeoutMs);
 }
 
 function gistHeaders(token: string | undefined): HeadersInit {

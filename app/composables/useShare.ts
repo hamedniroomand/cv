@@ -1,4 +1,4 @@
-export type ShareResult = 'shared' | 'copied' | 'failed';
+type ShareResult = 'shared' | 'copied' | 'failed';
 
 export function useShare() {
   const { copy } = useClipboard();

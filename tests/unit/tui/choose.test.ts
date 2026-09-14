@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vite-plus/test';
 
-import { chooseValue } from '~/tui/choose';
+import { chooseValue, findBySlug } from '~/tui/choose';
 import type { AppContext } from '~/tui/types';
 
 const items = [{ value: 'a', label: 'A' }];
@@ -18,5 +18,17 @@ describe('chooseValue', () => {
     const ctx = { view: { pick } } as unknown as AppContext;
     expect(await chooseValue([], ctx, 'Pick', items, { placeholder: 'Filter' })).toBeNull();
     expect(pick).toHaveBeenCalledWith('Pick', items, { placeholder: 'Filter' });
+  });
+});
+
+describe('findBySlug', () => {
+  const entries = [{ slug: 'acme' }, { slug: 'globex' }];
+
+  it('matches a slug without case', () => {
+    expect(findBySlug('ACME', entries)).toBe(entries[0]);
+  });
+
+  it('returns undefined for an unknown slug', () => {
+    expect(findBySlug('acm', entries)).toBeUndefined();
   });
 });

@@ -1,6 +1,6 @@
 import type { PickerItem, PickOptions, View } from '~/tui/types';
 
-export interface PickerState {
+interface PickerState {
   title: string;
   items: PickerItem<unknown>[];
   initial?: unknown;

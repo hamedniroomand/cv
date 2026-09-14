@@ -1,7 +1,7 @@
 import type { ContactFieldErrors } from '#shared/schemas/contact';
 import { contactFailureFeedback, contactFieldErrors } from '#shared/schemas/contact';
 
-export type ContactState = 'idle' | 'sending' | 'sent' | 'error';
+type ContactState = 'idle' | 'sending' | 'sent' | 'error';
 
 export function useContactForm() {
   const form = reactive({ name: '', email: '', message: '', website: '', turnstileToken: '' });
