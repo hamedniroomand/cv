@@ -12,7 +12,40 @@
 
 <template>
   <div
-    v-if="slug === 'cue'"
+    v-if="slug === 'cpm'"
+    class="project-visual cpm-visual"
+    role="img"
+    aria-label="Customer Portfolio Management: exchanges, wallets, and brokers in one book"
+  >
+    <div class="visual-topline">
+      <span><i /> cpm / overview</span><span>live</span>
+    </div>
+    <div class="cpm-body">
+      <div class="cpm-venues">
+        <span class="cpm-venues__active">Exchange</span>
+        <span>Wallet</span>
+        <span>Broker</span>
+      </div>
+      <div class="cpm-rows">
+        <div class="cpm-row cpm-row--head">
+          <span>instrument</span><span>side</span><span>pnl</span>
+        </div>
+        <div class="cpm-row">
+          <span>BTC-DEC</span><span>buy</span
+          ><span class="cpm-bar"><i :style="{ '--w': 72 }" /></span>
+        </div>
+        <div class="cpm-row">
+          <span>ETH-SEP</span><span>sell</span
+          ><span class="cpm-bar"><i :style="{ '--w': 44 }" /></span>
+        </div>
+      </div>
+    </div>
+    <div class="visual-bottomline">
+      <span><span class="accent">$</span> scan venues</span><span>one book</span>
+    </div>
+  </div>
+  <div
+    v-else-if="slug === 'cue'"
     class="project-visual cue-visual"
     role="img"
     aria-label="Cue workflow: issue, plan, implement, review, pull request"
@@ -62,7 +95,7 @@
     </div>
   </div>
   <div
-    v-else
+    v-else-if="slug === 'kitdev'"
     class="project-visual kitdev-visual"
     role="img"
     aria-label="KitDev Space: six labs for data, crypto, color, network, image, and development tools"
@@ -82,6 +115,16 @@
     </div>
     <div class="visual-bottomline">
       <span>small tools. less friction.</span><span class="accent">↗</span>
+    </div>
+  </div>
+  <div
+    v-else
+    class="project-visual"
+    role="img"
+    :aria-label="`${slug} project`"
+  >
+    <div class="visual-topline">
+      <span><i /> {{ slug }}</span>
     </div>
   </div>
 </template>

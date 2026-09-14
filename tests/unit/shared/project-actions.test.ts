@@ -1,6 +1,6 @@
 import { expect, it } from 'vite-plus/test';
 
-import { projectActions } from '#shared/cv/project-actions';
+import { projectActions, projectSourceLabel } from '#shared/cv/project-actions';
 
 const base = { name: 'Cue' };
 
@@ -43,4 +43,9 @@ it('builds the repository link from the handle', () => {
 it('names the site action after the project', () => {
   const [action] = projectActions({ name: 'KitDev Space', site: 'https://kitdev.space' });
   expect(action!.label).toBe('Visit KitDev Space');
+});
+
+it('calls a repository Open source and a site-only project Private source', () => {
+  expect(projectSourceLabel({ repo: 'me/cue' })).toBe('Open source');
+  expect(projectSourceLabel({ site: 'https://thales-mfi.com' })).toBe('Private source');
 });

@@ -358,6 +358,73 @@
   );
   background-size: 14px 14px;
 }
+.cpm-visual {
+  background-image: radial-gradient(
+    color-mix(in srgb, var(--fg-dim) 16%, transparent) 0.6px,
+    transparent 0.6px
+  );
+  background-size: 14px 14px;
+}
+.cpm-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 8px 4px 4px;
+}
+.cpm-venues {
+  display: flex;
+  gap: 7px;
+  justify-content: center;
+}
+.cpm-venues span {
+  border: 1px solid var(--border);
+  background: var(--bg);
+  border-radius: 6px;
+  padding: 7px 12px;
+  font-size: 9px;
+  color: var(--fg-dim);
+}
+.cpm-venues span.cpm-venues__active {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.cpm-rows {
+  border: 1px solid var(--border);
+  background: var(--bg);
+  border-radius: 6px;
+  overflow: hidden;
+  max-width: 360px;
+  width: 100%;
+  align-self: center;
+}
+.cpm-row {
+  display: grid;
+  grid-template-columns: 1.4fr 0.6fr 1fr;
+  gap: 8px;
+  padding: 7px 10px;
+  font-size: 9px;
+  color: var(--fg-dim);
+  align-items: center;
+}
+.cpm-row + .cpm-row {
+  border-top: 1px solid var(--border);
+}
+.cpm-row--head {
+  color: color-mix(in srgb, var(--fg-dim) 72%, transparent);
+}
+.cpm-bar {
+  display: block;
+  height: 4px;
+  background: color-mix(in srgb, var(--fg-dim) 18%, transparent);
+  border-radius: 2px;
+}
+.cpm-bar i {
+  display: block;
+  height: 100%;
+  width: calc(var(--w) * 1%);
+  background: var(--accent);
+  border-radius: 2px;
+}
 .visual-topline,
 .visual-bottomline {
   display: flex;

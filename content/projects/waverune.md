@@ -1,6 +1,6 @@
 ---
 name: WaveRune
-order: 2
+order: 3
 repo: hamedniroomand/waverune
 site: https://hamedniroomand.github.io/waverune/
 tagline: Blind audio watermarking for WAV files in Node.js, Bun, and the browser.

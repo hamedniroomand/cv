@@ -1,6 +1,6 @@
 ---
 name: Cue
-order: 1
+order: 2
 repo: hamedniroomand/cue
 docs: https://hamedniroomand.github.io/cue
 tagline: Drive headless coding agents through a GitHub-issue label pipeline.
