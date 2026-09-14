@@ -9,9 +9,11 @@ test('public home leads with projects and keeps the résumé off the default pat
   await expect(page.locator('#experience')).toBeVisible();
   await expect(page.locator('a[href="/cv"]')).toHaveCount(0);
   await expect(page.getByLabel('Terminal input')).toHaveCount(0);
-  await page.getByRole('link', { name: 'Explore Cue' }).click();
-  await expect(page).toHaveURL(/\/projects\/cue$/);
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Cue.');
+  await page.getByRole('link', { name: 'Explore Customer Portfolio Management' }).click();
+  await expect(page).toHaveURL(/\/projects\/cpm$/);
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText(
+    'Customer Portfolio Management.',
+  );
 });
 
 test('public terminal opens on demand and closes with focus restored', async ({ page }) => {
@@ -36,6 +38,7 @@ test('public terminal opens on demand and closes with focus restored', async ({ 
 test('public pages fit the viewport and connect to dotfiles', async ({ page }) => {
   for (const path of [
     '/',
+    '/projects/cpm',
     '/projects/cue',
     '/projects/waverune',
     '/projects/kitdev',
@@ -95,6 +98,16 @@ test('the project page leads with the product and keeps the repository secondary
   const repo = page.getByRole('link', { name: /View on GitHub/ });
   await expect(repo).toHaveClass(/btn-ghost/);
   await expect(repo).toHaveAttribute('href', 'https://github.com/hamedniroomand/kitdev-space');
+});
+
+test('the private client project links the company site and has no repository', async ({
+  page,
+}) => {
+  await page.goto('/projects/cpm');
+  const visit = page.getByRole('link', { name: /Visit Customer Portfolio Management/ });
+  await expect(visit).toHaveAttribute('href', 'https://thales-mfi.com');
+  await expect(page.getByRole('link', { name: /View on GitHub/ })).toHaveCount(0);
+  await expect(page.getByText('Private source', { exact: true })).toBeVisible();
 });
 
 test('the terminal window minimizes, maximizes and keeps its session', async ({

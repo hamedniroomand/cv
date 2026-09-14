@@ -38,3 +38,8 @@ export function projectActions(project: LinkableProject): ProjectAction[] {
     variant: index === 0 ? 'primary' : 'secondary',
   }));
 }
+
+/** What the project page says under SOURCE. A repository is public; everything else is private. */
+export function projectSourceLabel(project: { repo?: string; site?: string }): string {
+  return project.repo ? 'Open source' : 'Private source';
+}

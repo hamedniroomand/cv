@@ -47,7 +47,7 @@ describe('loadContent', () => {
       'ai-tutor',
       'engineering-standards',
     ]);
-    expect(cv.projects.map(p => p.slug)).toEqual(['cue', 'waverune', 'kitdev']);
+    expect(cv.projects.map(p => p.slug)).toEqual(['cpm', 'cue', 'waverune', 'kitdev']);
     expect(cv.projects[0]!.readmeSource).toBe('fallback');
     expect(cv.skills.categories.length).toBeGreaterThan(3);
     expect(cv.secrets.body).toContain('API contract');
@@ -55,9 +55,10 @@ describe('loadContent', () => {
 
   it('uses the fetched README when available', async () => {
     const cv = await loadContent(dir, deps({ fetchReadme: async () => '# Cue\n\nfrom github' }));
-    expect(cv.projects[0]!.readmeSource).toBe('github');
-    expect(cv.projects[0]!.body).toContain('from github');
-    expect(cv.projects[0]!.html).toContain('<h1>');
+    const cue = cv.projects.find(p => p.slug === 'cue')!;
+    expect(cue.readmeSource).toBe('github');
+    expect(cue.body).toContain('from github');
+    expect(cue.html).toContain('<h1>');
   });
 
   it('asks GitHub for the README of each project that has a repo', async () => {
@@ -120,7 +121,11 @@ describe('loadContent', () => {
       }),
     );
     // Only the projects with a site are asked, in file order.
-    expect(asked).toEqual(['https://kitdev.space', 'https://hamedniroomand.github.io/waverune/']);
+    expect(asked).toEqual([
+      'https://thales-mfi.com',
+      'https://kitdev.space',
+      'https://hamedniroomand.github.io/waverune/',
+    ]);
     const kitdev = cv.projects.find(p => p.slug === 'kitdev')!;
     expect(kitdev.tools).toEqual({
       total: 1,

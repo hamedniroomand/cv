@@ -1,6 +1,7 @@
 <script setup lang="ts">
   import { linkLabel } from '#shared/cv/links';
   import { projectPath } from '#shared/cv/panel-target';
+  import { projectSourceLabel } from '#shared/cv/project-actions';
   import { projectStories } from '#shared/public-site';
   const route = useRoute();
   const project = useCv().projects.find(entry => entry.slug === String(route.params.slug));
@@ -45,7 +46,7 @@
         <p class="eyebrow">BUILT WITH</p>
         <StackTags :items="project.stack" />
         <p class="eyebrow project-page__type">SOURCE</p>
-        <p>{{ project.repo ? 'Open source' : 'Private source · Public app' }}</p>
+        <p>{{ projectSourceLabel(project) }}</p>
         <PathLabel
           :path="`~/projects/${project.slug}`"
           :command="`bat ~/projects/${project.slug}/README.md`"

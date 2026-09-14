@@ -6,6 +6,26 @@ export interface ProjectStory {
 }
 
 export const projectStories: Record<string, ProjectStory> = {
+  cpm: {
+    category: 'Client work / Asset management',
+    headline: 'One book for every customer.',
+    introduction:
+      'A private platform for Thales asset managers. Connect a customer’s exchanges, brokers, and wallets, then watch positions, orders, and risk in one place.',
+    sections: [
+      {
+        title: 'Every venue in one account',
+        body: 'Operators attach exchange API keys, MT5 broker accounts, and wallet addresses. Scanners sync spot, futures, and options from Binance, Bybit, Deribit, Coinbase, Kraken, and more, and read wallets on Bitcoin, EVM chains, Solana, Polkadot, Sui, TON, Tron, and XRP.',
+      },
+      {
+        title: 'Live positions, orders, and risk',
+        body: 'Scheduled syncs keep the book current and Socket.IO pushes each change to the dashboard. Risk sits beside the balances: a portfolio reference value, a max-drawdown limit, and the non-cash exposure, so an advisor can see what a move would do.',
+      },
+      {
+        title: 'A private product, end to end',
+        body: 'Nuxt in the browser, NestJS on Bun behind it, PostgreSQL and TimescaleDB for the book, and a Telegram bot for login and alerts. The source stays private. The company site is the public face.',
+      },
+    ],
+  },
   cue: {
     category: 'Open source / CLI',
     headline: 'From an issue to a reviewed pull request.',
