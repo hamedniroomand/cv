@@ -1,7 +1,7 @@
 import { ensureNewline } from '~/terminal/io/text';
 import type { Command } from '~/terminal/types';
 
-import { navigateFor, printUsage, reportFsError } from './_util';
+import { forEachFile, navigateFor, printUsage } from './_util';
 
 export default {
   name: 'cat',
@@ -13,17 +13,11 @@ export default {
       ctx.stdout.write(ctx.stdin);
       return 0;
     }
-    let code = 0;
-    argv.forEach((path, index) => {
-      try {
-        ctx.stdout.write(ensureNewline(ctx.fs.readFile(path, { sudo: ctx.sudo })));
-        if (index === 0) navigateFor(ctx, path);
-        if (ctx.tty && path.endsWith('.md'))
-          ctx.stdout.line(`tip: bat ${path} renders this as formatted text`, 'dim');
-      } catch (err) {
-        code = reportFsError(ctx, err);
-      }
+    return forEachFile(ctx, argv, (path, content, index) => {
+      ctx.stdout.write(ensureNewline(content));
+      if (index === 0) navigateFor(ctx, path);
+      if (ctx.tty && path.endsWith('.md'))
+        ctx.stdout.line(`tip: bat ${path} renders this as formatted text`, 'dim');
     });
-    return code;
   },
 } satisfies Command;

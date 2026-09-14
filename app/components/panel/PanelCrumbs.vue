@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  export interface Crumb {
+  interface Crumb {
     label: string;
     to?: string;
   }
@@ -14,8 +14,8 @@
   >
     <ol class="crumbs__list">
       <li
-        v-for="(item, index) in items"
-        :key="index"
+        v-for="item in items"
+        :key="item.label"
         class="crumbs__item"
       >
         <NuxtLink

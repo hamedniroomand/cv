@@ -1,27 +1,33 @@
 <script setup lang="ts">
   import type { NuxtError } from '#app';
   import { siteHost } from '#shared/site-host';
+
+  const COPY = {
+    missing: {
+      eyebrow: 'NOT FOUND',
+      title: 'A little off the path.',
+      lede: 'This page doesn’t live here. There’s still plenty to explore on the homepage.',
+    },
+    failed: {
+      eyebrow: 'SOMETHING WENT WRONG',
+      title: 'That didn’t go to plan.',
+      lede: 'Try again in a moment, or head back home.',
+    },
+  };
+
   const props = defineProps<{ error: NuxtError }>();
   const route = useRoute();
   const host = siteHost(useRuntimeConfig().public.siteUrl);
-  const missing = computed(() => props.error.statusCode === 404);
+  const copy = computed(() => (props.error.statusCode === 404 ? COPY.missing : COPY.failed));
 </script>
 
 <template>
   <main class="error-page">
     <p class="error-page__brand">hamed <span>/ niroomand.dev</span></p>
     <div class="error-page__content">
-      <p class="eyebrow">
-        {{ error.statusCode }} / {{ missing ? 'NOT FOUND' : 'SOMETHING WENT WRONG' }}
-      </p>
-      <h1>{{ missing ? 'A little off the path.' : 'That didn’t go to plan.' }}</h1>
-      <p class="error-page__lede">
-        {{
-          missing
-            ? 'This page doesn’t live here. There’s still plenty to explore on the homepage.'
-            : 'Try again in a moment, or head back home.'
-        }}
-      </p>
+      <p class="eyebrow">{{ error.statusCode }} / {{ copy.eyebrow }}</p>
+      <h1>{{ copy.title }}</h1>
+      <p class="error-page__lede">{{ copy.lede }}</p>
       <p class="error-page__prompt">hamed@{{ host }}:~$ open {{ route.fullPath }}</p>
       <a
         class="btn"

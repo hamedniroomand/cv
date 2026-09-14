@@ -15,7 +15,7 @@ function permissionBits(mode: number): string {
 
 function permissions(node: FsNode): string {
   const type = node.type === 'dir' ? 'd' : '-';
-  return `${type}${permissionBits(node.mode >> 6)}${permissionBits((node.mode >> 3) & 7)}${permissionBits(node.mode & 7)}`;
+  return type + [6, 3, 0].map(shift => permissionBits(node.mode >> shift)).join('');
 }
 
 function formatDate(iso: string): string {

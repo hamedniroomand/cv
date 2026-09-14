@@ -1,28 +1,24 @@
 import { z } from 'zod';
 
-/** One tool that a lab publishes. */
-export interface CatalogTool {
-  name: string;
-  path: string;
-  description: string;
-}
+export const ToolCatalogSchema = z.object({
+  labs: z.array(
+    z.object({
+      name: z.string().min(1),
+      tools: z.array(z.object({ name: z.string(), path: z.string(), description: z.string() })),
+    }),
+  ),
+  total: z.number().int().nonnegative(),
+});
+export type ToolCatalog = z.infer<typeof ToolCatalogSchema>;
 
 /** A group of related tools. */
-export interface CatalogLab {
-  name: string;
-  tools: CatalogTool[];
-}
-
-export interface ToolCatalog {
-  labs: CatalogLab[];
-  total: number;
-}
+type CatalogLab = ToolCatalog['labs'][number];
 
 const HEADING = /^##\s+(.+?)\s*$/;
 const TOOL = /^-\s+\[(.+?)]\((.+?)\):\s*(.+?)\s*$/;
 
 /**
- * Reads an `llms.txt` file, which lists the tools of a product under one heading for each group.
+ * Reads an `llms.txt` file. The file lists the tools of a product under one heading for each lab.
  * A heading with no tools under it is not a lab, so the reader drops it.
  */
 export function parseToolCatalog(content: string): ToolCatalog {
@@ -47,13 +43,3 @@ export function parseToolCatalog(content: string): ToolCatalog {
     total: withTools.reduce((count, lab) => count + lab.tools.length, 0),
   };
 }
-
-export const ToolCatalogSchema = z.object({
-  labs: z.array(
-    z.object({
-      name: z.string().min(1),
-      tools: z.array(z.object({ name: z.string(), path: z.string(), description: z.string() })),
-    }),
-  ),
-  total: z.number().int().nonnegative(),
-});

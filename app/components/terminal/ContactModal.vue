@@ -1,4 +1,32 @@
 <script setup lang="ts">
+  import type { ContactField as ContactFieldName } from '#shared/schemas/contact';
+
+  interface FieldSpec {
+    name: ContactFieldName;
+    label: string;
+    multiline?: boolean;
+    attrs: Record<string, string | number | boolean>;
+  }
+
+  const FIELDS: FieldSpec[] = [
+    {
+      name: 'name',
+      label: 'name:',
+      attrs: { type: 'text', required: true, maxlength: 100, autocomplete: 'name' },
+    },
+    {
+      name: 'email',
+      label: 'email:',
+      attrs: { type: 'email', required: true, maxlength: 200, autocomplete: 'email' },
+    },
+    {
+      name: 'message',
+      label: 'message:',
+      multiline: true,
+      attrs: { required: true, minlength: 10, maxlength: 5000, rows: 5 },
+    },
+  ];
+
   const emit = defineEmits<{ close: [] }>();
 
   const dialog = ref<HTMLDialogElement | null>(null);
@@ -42,35 +70,14 @@
       </h2>
       <template v-if="state !== 'sent'">
         <ContactField
-          v-model="form.name"
-          name="name"
-          label="name:"
-          :error="errors.name"
-          type="text"
-          required
-          maxlength="100"
-          autocomplete="name"
-        />
-        <ContactField
-          v-model="form.email"
-          name="email"
-          label="email:"
-          :error="errors.email"
-          type="email"
-          required
-          maxlength="200"
-          autocomplete="email"
-        />
-        <ContactField
-          v-model="form.message"
-          name="message"
-          label="message:"
-          :error="errors.message"
-          multiline
-          required
-          minlength="10"
-          maxlength="5000"
-          rows="5"
+          v-for="field in FIELDS"
+          :key="field.name"
+          v-model="form[field.name]"
+          v-bind="field.attrs"
+          :name="field.name"
+          :label="field.label"
+          :multiline="field.multiline"
+          :error="errors[field.name]"
         />
         <input
           v-model="form.website"

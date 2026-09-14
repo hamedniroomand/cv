@@ -5,7 +5,7 @@ export interface ProjectStory {
   sections: { title: string; body: string }[];
 }
 
-export const projectStories: Record<string, ProjectStory> = {
+const STORIES: Record<string, ProjectStory> = {
   cpm: {
     category: 'Client work / Asset management',
     headline: 'One book for every customer.',
@@ -87,3 +87,15 @@ export const projectStories: Record<string, ProjectStory> = {
     ],
   },
 };
+
+/** A project without a story falls back to its tagline. */
+export function projectStory(project: { slug: string; tagline: string }): ProjectStory {
+  return (
+    STORIES[project.slug] ?? {
+      category: 'Project',
+      headline: project.tagline,
+      introduction: project.tagline,
+      sections: [],
+    }
+  );
+}

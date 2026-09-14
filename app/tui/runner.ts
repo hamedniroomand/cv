@@ -16,7 +16,7 @@ export interface AppRunnerDeps {
 const EXIT_NOT_FOUND = 127;
 
 export function createAppRunner({ registry, context, shell }: AppRunnerDeps) {
-  const runShell = async (line: string, signal: AbortSignal): Promise<number> => {
+  async function runShell(line: string, signal: AbortSignal): Promise<number> {
     const previousClear = context.ui.clear;
     context.ui.clear = () => context.view.clear();
     try {
@@ -24,9 +24,21 @@ export function createAppRunner({ registry, context, shell }: AppRunnerDeps) {
     } finally {
       context.ui.clear = previousClear;
     }
-  };
+  }
 
-  const run = async (line: string, signal: AbortSignal): Promise<number> => {
+  function commandContext(name: string, signal: AbortSignal): AppContext {
+    return {
+      ...context,
+      argv0: `/${name}`,
+      registry,
+      sudo: false,
+      signal,
+      shell: nested => runShell(nested, signal),
+      slash: nested => run(nested, signal),
+    };
+  }
+
+  async function run(line: string, signal: AbortSignal): Promise<number> {
     const parsed = parseSlashInput(line);
     if (parsed === null) return runShell(line, signal);
 
@@ -39,23 +51,14 @@ export function createAppRunner({ registry, context, shell }: AppRunnerDeps) {
       return EXIT_NOT_FOUND;
     }
 
-    const ctx: AppContext = {
-      ...context,
-      argv0: `/${parsed.name}`,
-      registry,
-      sudo: false,
-      signal,
-      shell: nested => runShell(nested, signal),
-      slash: nested => run(nested, signal),
-    };
     try {
-      return await command.run(parsed.argv, ctx);
+      return await command.run(parsed.argv, commandContext(parsed.name, signal));
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       context.view.print(`${APP_COMMAND}: /${parsed.name}: ${message}`, 'error');
       return 1;
     }
-  };
+  }
 
-  return { run };
+  return { run, commandContext };
 }

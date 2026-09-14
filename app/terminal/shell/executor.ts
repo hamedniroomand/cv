@@ -14,27 +14,24 @@ import { ShellSyntaxError } from './errors';
 import type { Segment } from './parser';
 import { parse } from './parser';
 
-export interface ShellDeps {
+export interface ShellOutput {
+  sink: LineSink;
+  nextId: () => number;
+}
+
+export interface ShellDeps extends ShellOutput {
   fs: VirtualFS;
   registry: CommandRegistry;
   cv: CvData;
   env: ShellEnv;
-  sink: LineSink;
-  nextId: () => number;
   panel: CommandContext['panel'];
   theme: CommandContext['theme'];
-  lang: CommandContext['lang'];
   ui: TerminalUi;
   history: readonly string[];
 }
 
 export interface ExecResult {
   code: number;
-}
-
-export interface ShellOutput {
-  sink: LineSink;
-  nextId: () => number;
 }
 
 interface SegmentIo {
@@ -103,7 +100,7 @@ export class Shell {
   }
 
   private contextFor(argv0: string, sudo: boolean, io: SegmentIo): CommandContext {
-    const { fs, env, cv, panel, theme, lang, history, registry, ui } = this.deps;
-    return { ...io, argv0, sudo, fs, env, cv, panel, theme, lang, history, registry, ui };
+    const { fs, env, cv, panel, theme, history, registry, ui } = this.deps;
+    return { ...io, argv0, sudo, fs, env, cv, panel, theme, history, registry, ui };
   }
 }

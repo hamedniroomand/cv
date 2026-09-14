@@ -4,7 +4,6 @@ export type LineSink = (line: OutputLine) => void;
 
 export class LineWriter implements Writer {
   private pending: Span[] = [];
-  private dirty = false;
 
   constructor(
     private readonly sink: LineSink,
@@ -14,10 +13,10 @@ export class LineWriter implements Writer {
 
   write(text: string, style?: LineStyle): void {
     const parts = text.split('\n');
-    parts.forEach((part, index) => {
+    for (const [index, part] of parts.entries()) {
       if (part.length > 0) this.push({ text: part, style: style ?? this.defaultStyle });
       if (index < parts.length - 1) this.emit();
-    });
+    }
   }
 
   line(text = '', style?: LineStyle): void {
@@ -33,7 +32,7 @@ export class LineWriter implements Writer {
   }
 
   flush(): void {
-    if (this.dirty) this.emit();
+    if (this.pending.length > 0) this.emit();
   }
 
   private push(span: Span): void {
@@ -41,13 +40,11 @@ export class LineWriter implements Writer {
     if (span.style) clean.style = span.style;
     if (span.href) clean.href = span.href;
     this.pending.push(clean);
-    this.dirty = true;
   }
 
   private emit(): void {
     this.sink({ id: this.nextId(), spans: this.pending });
     this.pending = [];
-    this.dirty = false;
   }
 }
 

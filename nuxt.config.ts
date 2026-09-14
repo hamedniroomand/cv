@@ -1,8 +1,8 @@
 import process from 'node:process';
 
-import { PDF_FILE } from './shared/pdf.js';
-import { SPLIT_MAX, SPLIT_MIN, SPLIT_PANEL_KEY, SPLIT_RATIO_KEY } from './shared/split.js';
-import { THEME_STORAGE_KEY } from './shared/theme.js';
+import { PDF_FILE } from './shared/pdf.ts';
+import { SPLIT_MAX, SPLIT_MIN, SPLIT_PANEL_KEY, SPLIT_RATIO_KEY } from './shared/split.ts';
+import { THEME_STORAGE_KEY } from './shared/theme.ts';
 
 function prePaintScript(): string {
   return [
@@ -40,9 +40,9 @@ export default defineNuxtConfig({
   typescript: {
     strict: true,
     typeCheck: true,
-    // Cover tests and build scripts with the app project so `nuxt typecheck` and type-aware
-    // lint see them. Without the scripts, a lint of one staged script file cannot resolve
-    // the node types.
+    // Add the tests and the build scripts to the app project. `nuxt typecheck` and the
+    // type-aware lint then see them. Without this, a lint of one staged script cannot
+    // resolve the node types.
     tsConfig: {
       include: ['../tests/**/*', '../scripts/**/*'],
       compilerOptions: { paths: { '#cv': ['../tests/unit/fixtures/cv-module.ts'] } },

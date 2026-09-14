@@ -50,7 +50,7 @@ test.describe('mobile', () => {
         configurable: true,
         value: viewport,
       });
-      Object.defineProperty(window, '__setVisualViewportHeight', {
+      Object.defineProperty(window, 'setVisualViewportHeight', {
         value: (nextHeight: number) => {
           height = nextHeight;
           viewport.dispatchEvent(new Event('resize'));
@@ -69,20 +69,20 @@ test.describe('mobile', () => {
 
     await page.evaluate(() => {
       (
-        window as typeof window & { __setVisualViewportHeight: (height: number) => void }
-      ).__setVisualViewportHeight(500);
+        window as typeof window & { setVisualViewportHeight: (height: number) => void }
+      ).setVisualViewportHeight(500);
     });
 
     await expect
       .poll(async () =>
         page.evaluate(() => {
-          const input = document.querySelector<HTMLInputElement>('[aria-label="Terminal input"]');
+          const field = document.querySelector<HTMLInputElement>('[aria-label="Terminal input"]');
           const terminal = document.querySelector<HTMLElement>('.terminal');
           const viewportBottom = window.visualViewport?.height ?? window.innerHeight;
-          if (!input || !terminal) return false;
+          if (!field || !terminal) return false;
           return (
-            document.activeElement === input &&
-            input.getBoundingClientRect().bottom <= viewportBottom &&
+            document.activeElement === field &&
+            field.getBoundingClientRect().bottom <= viewportBottom &&
             terminal.getBoundingClientRect().bottom <= viewportBottom &&
             terminal.scrollTop + terminal.clientHeight >= terminal.scrollHeight - 1
           );

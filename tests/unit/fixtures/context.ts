@@ -18,9 +18,7 @@ export interface ShellCalls {
   downloads: string[];
   modals: string[];
   cleared: number;
-  destroyed: number;
   themes: string[];
-  langs: string[];
 }
 
 function emptyCalls(): ShellCalls {
@@ -33,9 +31,7 @@ function emptyCalls(): ShellCalls {
     downloads: [],
     modals: [],
     cleared: 0,
-    destroyed: 0,
     themes: [],
-    langs: [],
   };
 }
 
@@ -64,7 +60,6 @@ export function makeShell(commands: Command[], overrides: Partial<ShellDeps> = {
       reveal: () => calls.revealed++,
     },
     theme: { set: name => calls.themes.push(name) },
-    lang: { set: lang => calls.langs.push(lang) },
     ui: {
       clear: () => calls.cleared++,
       openApp: async () => {
@@ -75,7 +70,6 @@ export function makeShell(commands: Command[], overrides: Partial<ShellDeps> = {
       },
       openUrl: url => calls.opened.push(url),
       download: url => calls.downloads.push(url),
-      destroy: () => calls.destroyed++,
     },
     history,
     ...overrides,

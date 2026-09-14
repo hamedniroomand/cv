@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { PDF_FILE } from '#shared/pdf';
+  import { PDF_FILE, PDF_PATH } from '#shared/pdf';
   import { siteHost } from '#shared/site-host';
 
   const { profile } = useCv();
@@ -32,7 +32,7 @@
     <div class="header__actions">
       <a
         class="btn"
-        :href="`/${PDF_FILE}`"
+        :href="PDF_PATH"
         :download="PDF_FILE"
       >
         Download PDF

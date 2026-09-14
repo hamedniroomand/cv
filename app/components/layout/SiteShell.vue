@@ -45,7 +45,7 @@
   );
 
   function onKeydown(event: KeyboardEvent): void {
-    if (event.ctrlKey && event.key === '`') {
+    if (event.ctrlKey && event.key === TERMINAL_HOTKEY) {
       event.preventDefault();
       toggle();
     }

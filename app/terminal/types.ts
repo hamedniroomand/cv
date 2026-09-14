@@ -36,7 +36,6 @@ export interface TerminalUi {
   openModal: (kind: ModalKind, props?: Record<string, unknown>) => Promise<void>;
   openUrl: (url: string) => void;
   download: (url: string, filename?: string) => void;
-  destroy: () => void;
 }
 
 export interface ShellEnv {
@@ -61,7 +60,7 @@ export interface CompletionContext {
 export interface PanelControls {
   navigate: (target: PanelTarget) => void;
   toggle: () => void;
-  /** Shows the panel: opens it when it is closed and switches to it on mobile. */
+  /** Opens the panel when it is closed. Switches to it on mobile. */
   reveal: () => void;
 }
 
@@ -77,7 +76,6 @@ export interface CommandContext {
   cv: CvData;
   panel: PanelControls;
   theme: { set: (name: ThemeName) => void };
-  lang: { set: (lang: Lang) => void };
   history: readonly string[];
   registry: CommandRegistry;
   ui: TerminalUi;

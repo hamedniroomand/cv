@@ -13,6 +13,9 @@ import { dir, file } from './vfs';
 
 export const HOME = '/home/hamed';
 
+const PUBLIC_ABOUT =
+  '# Hamed Niroomand\n\nI make tools for the way I like to work. Explore ~/projects and my dotfiles.\n';
+
 function experienceReadme(experience: Experience): string {
   const roles = [...experience.roles]
     .sort((a, b) => b.start.localeCompare(a.start))
@@ -78,7 +81,7 @@ function ensureDir(parent: FsDir, name: string, mtime: string, panel: PanelTarge
   return created;
 }
 
-export function mountDotfiles(home: FsDir, dotfiles: Dotfile[], mtime: string): void {
+function mountDotfiles(home: FsDir, dotfiles: Dotfile[], mtime: string): void {
   for (const dotfile of dotfiles) {
     const { dirs, name } = splitDotfilePath(dotfile.path);
     let parent = home;
@@ -92,38 +95,26 @@ export function mountDotfiles(home: FsDir, dotfiles: Dotfile[], mtime: string): 
   }
 }
 
-function homeDir(cv: CvData, mtime: string): FsDir {
-  const home = dir(
-    'hamed',
-    [
-      file('about.md', cv.about.body, { mtime, panel: { section: 'about' } }),
-      dir(
-        'experience',
-        cv.experience.map(entry => experienceDir(entry, mtime)),
-        { mtime, panel: { section: 'experience' } },
-      ),
-      dir(
-        'projects',
-        cv.projects.map(project => projectDir(project, mtime)),
-        { mtime, panel: { section: 'projects' } },
-      ),
-      file('skills.json', `${JSON.stringify(cv.skills, null, 2)}\n`, {
-        mtime,
-        panel: { section: 'skills' },
-      }),
-      file('education.md', educationMarkdown(cv), { mtime, panel: { section: 'education' } }),
-      file('contact.sh', contactScript(cv), { mtime, exec: true, panel: { section: 'contact' } }),
-      file('.secrets', cv.secrets.body, { mtime, mode: 0o600 }),
-    ],
-    { mtime, panel: { section: 'top' } },
-  );
-  mountDotfiles(home, cv.dotfiles, mtime);
-  return home;
+function privateEntries(cv: CvData, mtime: string): FsNode[] {
+  return [
+    file('about.md', cv.about.body, { mtime, panel: { section: 'about' } }),
+    dir(
+      'experience',
+      cv.experience.map(entry => experienceDir(entry, mtime)),
+      { mtime, panel: { section: 'experience' } },
+    ),
+    file('skills.json', `${JSON.stringify(cv.skills, null, 2)}\n`, {
+      mtime,
+      panel: { section: 'skills' },
+    }),
+    file('education.md', educationMarkdown(cv), { mtime, panel: { section: 'education' } }),
+    file('.secrets', cv.secrets.body, { mtime, mode: 0o600 }),
+  ];
 }
 
-/** The work history for the public filesystem. It gives no role titles and no highlights. */
-function publicExperienceDir(cv: CvData, mtime: string): FsDir {
-  const files = publicExperience(cv.experience).map(entry =>
+/** The public entries give no role titles, no highlights and no panel targets. */
+function publicEntries(cv: CvData, mtime: string): FsNode[] {
+  const experience = publicExperience(cv.experience).map(entry =>
     file(
       `${entry.slug}.md`,
       [
@@ -138,24 +129,24 @@ function publicExperienceDir(cv: CvData, mtime: string): FsDir {
       { mtime },
     ),
   );
-  return dir('experience', files, { mtime });
+  return [file('about.md', PUBLIC_ABOUT, { mtime }), dir('experience', experience, { mtime })];
 }
 
 export function buildTree(cv: CvData, publicMode = false): FsDir {
   const mtime = cv.generatedAt;
-  const home = homeDir(cv, mtime);
-  if (publicMode) {
-    for (const name of ['experience', 'skills.json', 'education.md', '.secrets'])
-      home.children.delete(name);
-    home.children.set('experience', publicExperienceDir(cv, mtime));
-    home.children.set(
-      'about.md',
-      file(
-        'about.md',
-        '# Hamed Niroomand\n\nI make tools for the way I like to work. Explore ~/projects and my dotfiles.\n',
-        { mtime },
+  const home = dir(
+    'hamed',
+    [
+      dir(
+        'projects',
+        cv.projects.map(project => projectDir(project, mtime)),
+        { mtime, panel: { section: 'projects' } },
       ),
-    );
-  }
+      file('contact.sh', contactScript(cv), { mtime, exec: true, panel: { section: 'contact' } }),
+      ...(publicMode ? publicEntries(cv, mtime) : privateEntries(cv, mtime)),
+    ],
+    { mtime, panel: { section: 'top' } },
+  );
+  mountDotfiles(home, cv.dotfiles, mtime);
   return dir('', [dir('home', [home], { mtime })], { mtime });
 }

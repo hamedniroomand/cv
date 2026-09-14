@@ -39,11 +39,6 @@ function argumentCandidates(
   return command.complete(argv.slice(1), ctx).filter(candidate => candidate.startsWith(current));
 }
 
-function suffixFor(candidate: string, isCommand: boolean): string {
-  if (isCommand) return ' ';
-  return candidate.endsWith('/') ? '' : ' ';
-}
-
 export function completeLine(line: string, ctx: CompletionContext): CompletionResult {
   const pipeIndex = line.lastIndexOf('|');
   const head = pipeIndex >= 0 ? line.slice(0, pipeIndex + 1) : '';
@@ -61,7 +56,8 @@ export function completeLine(line: string, ctx: CompletionContext): CompletionRe
 
   if (candidates.length === 1) {
     const only = candidates[0]!;
-    return { line: `${head}${before}${only}${suffixFor(only, isCommand)}`, candidates };
+    const suffix = only.endsWith('/') ? '' : ' ';
+    return { line: `${head}${before}${only}${suffix}`, candidates };
   }
   if (candidates.length > 1) {
     const common = longestCommonPrefix(candidates);

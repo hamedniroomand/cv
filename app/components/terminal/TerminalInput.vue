@@ -9,7 +9,6 @@
     historyUp: () => void;
     historyDown: () => void;
     interrupt: () => void;
-    clearLine: () => void;
     insert: (text: string) => void;
   }
 
@@ -75,12 +74,15 @@
     ArrowDown: historyDown,
   };
 
+  function actionFor(event: KeyboardEvent): (() => void) | undefined {
+    if (isPlainKey(event)) return keyActions[event.key];
+    if (event.ctrlKey && !event.altKey && !event.metaKey)
+      return controlActions[event.key.toLowerCase()];
+    return undefined;
+  }
+
   function onKeydown(event: KeyboardEvent): void {
-    const action = isPlainKey(event)
-      ? keyActions[event.key]
-      : event.ctrlKey && !event.altKey && !event.metaKey
-        ? controlActions[event.key.toLowerCase()]
-        : undefined;
+    const action = actionFor(event);
     if (!action) return;
     event.preventDefault();
     action();
@@ -93,7 +95,6 @@
     historyUp,
     historyDown,
     interrupt,
-    clearLine,
     insert,
   });
 </script>

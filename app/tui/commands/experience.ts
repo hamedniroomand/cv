@@ -1,7 +1,7 @@
 import { formatRange } from '#shared/cv/format';
 import type { Experience } from '#shared/schemas/experience';
 import { unknownValueMessage } from '~/terminal/messages';
-import { chooseValue } from '~/tui/choose';
+import { chooseValue, findBySlug } from '~/tui/choose';
 import { openInPanel } from '~/tui/panel';
 import type { AppCommand, AppContext, PickerItem } from '~/tui/types';
 import { EXIT_CANCELLED } from '~/tui/types';
@@ -19,10 +19,11 @@ function choices(ctx: AppContext): PickerItem[] {
     }));
 }
 
+/** Matches a slug first, then a company name prefix when only one company matches. */
 function resolveExperience(input: string, experiences: Experience[]): Experience | undefined {
-  const query = input.toLocaleLowerCase();
-  const exact = experiences.find(experience => experience.slug.toLocaleLowerCase() === query);
+  const exact = findBySlug(input, experiences);
   if (exact) return exact;
+  const query = input.toLocaleLowerCase();
   const byCompany = experiences.filter(experience =>
     experience.company.toLocaleLowerCase().startsWith(query),
   );

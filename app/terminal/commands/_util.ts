@@ -2,8 +2,6 @@ import { fsErrorMessage, isFsError } from '~/terminal/fs/errors';
 import type { FsNode } from '~/terminal/fs/types';
 import type { CommandContext, Writer } from '~/terminal/types';
 
-export { splitLines } from '~/terminal/io/text';
-
 export function reportFsError(ctx: CommandContext, err: unknown, code = 1): number {
   if (!isFsError(err)) throw err;
   ctx.stderr.line(fsErrorMessage(ctx.argv0, err));
@@ -23,6 +21,23 @@ export function navigateFor(ctx: CommandContext, path: string): void {
     return;
   }
   if (node.panel) ctx.panel.navigate(node.panel);
+}
+
+/** Reads every path in order. Reports each fs error and continues; returns the last error code. */
+export function forEachFile(
+  ctx: CommandContext,
+  paths: string[],
+  onFile: (path: string, content: string, index: number) => void,
+): number {
+  let code = 0;
+  paths.forEach((path, index) => {
+    try {
+      onFile(path, ctx.fs.readFile(path, { sudo: ctx.sudo }), index);
+    } catch (err) {
+      code = reportFsError(ctx, err);
+    }
+  });
+  return code;
 }
 
 export function readInput(ctx: CommandContext, paths: string[]): string | null {

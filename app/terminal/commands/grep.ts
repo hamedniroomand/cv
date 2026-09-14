@@ -3,9 +3,8 @@ import { splitLines } from '~/terminal/io/text';
 import { parseFlags } from '~/terminal/shell/flags';
 import type { Command, CommandContext, Span } from '~/terminal/types';
 
-import { reportFsError } from './_util';
+import { printUsage, reportFsError } from './_util';
 
-const USAGE = 'usage: grep [-ri] <pattern> [path...]';
 const EXIT_USAGE = 2;
 
 interface Source {
@@ -86,18 +85,14 @@ function pathSources(ctx: CommandContext, path: string, recursive: boolean): Sou
 function collectSources(ctx: CommandContext, paths: string[], recursive: boolean): Source[] | null {
   if (paths.length > 0) return paths.flatMap(path => pathSources(ctx, path, recursive));
   if (ctx.stdin === null) {
-    ctx.stderr.line(USAGE);
+    printUsage(ctx, EXIT_USAGE);
     return null;
   }
   return [{ label: null, text: ctx.stdin }];
 }
 
-function labelFor(source: Source, opts: GrepOptions): string | null {
-  return opts.showLabels && source.label !== null ? source.label : null;
-}
-
 function grepSource(ctx: CommandContext, source: Source, opts: GrepOptions): number {
-  const label = labelFor(source, opts);
+  const label = opts.showLabels ? source.label : null;
   let count = 0;
   splitLines(source.text).forEach((line, index) => {
     opts.regex.lastIndex = 0;
@@ -116,14 +111,11 @@ function grepSource(ctx: CommandContext, source: Source, opts: GrepOptions): num
 export default {
   name: 'grep',
   description: 'Search for a pattern in files or stdin',
-  usage: 'grep [-ric] <pattern> [path...]',
+  usage: 'grep [-ricn] <pattern> [path...]',
   run(argv, ctx) {
     const { flags, positionals } = parseFlags(argv, { boolean: ['r', 'i', 'c', 'n'] });
     const [pattern, ...paths] = positionals;
-    if (pattern === undefined) {
-      ctx.stderr.line(USAGE);
-      return EXIT_USAGE;
-    }
+    if (pattern === undefined) return printUsage(ctx, EXIT_USAGE);
     const recursive = flags.has('r');
     const sources = collectSources(ctx, paths, recursive);
     if (sources === null) return EXIT_USAGE;

@@ -10,7 +10,6 @@ import { Shell } from '~/terminal/shell/executor';
 import { History } from '~/terminal/shell/history';
 import { createRegistry } from '~/terminal/shell/registry';
 import type {
-  Lang,
   LineStyle,
   ModalKind,
   OutputLine,
@@ -28,16 +27,17 @@ export interface ShellHooks {
   togglePanel: () => void;
   revealPanel: () => void;
   setTheme: (name: ThemeName) => void;
-  setLang: (lang: Lang) => void;
   openApp: () => Promise<void>;
   openModal: (kind: ModalKind, props?: Record<string, unknown>) => Promise<void>;
-  destroy: () => void;
 }
 
-export interface RunOptions {
+interface RunOptions {
   echo?: boolean;
   record?: boolean;
 }
+
+/** App commands that show content the public site does not publish. */
+const PRIVATE_APP_COMMANDS = new Set(['about', 'experience', 'skills', 'education', 'pdf', 'api']);
 
 function createTerminalUi(hooks: ShellHooks, clear: () => void): TerminalUi {
   return {
@@ -46,7 +46,6 @@ function createTerminalUi(hooks: ShellHooks, clear: () => void): TerminalUi {
     openModal: hooks.openModal,
     openUrl: openInNewTab,
     download: downloadFile,
-    destroy: hooks.destroy,
   };
 }
 
@@ -94,7 +93,6 @@ export function useShell(hooks: ShellHooks) {
     nextId: () => ++nextId,
     panel: { navigate: hooks.navigate, toggle: hooks.togglePanel, reveal: hooks.revealPanel },
     theme: { set: hooks.setTheme },
-    lang: { set: hooks.setLang },
     ui: createTerminalUi(hooks, clear),
     history: history.list(),
   };
@@ -104,10 +102,7 @@ export function useShell(hooks: ShellHooks) {
     deps,
     createAppRegistry(
       hooks.publicMode
-        ? appCommands.filter(
-            command =>
-              !['about', 'experience', 'skills', 'education', 'pdf', 'api'].includes(command.name),
-          )
+        ? appCommands.filter(command => !PRIVATE_APP_COMMANDS.has(command.name))
         : appCommands,
     ),
     () => theme.value,

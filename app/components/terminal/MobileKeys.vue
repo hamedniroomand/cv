@@ -1,8 +1,8 @@
 <script setup lang="ts">
   export interface MobileKey {
-    id: string;
     label: string;
     aria: string;
+    press: () => void;
     disabled?: boolean;
   }
 
@@ -10,7 +10,6 @@
     keys: MobileKey[];
     label: string;
   }>();
-  const emit = defineEmits<{ press: [id: string] }>();
 
   function keepInputFocus(event: PointerEvent): void {
     event.preventDefault();
@@ -25,13 +24,13 @@
   >
     <button
       v-for="key in keys"
-      :key="key.id"
+      :key="key.label"
       type="button"
       class="keys__key"
       :aria-label="key.aria"
       :disabled="key.disabled"
       @pointerdown="keepInputFocus"
-      @click="emit('press', key.id)"
+      @click="key.press"
     >
       {{ key.label }}
     </button>

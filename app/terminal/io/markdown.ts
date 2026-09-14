@@ -62,7 +62,7 @@ function mergePlain(spans: Span[]): Span[] {
   return out;
 }
 
-export function renderInline(text: string): Span[] {
+function renderInline(text: string): Span[] {
   const spans: Span[] = [];
   const push = (span: Span): void => {
     if (span.text.length > 0) spans.push(span);

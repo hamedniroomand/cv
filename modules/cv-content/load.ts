@@ -4,6 +4,7 @@ import { marked } from 'marked';
 import type { z } from 'zod';
 
 import { parseToolCatalog } from '#shared/cv/tool-catalog';
+import type { RenderedBodyData } from '#shared/schemas/common';
 import type { CvData } from '#shared/schemas/cv';
 import { CvDataSchema } from '#shared/schemas/cv';
 import type { Education } from '#shared/schemas/education';
@@ -16,7 +17,6 @@ import { ProjectFrontmatter } from '#shared/schemas/project';
 import { SkillsSchema } from '#shared/schemas/skills';
 
 import { loadDotfiles } from './dotfiles.ts';
-import { ContentError } from './errors.ts';
 import type { GistFetcher } from './github.ts';
 import type { Highlighter } from './highlight.ts';
 import {
@@ -41,14 +41,8 @@ export interface LoadDeps {
 
 marked.setOptions({ gfm: true, async: false });
 
-export { ContentError };
-
-function render(markdown: string): string {
-  return marked.parse(markdown) as string;
-}
-
-function rendered(body: string): { body: string; html: string } {
-  return { body, html: render(body) };
+function rendered(body: string): RenderedBodyData {
+  return { body, html: marked.parse(body) as string };
 }
 
 async function loadHighlights(dir: string): Promise<Highlight[]> {

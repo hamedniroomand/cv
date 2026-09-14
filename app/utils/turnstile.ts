@@ -19,7 +19,7 @@ function appendScript(onError: () => void): void {
   const script = document.createElement('script');
   script.src = SCRIPT_SRC;
   script.async = true;
-  script.onerror = onError;
+  script.addEventListener('error', onError);
   document.head.appendChild(script);
 }
 

@@ -97,12 +97,12 @@ export default defineConfig({
     ],
   },
 
-  // Run tests through `vp run test` (Bun): the content module uses `Bun.YAML`, and `vp test` runs on Node.
+  // Run the tests with `bun run test`. The content module uses `Bun.YAML`, and `vp test` runs on Node.
   test: {
     include: ['tests/unit/**/*.test.ts'],
     environment: 'node',
     isolate: false,
-    // Under the Bun runtime, Vitest's externalised `zod` import resolves to undefined; let Vite transform it instead.
+    // Under Bun, the external `zod` import of Vitest resolves to undefined. Vite must transform it.
     server: { deps: { inline: ['zod'] } },
     coverage: {
       include: ['app/terminal/**', 'shared/**', 'modules/**', 'server/utils/**'],

@@ -1,6 +1,5 @@
-import type { Dotfile } from '#shared/schemas/dotfile';
 import { unknownValueMessage } from '~/terminal/messages';
-import { chooseValue } from '~/tui/choose';
+import { chooseValue, findBySlug } from '~/tui/choose';
 import { openInPanel } from '~/tui/panel';
 import type { AppCommand, AppContext, PickerItem } from '~/tui/types';
 import { EXIT_CANCELLED } from '~/tui/types';
@@ -14,18 +13,14 @@ function choices(ctx: AppContext): PickerItem[] {
   }));
 }
 
-function resolveDotfile(input: string, dotfiles: Dotfile[]): Dotfile | undefined {
-  const query = input.toLocaleLowerCase();
-  return dotfiles.find(dotfile => dotfile.slug.toLocaleLowerCase() === query);
-}
-
 export default {
   name: 'dotfiles',
   description: 'Open a config file',
   args: '[name]',
   complete: (_argv, ctx) => choices(ctx),
   async run(argv, ctx) {
-    if (ctx.cv.dotfiles.length === 0) {
+    const { dotfiles } = ctx.cv;
+    if (dotfiles.length === 0) {
       ctx.view.print('No dotfiles published yet.');
       return 0;
     }
@@ -34,9 +29,9 @@ export default {
     });
     if (requested === null) return EXIT_CANCELLED;
 
-    const dotfile = resolveDotfile(requested, ctx.cv.dotfiles);
+    const dotfile = findBySlug(requested, dotfiles);
     if (!dotfile) {
-      const slugs = ctx.cv.dotfiles.map(item => item.slug);
+      const slugs = dotfiles.map(item => item.slug);
       ctx.view.print(unknownValueMessage('dotfiles', 'dotfile', requested, slugs), 'error');
       return 1;
     }

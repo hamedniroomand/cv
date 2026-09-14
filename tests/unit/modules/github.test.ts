@@ -45,6 +45,10 @@ describe('fetchGithubReadme', () => {
   });
 });
 
+function fetching(fn: () => Promise<Response>): { fetchImpl: typeof fetch } {
+  return { fetchImpl: fn as unknown as typeof fetch };
+}
+
 function gistResponse(files: Record<string, { content?: string; truncated?: boolean }>) {
   return new Response(JSON.stringify({ files }), {
     status: 200,
@@ -78,40 +82,39 @@ describe('fetchGist', () => {
   });
 
   it('returns null on HTTP error, missing file, empty content, truncated file and network failure', async () => {
-    const as = (fn: () => Promise<Response>) => ({ fetchImpl: fn as unknown as typeof fetch });
     await expect(
       fetchGist(
         id,
         'f',
-        as(async () => new Response('x', { status: 404 })),
+        fetching(async () => new Response('x', { status: 404 })),
       ),
     ).resolves.toBeNull();
     await expect(
       fetchGist(
         id,
         'f',
-        as(async () => gistResponse({ other: { content: 'x' } })),
+        fetching(async () => gistResponse({ other: { content: 'x' } })),
       ),
     ).resolves.toBeNull();
     await expect(
       fetchGist(
         id,
         'f',
-        as(async () => gistResponse({ f: { content: '  ' } })),
+        fetching(async () => gistResponse({ f: { content: '  ' } })),
       ),
     ).resolves.toBeNull();
     await expect(
       fetchGist(
         id,
         'f',
-        as(async () => gistResponse({ f: { content: 'x', truncated: true } })),
+        fetching(async () => gistResponse({ f: { content: 'x', truncated: true } })),
       ),
     ).resolves.toBeNull();
     await expect(
       fetchGist(
         id,
         'f',
-        as(async () => {
+        fetching(async () => {
           throw new Error('offline');
         }),
       ),
@@ -120,7 +123,7 @@ describe('fetchGist', () => {
       fetchGist(
         id,
         'f',
-        as(async () => new Response('not json', { status: 200 })),
+        fetching(async () => new Response('not json', { status: 200 })),
       ),
     ).resolves.toBeNull();
   });
