@@ -97,6 +97,12 @@ export default defineNuxtConfig({
           'data-website-id': 'd9fa7c84-3b70-49bf-bc4b-60a370de1c18',
           tagPosition: 'head',
         },
+        {
+          src: '/_uma.screen.js',
+          defer: true,
+          'data-website-id': 'd9fa7c84-3b70-49bf-bc4b-60a370de1c18',
+          tagPosition: 'head',
+        },
       ],
     },
   },

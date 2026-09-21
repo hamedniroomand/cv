@@ -3,6 +3,14 @@
     {
       "source": "/_uma.script.js",
       "destination": "https://umami.niroomand.dev/script.js"
+    },
+    {
+      "source": "/_uma.screen.js",
+      "destination": "https://umami.niroomand.dev/recorder.js"
+    },
+    {
+      "source": "api/send",
+      "destination": "https://umami.niroomand.dev/api/send"
     }
   ]
 }
