@@ -14,20 +14,6 @@ function prePaintScript(): string {
   ].join('');
 }
 
-function clarityScript(projectId: string): string {
-  const tag = `(function(c,l,a,r,i,t,y){c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);})(window,document,"clarity","script",${JSON.stringify(projectId)})`;
-  return `(function(){function l(){${tag}}if(document.readyState==="complete"){l()}else{window.addEventListener("load",l,{once:true})}})()`;
-}
-
-function headScripts() {
-  const clarityId = process.env.NUXT_PUBLIC_SCRIPTS_CLARITY_ID;
-  const scripts: { innerHTML: string; tagPosition: 'head' | 'bodyClose' }[] = [
-    { innerHTML: prePaintScript(), tagPosition: 'head' },
-  ];
-  if (clarityId) scripts.push({ innerHTML: clarityScript(clarityId), tagPosition: 'bodyClose' });
-  return scripts;
-}
-
 function nitroPreset(): string {
   return process.env.NITRO_PRESET ?? (process.env.VERCEL ? 'vercel' : 'bun');
 }
@@ -103,7 +89,15 @@ export default defineNuxtConfig({
         { rel: 'apple-touch-icon', href: '/apple-touch-icon.png' },
         { rel: 'manifest', href: '/site.webmanifest' },
       ],
-      script: headScripts(),
+      script: [
+        { innerHTML: prePaintScript(), tagPosition: 'head' },
+        {
+          src: '/_uma.script.js',
+          defer: true,
+          'data-website-id': 'd9fa7c84-3b70-49bf-bc4b-60a370de1c18',
+          tagPosition: 'head',
+        },
+      ],
     },
   },
 });
