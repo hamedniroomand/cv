@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/_uma.script.js",
+      "destination": "https://umami.niroomand.dev/script.js"
+    }
+  ]
+}
