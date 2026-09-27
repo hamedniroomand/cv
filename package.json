@@ -9,7 +9,7 @@
     "dev": "vp nuxt dev",
     "build": "vp nuxt build",
     "preview": "vp nuxt preview",
-    "postinstall": "vp nuxt prepare",
+    "postinstall": "bun --bun nuxt prepare",
     "lint": "vp lint",
     "lint:fix": "vp lint --fix",
     "format": "vp fmt",
