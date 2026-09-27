@@ -97,13 +97,10 @@ export default defineConfig({
     ],
   },
 
-  // Run the tests with `bun run test`. The content module uses `Bun.YAML`, and `vp test` runs on Node.
   test: {
     include: ['tests/unit/**/*.test.ts'],
     environment: 'node',
     isolate: false,
-    // Under Bun, the external `zod` import of Vitest resolves to undefined. Vite must transform it.
-    server: { deps: { inline: ['zod'] } },
     coverage: {
       include: ['app/terminal/**', 'shared/**', 'modules/**', 'server/utils/**'],
       exclude: ['modules/cv-content/index.ts'],
@@ -132,7 +129,9 @@ export default defineConfig({
       'build:e2e': {
         command:
           'NUXT_PUBLIC_SITE_URL=http://localhost:3457 NUXT_PUBLIC_TURNSTILE_SITE_KEY=1x00000000000000000000AA bun --bun nuxt build',
-        env: ['NUXT_PUBLIC_SITE_URL', 'NUXT_PUBLIC_TURNSTILE_SITE_KEY'],
+        cache: {
+          env: ['NUXT_PUBLIC_SITE_URL', 'NUXT_PUBLIC_TURNSTILE_SITE_KEY'],
+        },
       },
       'test:e2e': {
         command: 'playwright test',
