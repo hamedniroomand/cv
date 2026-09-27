@@ -10,8 +10,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
-      - uses: voidzero-dev/setup-vp@v1.19.0
+      - uses: actions/checkout@v7
+      - uses: voidzero-dev/setup-vp@v1.21.1
         with:
           node-version-file: .node-version
           cache: true
@@ -40,7 +40,7 @@ jobs:
               m = t[k]
               print(f"| {k} | {m['covered']} | {m['total']} | {m['pct']}% |")
           PY
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: coverage
@@ -51,7 +51,7 @@ jobs:
         run: echo "version=$(bun -e 'console.log(require("@playwright/test/package.json").version)')" >> "$GITHUB_OUTPUT"
       - name: Cache Playwright browsers
         id: playwright-cache
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/.cache/ms-playwright
           key: playwright-${{ runner.os }}-${{ steps.playwright.outputs.version }}
@@ -64,7 +64,7 @@ jobs:
       - run: vp run test:e2e
         env:
           CI: 'true'
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: playwright-report
