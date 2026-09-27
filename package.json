@@ -6,9 +6,9 @@
     "#shared/*": "./shared/*.ts"
   },
   "scripts": {
-    "dev": "vp nuxt dev",
-    "build": "vp nuxt build",
-    "preview": "vp nuxt preview",
+    "dev": "bun --bun nuxt dev",
+    "build": "bun --bun nuxt build",
+    "preview": "bun --bun nuxt preview",
     "postinstall": "bun --bun nuxt prepare",
     "lint": "vp lint",
     "lint:fix": "vp lint --fix",
@@ -27,7 +27,7 @@
   },
   "dependencies": {
     "marked": "^18.0.14",
-    "nuxt": "npm:nuxt-nightly@5.0.0-29833927.169a4bee",
+    "nuxt": "npm:nuxt-nightly@5.0.0-29838550.7d14c228",
     "vue": "^3.5.43",
     "vue-router": "^5.3.1",
     "zod": "^4.6.5"
