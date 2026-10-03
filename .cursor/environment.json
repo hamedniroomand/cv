@@ -1,0 +1,12 @@
+{
+  "name": "cv",
+  "install": "./.cursor/install.sh",
+  "terminals": [
+    {
+      "name": "dev",
+      "command": "export PATH=\"$HOME/.bun/bin:$HOME/.local/share/vite-plus/bin:$PATH\" && vp run dev",
+      "description": "Nuxt development server (http://localhost:3000)."
+    }
+  ],
+  "ports": [{ "name": "dev server", "port": 3000 }]
+}
